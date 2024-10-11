@@ -1,0 +1,186 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int                   @id @default(autoincrement())
+  uuid           String                @unique @default(uuid())
+  email          String                @unique
+  contact        String?               @unique
+  username       String                @unique
+  password       String
+  email_verified Boolean               @default(false)
+  account_type   String                @default("user")
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  cart           Cart?
+  orders         Order[]
+  vendors        Vendor[]
+  tokens         PersonalAccessToken[]
+  profile        UserProfile?
+}
+
+model UserProfile {
+  id         Int     @id @default(autoincrement())
+  user_uuid  String  @unique @default(uuid())
+  first_name String
+  last_name  String
+  profile    String?
+  country    String?
+  state      String?
+  city       String?
+  address    String?
+  User       User    @relation(fields: [user_uuid], references: [uuid])
+}
+
+model PersonalAccessToken {
+  id        Int    @id @default(autoincrement())
+  user_uuid String
+  token     String @unique
+  User      User?  @relation(fields: [user_uuid], references: [uuid])
+}
+
+// Emailverifications tanle mode'
+model EmailVerificationTokens {
+  id        Int    @id @default(autoincrement())
+  user_uuid String
+  email     String
+  token     String
+}
+
+// PasswordResetToken tanle models
+model PasswordResetTokens {
+  id        Int    @id @default(autoincrement())
+  user_uuid String
+  email     String
+  token     String
+}
+
+// Vendor table model
+model Vendor {
+  id           Int        @id @default(autoincrement())
+  uuid         String     @unique @default(uuid())
+  user_uuid    String
+  name         String     @unique
+  description  String?
+  cac_number   String?
+  country      String?
+  state        String?
+  city         String?
+  address      String?
+  opening_time String?
+  closing_time String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  user         User       @relation(fields: [user_uuid], references: [uuid])
+  categories   Category[]
+  foods        Food[]
+  cart         Cart[]
+  orders       Order[]
+}
+
+// Category table model
+model Category {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique @default(uuid())
+  vendor_uuid String
+  name        String
+  image       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  vendor      Vendor   @relation(fields: [vendor_uuid], references: [uuid])
+  foods       Food[]
+}
+
+// Food table model
+model Food {
+  id              Int         @id @default(autoincrement())
+  uuid            String      @unique @default(uuid())
+  vendor_uuid     String
+  category_uuid   String
+  name            String
+  description     String
+  image           String
+  price           Float
+  discount        Float
+  processing_time String
+  ready_made      Boolean
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  vendor          Vendor      @relation(fields: [vendor_uuid], references: [uuid])
+  category        Category    @relation(fields: [category_uuid], references: [uuid])
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+}
+
+// Cart table model
+model Cart {
+  id          Int        @id @default(autoincrement())
+  uuid        String     @unique @default(uuid())
+  user_uuid   String     @unique
+  vendor_uuid String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User       @relation(fields: [user_uuid], references: [uuid])
+  vendor      Vendor     @relation(fields: [vendor_uuid], references: [uuid])
+  cartItems   CartItem[]
+}
+
+// CartItem table model
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  cart_uuid String
+  food_uuid String
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cart      Cart     @relation(fields: [cart_uuid], references: [uuid])
+  food      Food     @relation(fields: [food_uuid], references: [uuid])
+}
+
+// Order table model
+model Order {
+  id               Int         @id @default(autoincrement())
+  uuid             String      @unique @default(uuid())
+  user_uuid        String
+  vendor_uuid      String
+  order_number     String
+  total_amount     Float
+  discount_amount  Float
+  paid_amount      Float
+  delivery_address String
+  payment_method   String
+  payment_status   String
+  delivery_status  String
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  user             User        @relation(fields: [user_uuid], references: [uuid])
+  vendor           Vendor      @relation(fields: [vendor_uuid], references: [uuid])
+  orderItems       OrderItem[]
+}
+
+// OrderItems table model
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+  uuid       String   @unique @default(uuid())
+  order_uuid String
+  food_uuid  String
+  price      Float
+  quantity   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  order      Order    @relation(fields: [order_uuid], references: [uuid])
+  food       Food     @relation(fields: [food_uuid], references: [uuid])
+}
