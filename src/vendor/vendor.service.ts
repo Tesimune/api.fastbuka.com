@@ -6,7 +6,6 @@ import { MiddlewareService } from 'src/middleware/middleware.service';
 
 @Injectable()
 export class VendorService {
-  
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly MiddlewareService: MiddlewareService,
@@ -19,22 +18,21 @@ export class VendorService {
       where: { name: vendor.name },
     });
 
-    if(account){
+    if (account) {
       throw new UnauthorizedException({
-          status: 401,
-          success: false,
-          message: 'Vendor name is taken'
+        status: 401,
+        success: false,
+        message: 'Vendor name is taken',
       });
     }
 
     const createdVendor = await this.databaseService.vendor.create({
       data: {
         user_uuid: user.uuid,
-        ...vendor
+        ...vendor,
       },
     });
 
-    
     return createdVendor;
   }
 

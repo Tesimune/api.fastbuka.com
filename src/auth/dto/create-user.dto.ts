@@ -14,7 +14,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  account_type?: string = "user";
+  account_type?: string = 'user';
 }
 
 export class CreateUserProfileDto {

@@ -1,45 +1,42 @@
-import { HttpException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { CreateUserDto, CreateUserProfileDto } from './dto/create-user.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { randomBytes } from 'crypto';
 import * as bcrypt from 'bcryptjs';
 import { MiddlewareService } from 'src/middleware/middleware.service';
 
-
 @Injectable()
 export class AuthService {
-  
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly MiddlewareService: MiddlewareService,
   ) {}
 
-
   private generateRandomToken(length: number): string {
     return randomBytes(length).toString('hex').slice(0, length);
   }
-
-
-
   /**
    * Registration Service
-   * @param user 
-   * @param profile 
-   * @returns 
+   * @param user
+   * @param profile
+   * @returns
    */
   async register(user: CreateUserDto, profile: CreateUserProfileDto) {
     const account = await this.databaseService.user.findUnique({
       where: { email: user.email },
     });
-
-    if(account){
+    if (account) {
       throw new UnauthorizedException({
-          status: 401,
-          success: false,
-          message: 'Email address is already in use'
+        status: 401,
+        success: false,
+        message: 'Email address is already in use',
       });
     }
-
     // Extract the username from the email
     const username = user.email.split('@')[0];
 
@@ -59,7 +56,8 @@ export class AuthService {
         });
 
         // Create the UserProfile after the User is created
-        const createdProfile = await prisma.userProfile.create({
+        // const createdProfile = await prisma.userProfile.create({
+        await prisma.userProfile.create({
           data: {
             user_uuid: createdUser.uuid,
             first_name: profile.first_name,
@@ -67,31 +65,28 @@ export class AuthService {
           },
         });
 
-        return { 
-          status:200,
+        return {
+          status: 200,
           success: true,
-          message: 'success'
-         };
+          message: 'success',
+        };
       });
     } catch (error) {
       throw new HttpException(
         {
           status: 419,
           success: true,
-          message: 'User registration failed. Please try again.', 
+          message: 'User registration failed. Please try again.',
         },
-        419);
+        419,
+      );
     }
   }
-
-
-
   /**
    * Login Service
-   * @param email 
-   * @param password 
-   * @returns 
-   * 
+   * @param email
+   * @param password
+   * @returns
    */
   async login(email: string, password: string) {
     if (!email) {
@@ -120,31 +115,24 @@ export class AuthService {
 
     return { token, user };
   }
-
-
-
   /**
    * Logout Service
-   * @param token 
-   * @returns 
+   * @param token
+   * @returns
    */
   async logout(token: string) {
     const user = await this.MiddlewareService.decodeToken(token);
-    if(user){
+    if (user) {
       throw new UnauthorizedException({
-          status: 412,
-          success: false,
-          message: 'User not found'
+        status: 412,
+        success: false,
+        message: 'User not found',
       });
     }
-
     const hashedToken = await bcrypt.hash(token, 10);
     await this.databaseService.personalAccessToken.delete({
       where: { token: hashedToken },
     });
-  
     return 'User logged out successfully';
   }
-
-
 }
