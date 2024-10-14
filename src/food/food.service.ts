@@ -1,26 +1,42 @@
 import { Injectable } from '@nestjs/common';
 import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
+import { DatabaseService } from 'src/database/database.service';
+import { Express } from 'express';
 
 @Injectable()
 export class FoodService {
-  create(createFoodDto: CreateFoodDto) {
-    return 'This action adds a new food';
-  }
+  constructor(private readonly databaseService: DatabaseService) {}
 
+  create(createFoodDto: CreateFoodDto, image: Express.Multer.File) {
+    const foodData = {
+      ...createFoodDto,
+      image: `/uploads/${image.filename}`,
+    };
+    return this.databaseService.food.create({
+      data: foodData as any,
+    });
+  }
   findAll() {
-    return `This action returns all food`;
+    return this.databaseService.food.findMany();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} food`;
+    return this.databaseService.food.findUnique({
+      where: { id },
+    });
   }
 
   update(id: number, updateFoodDto: UpdateFoodDto) {
-    return `This action updates a #${id} food`;
+    return this.databaseService.food.update({
+      where: { id },
+      data: updateFoodDto as any,
+    });
   }
 
   remove(id: number) {
-    return `This action removes a #${id} food`;
+    return this.databaseService.food.delete({
+      where: { id },
+    });
   }
 }
