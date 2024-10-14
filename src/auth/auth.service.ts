@@ -41,7 +41,7 @@ export class AuthService {
     const username = user.email.split('@')[0];
 
     // Hash the password before saving
-    const hashedPassword = await bcrypt.hash('password', 10);
+    const hashedPassword = await bcrypt.hash(user.password, 10);
 
     // Create a new user and profile in a transaction
     try {
