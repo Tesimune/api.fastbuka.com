@@ -10,7 +10,14 @@ import { FoodModule } from './food/food.module';
 import { MiddlewareService } from './middleware/middleware.service';
 
 @Module({
-  imports: [AuthModule, UsersModule, DatabaseModule, VendorModule, CategoryModule, FoodModule],
+  imports: [
+    AuthModule,
+    UsersModule,
+    DatabaseModule,
+    VendorModule,
+    CategoryModule,
+    FoodModule,
+  ],
   controllers: [AppController],
   providers: [AppService, MiddlewareService],
   exports: [MiddlewareService],

@@ -1,12 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { CreateVendorDto } from './dto/create-vendor.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { MiddlewareService } from 'src/middleware/middleware.service';
 
 @Injectable()
 export class VendorService {
-  
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly MiddlewareService: MiddlewareService,
@@ -19,38 +17,41 @@ export class VendorService {
       where: { name: vendor.name },
     });
 
-    if(account){
+    if (account) {
       throw new UnauthorizedException({
-          status: 401,
-          success: false,
-          message: 'Vendor name is taken'
+        status: 401,
+        success: false,
+        message: 'Vendor name is taken',
       });
     }
 
     const createdVendor = await this.databaseService.vendor.create({
       data: {
         user_uuid: user.uuid,
-        ...vendor
+        ...vendor,
       },
     });
 
-    
     return createdVendor;
   }
 
   findAll() {
-    return `This action returns all vendor`;
+    return this.databaseService.vendor.findMany();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} vendor`;
+    return this.databaseService.vendor.findUnique({
+      where: { id },
+    });
   }
 
-  update(id: number, updateVendor: Prisma.VendorCreateInput) {
-    return `This action updates a #${id} vendor`;
-  }
+  // update(id: number, updateVendorDto: UpdateVendorDto) {
+  //   return `This action updates a #${id} vendor`;
+  // }
 
   remove(id: number) {
-    return `This action removes a #${id} vendor`;
+    return this.databaseService.vendor.delete({
+      where: { id },
+    });
   }
 }

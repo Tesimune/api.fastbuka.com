@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
 }
 
 model User {
@@ -107,7 +107,7 @@ model Category {
 model Food {
   id              Int         @id @default(autoincrement())
   uuid            String      @unique @default(uuid())
-  vendor_uuid     String
+  vendor_uuid     String 
   category_uuid   String
   name            String
   description     String
