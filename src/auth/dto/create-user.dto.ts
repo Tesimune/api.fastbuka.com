@@ -1,23 +1,25 @@
 import { IsEmail, IsString, IsOptional, MinLength } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
   @IsEmail()
+  @ApiProperty({ example: 'info@fastbuka.com', description: 'Your email address' })
   email: string;
 
   @IsString()
   @MinLength(8)
+  @ApiProperty({ example: '@eightcharacter1', description: 'Your password eight character long' })
   password: string;
 
   @IsOptional()
   @IsString()
+  @ApiProperty({ example: '+23480000000000', description: 'Your phone number' })
   contact?: string;
 
   @IsOptional()
   @IsString()
   account_type?: string = 'user';
-}
 
-export class CreateUserProfileDto {
   @IsString()
   first_name: string;
 
@@ -43,4 +45,8 @@ export class CreateUserProfileDto {
   @IsOptional()
   @IsString()
   address?: string;
+}
+
+export class CreateUserProfileDto {
+ 
 }
