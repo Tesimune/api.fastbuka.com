@@ -4,11 +4,11 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { CreateUserDto, CreateUserProfileDto } from './dto/create-user.dto';
 import { DatabaseService } from 'src/database/database.service';
+import { MiddlewareService } from 'src/middleware/middleware.service';
+import { CreateUserDto, CreateUserProfileDto } from './dto/create-user.dto';
 import { randomBytes } from 'crypto';
 import * as bcrypt from 'bcryptjs';
-import { MiddlewareService } from 'src/middleware/middleware.service';
 
 @Injectable()
 export class AuthService {
@@ -20,13 +20,15 @@ export class AuthService {
   private generateRandomToken(length: number): string {
     return randomBytes(length).toString('hex').slice(0, length);
   }
+
+
   /**
    * Registration Service
    * @param user
    * @param profile
    * @returns
    */
-  async register(user: CreateUserDto, profile: CreateUserProfileDto) {
+  async register(user: CreateUserDto) {
     const account = await this.databaseService.user.findUnique({
       where: { email: user.email },
     });
@@ -60,8 +62,8 @@ export class AuthService {
         await prisma.userProfile.create({
           data: {
             user_uuid: createdUser.uuid,
-            first_name: profile.first_name,
-            last_name: profile.last_name,
+            first_name: user.first_name,
+            last_name: user.last_name,
           },
         });
 
@@ -82,6 +84,8 @@ export class AuthService {
       );
     }
   }
+
+
   /**
    * Login Service
    * @param email
@@ -115,6 +119,8 @@ export class AuthService {
 
     return { token, user };
   }
+
+  
   /**
    * Logout Service
    * @param token
