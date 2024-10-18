@@ -21,22 +21,22 @@ export class FoodService {
     return this.databaseService.food.findMany();
   }
 
-  findOne(id: number) {
+  findOne(uuid: string) {
     return this.databaseService.food.findUnique({
-      where: { id },
+      where: { uuid },
     });
   }
 
-  update(id: number, updateFoodDto: UpdateFoodDto) {
+  update(uuid: string, updateFoodDto: UpdateFoodDto) {
     return this.databaseService.food.update({
-      where: { id },
+      where: { uuid },
       data: updateFoodDto as any,
     });
   }
 
-  remove(id: number) {
+  remove(uuid: string) {
     return this.databaseService.food.delete({
-      where: { id },
+      where: { uuid },
     });
   }
 }

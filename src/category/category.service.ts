@@ -22,20 +22,20 @@ export class CategoryService {
     return `This action returns all category`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  findOne(uuid: string) {
+    return `This action returns a #${uuid} category`;
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
+  update(uuid: string, updateCategoryDto: UpdateCategoryDto) {
     return this.databaseService.category.update({
-      where: { id },
+      where: { uuid },
       data: updateCategoryDto as any,
     });
   }
 
-  remove(id: number) {
+  remove(uuid: string) {
     return this.databaseService.category.delete({
-      where: { id },
+      where: { uuid },
     });
   }
 }

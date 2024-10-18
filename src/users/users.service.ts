@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateUserDto } from '../vendor/dto/update-vendor.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { MiddlewareService } from 'src/middleware/middleware.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -20,11 +20,11 @@ export class UsersService {
     });
   }
 
-  update(updateUserDto: UpdateUserDto) {
+  update(token: string, updateUserDto: UpdateUserDto) {
     return `This action updates a user`;
   }
 
-  remove() {
+  remove(token: string) {
     return `This action removes a user`;
   }
 }
