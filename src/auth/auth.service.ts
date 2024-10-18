@@ -9,6 +9,8 @@ import { MiddlewareService } from 'src/middleware/middleware.service';
 import { randomBytes } from 'crypto';
 import * as bcrypt from 'bcryptjs';
 import { CreateAuthDto } from './dto/create-auth.dto';
+import { Keypair } from '@stellar/stellar-sdk';
+
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,16 @@ export class AuthService {
   private generateRandomToken(length: number): string {
     return randomBytes(length).toString('hex').slice(0, length);
   }
+
+  
+  private generateRandomWallet(): { publicKey: string; secret: string } {
+    const keypair = Keypair.random();
+    return {
+      publicKey: keypair.publicKey(),
+      secret: keypair.secret(),
+    };
+  }
+  
 
 
   /**
@@ -45,15 +57,26 @@ export class AuthService {
     // Hash the password before saving
     const hashedPassword = await bcrypt.hash(user.password, 10);
 
+    // generate random password
+    const  { publicKey, secret } = this.generateRandomWallet();
+
+    // Hash the secret key
+    const hashedSecret = await bcrypt.hash(secret, 10);
+
     // Create a new user and profile in a transaction
     try {
       return await this.databaseService.$transaction(async (prisma) => {
+        
+
+        
         const createdUser = await prisma.user.create({
           data: {
             email: user.email,
             username: username,
             password: hashedPassword,
             contact: user.contact,
+            walletAddress: publicKey,
+            secretKey: hashedSecret,
           },
         });
 
@@ -139,5 +162,11 @@ export class AuthService {
       where: { token },
     });
     return 'User logged out successfully';
+  }
+}
+
+declare module './dto/create-auth.dto' {
+  interface UserCreateInput {
+    walletAddress: string;
   }
 }
