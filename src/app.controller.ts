@@ -7,11 +7,13 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get('')
+  @ApiTags('app')
   index(): string {
     return this.appService.index();
   }
 
   @Get('health')
+  @ApiTags('app')
   health(): string {
     return this.appService.health();
   }
