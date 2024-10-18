@@ -1,7 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { CreateVendorDto } from './dto/create-vendor.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { MiddlewareService } from 'src/middleware/middleware.service';
+import { CreateVendorDto } from './dto/create-vendor.dto';
+import { UpdateVendorDto } from './dto/update-vendor.dto';
 
 @Injectable()
 export class VendorService {
@@ -39,19 +40,19 @@ export class VendorService {
     return this.databaseService.vendor.findMany();
   }
 
-  findOne(id: number) {
+  findOne(uuid: string) {
     return this.databaseService.vendor.findUnique({
-      where: { id },
+      where: { uuid },
     });
   }
 
-  // update(id: number, updateVendorDto: UpdateVendorDto) {
-  //   return `This action updates a #${id} vendor`;
-  // }
+  update(uuid: string, updateVendorDto: UpdateVendorDto) {
+    return `This action updates a #${uuid} vendor`;
+  }
 
-  remove(id: number) {
+  remove(uuid: string) {
     return this.databaseService.vendor.delete({
-      where: { id },
+      where: { uuid },
     });
   }
 }

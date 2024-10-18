@@ -1,52 +1,56 @@
 import { IsEmail, IsString, IsOptional, MinLength } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('users')
 export class CreateUserDto {
+  @IsString()
+  @ApiProperty({ example: 'John', description: 'Your first name' })
+  first_name: string;
+
+  @IsString()
+  @ApiProperty({ example: 'Doe', description: 'Your last name' })
+  last_name: string;
+
   @IsEmail()
   @ApiProperty({ example: 'info@fastbuka.com', description: 'Your email address' })
   email: string;
 
   @IsString()
   @MinLength(8)
-  @ApiProperty({ example: '@eightcharacter1', description: 'Your password eight character long' })
+  @ApiProperty({ example: '@password1', description: 'Your password, eight character long, symbol and number' })
   password: string;
 
   @IsOptional()
   @IsString()
-  @ApiProperty({ example: '+23480000000000', description: 'Your phone number' })
+  @ApiProperty()
   contact?: string;
 
   @IsOptional()
   @IsString()
   account_type?: string = 'user';
 
-  @IsString()
-  first_name: string;
-
-  @IsString()
-  last_name: string;
-
   @IsOptional()
   @IsString()
+  @ApiProperty()
   profile?: string;
 
   @IsOptional()
   @IsString()
+  @ApiProperty()
   country?: string;
 
   @IsOptional()
   @IsString()
+  @ApiProperty()
   state?: string;
 
   @IsOptional()
   @IsString()
+  @ApiProperty()
   city?: string;
 
   @IsOptional()
   @IsString()
+  @ApiProperty()
   address?: string;
-}
-
-export class CreateUserProfileDto {
- 
 }

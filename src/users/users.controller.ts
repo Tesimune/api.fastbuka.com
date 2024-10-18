@@ -1,33 +1,37 @@
 import {
   Controller,
   Get,
-  // Post,
   Body,
   Headers,
   Patch,
-  Param,
   Delete,
+  Version,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateUserDto } from 'src/auth/dto/update-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+  
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // Get profile route
+  @Version('1')
   @Get('profile')
   profile(@Headers('token') token: string) {
     return this.usersService.profile(token);
   }
 
+  @Version('1')
   @Patch('profile')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    // return this.usersService.update(updateUserDto);
+  update(@Headers('token') token: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(token, updateUserDto);
   }
 
+  @Version('1')
   @Delete('account')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove();
+  remove(@Headers('token') token: string) {
+    return this.usersService.remove(token);
   }
 }

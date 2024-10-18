@@ -8,17 +8,21 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  Version,
 } from '@nestjs/common';
 import { FoodService } from './food.service';
 import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('food')
 @Controller('food')
 export class FoodController {
   constructor(private readonly foodService: FoodService) {}
 
+  @Version('1')
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   create(
@@ -28,23 +32,27 @@ export class FoodController {
     return this.foodService.create(createFoodDto, image);
   }
 
+  @Version('1')
   @Get()
   findAll() {
     return this.foodService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.foodService.findOne(+id);
+  @Version('1')
+  @Get(':uuid')
+  findOne(@Param('uuid') uuid: string) {
+    return this.foodService.findOne(uuid);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFoodDto: UpdateFoodDto) {
-    return this.foodService.update(+id, updateFoodDto);
+  @Version('1')
+  @Patch(':uuid')
+  update(@Param('uuid') uuid: string, @Body() updateFoodDto: UpdateFoodDto) {
+    return this.foodService.update(uuid, updateFoodDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.foodService.remove(+id);
+  @Version('1')
+  @Delete(':uuid')
+  remove(@Param('uuid') uuid: string) {
+    return this.foodService.remove(uuid);
   }
 }

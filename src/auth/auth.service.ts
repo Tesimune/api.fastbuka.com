@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { MiddlewareService } from 'src/middleware/middleware.service';
-import { CreateUserDto, CreateUserProfileDto } from './dto/create-user.dto';
 import { randomBytes } from 'crypto';
 import * as bcrypt from 'bcryptjs';
+import { CreateAuthDto } from './dto/create-auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -28,7 +28,7 @@ export class AuthService {
    * @param profile
    * @returns
    */
-  async register(user: CreateUserDto) {
+  async register(user: CreateAuthDto) {
     const account = await this.databaseService.user.findUnique({
       where: { email: user.email },
     });
@@ -128,16 +128,15 @@ export class AuthService {
    */
   async logout(token: string) {
     const user = await this.MiddlewareService.decodeToken(token);
-    if (user) {
+    if (!user) {
       throw new UnauthorizedException({
         status: 412,
         success: false,
         message: 'User not found',
       });
     }
-    const hashedToken = await bcrypt.hash(token, 10);
     await this.databaseService.personalAccessToken.delete({
-      where: { token: hashedToken },
+      where: { token },
     });
     return 'User logged out successfully';
   }
