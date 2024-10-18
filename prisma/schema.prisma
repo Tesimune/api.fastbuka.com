@@ -14,12 +14,15 @@ datasource db {
   url  	    = env("DATABASE_URL")
 }
 
+
 model User {
   id             Int                   @id @default(autoincrement())
   uuid           String                @unique @default(uuid())
   email          String                @unique
   contact        String?               @unique
   username       String                @unique
+  walletAddress  String                @unique
+  secretKey      String                @unique
   password       String
   email_verified Boolean               @default(false)
   account_type   String                @default("user")
@@ -31,6 +34,7 @@ model User {
   tokens         PersonalAccessToken[]
   profile        UserProfile?
 }
+
 
 model UserProfile {
   id         Int     @id @default(autoincrement())
