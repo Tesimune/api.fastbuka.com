@@ -11,16 +11,30 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: production
-    command: npm run start:prod
+      DATABASE_URL: postgres://postgres:password@postgres:5432/fastbuka
     depends_on:
-      - db
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "npx prisma generate &&
+             npx prisma migrate deploy &&
+             npm run start:prod"
 
-  db:
-    image: mongo:4.2
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: fastbuka
     ports:
-      - "27017:27017"
+      - "5432:5432"
     volumes:
-      - mongo-data:/data/db
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  volumes:
-    mongo-data:
+volumes:
+  postgres-data:
