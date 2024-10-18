@@ -7,7 +7,7 @@ export class AppService {
   }
 
   health(): string {
-    return 'Application running';
+    return 'Welcome to Fast Buka, Application running.';
   }
 
   home(): string {
