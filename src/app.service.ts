@@ -11,6 +11,6 @@ export class AppService {
   }
 
   home(): string {
-    return 'This will be returning the home page data';
+    return '';
   }
 }
