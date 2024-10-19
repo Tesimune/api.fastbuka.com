@@ -29,8 +29,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  const seeder = app.get(SeederService);
-  if(process.env.ENVIRONMENT == 'local'){
+  if(process.env.ENVIRONMENT === 'local'){
+    const seeder = app.get(SeederService);
     await seeder.seed();
   }
 
