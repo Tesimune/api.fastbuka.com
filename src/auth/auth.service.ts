@@ -11,7 +11,6 @@ import * as bcrypt from 'bcryptjs';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { Keypair } from '@stellar/stellar-sdk';
 
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -23,7 +22,6 @@ export class AuthService {
     return randomBytes(length).toString('hex').slice(0, length);
   }
 
-  
   private generateRandomWallet(): { publicKey: string; secret: string } {
     const keypair = Keypair.random();
     return {
@@ -31,9 +29,6 @@ export class AuthService {
       secret: keypair.secret(),
     };
   }
-  
-
-
   /**
    * Registration Service
    * @param user
@@ -58,7 +53,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(user.password, 10);
 
     // generate random password
-    const  { publicKey, secret } = this.generateRandomWallet();
+    const { publicKey, secret } = this.generateRandomWallet();
 
     // Hash the secret key
     const hashedSecret = await bcrypt.hash(secret, 10);
@@ -66,9 +61,6 @@ export class AuthService {
     // Create a new user and profile in a transaction
     try {
       return await this.databaseService.$transaction(async (prisma) => {
-        
-
-        
         const createdUser = await prisma.user.create({
           data: {
             email: user.email,
@@ -108,7 +100,6 @@ export class AuthService {
     }
   }
 
-
   /**
    * Login Service
    * @param email
@@ -143,7 +134,6 @@ export class AuthService {
     return { token, user };
   }
 
-  
   /**
    * Logout Service
    * @param token

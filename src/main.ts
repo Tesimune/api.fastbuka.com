@@ -6,7 +6,7 @@ import { RequestMethod, VersioningType } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
-  
+
   app.setGlobalPrefix('api', {
     exclude: [
       { path: '/', method: RequestMethod.GET },
@@ -20,14 +20,14 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-  .setTitle('Fast Buka')
-  .setDescription('Fast Buka API Documentation')
-  .setVersion('1.0')
-  .addTag('app')
-  .build();
+    .setTitle('Fast Buka')
+    .setDescription('Fast Buka API Documentation')
+    .setVersion('1.0')
+    .addTag('app')
+    .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
-  
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

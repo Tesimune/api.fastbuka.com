@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { FoodData } from './food/food.data';
 
 @Injectable()
 export class AppService {
@@ -11,6 +12,6 @@ export class AppService {
   }
 
   home(): string {
-    return 'This will be returning the home page data';
+    return JSON.stringify(FoodData);
   }
 }

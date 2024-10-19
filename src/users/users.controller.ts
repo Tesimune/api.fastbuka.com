@@ -11,7 +11,6 @@ import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags } from '@nestjs/swagger';
 
-  
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
@@ -25,7 +24,10 @@ export class UsersController {
 
   @Version('1')
   @Patch('profile')
-  update(@Headers('token') token: string, @Body() updateUserDto: UpdateUserDto) {
+  update(
+    @Headers('token') token: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     return this.usersService.update(token, updateUserDto);
   }
 

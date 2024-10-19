@@ -3,6 +3,7 @@ import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { Express } from 'express';
+import { FoodData } from './food.data';
 
 @Injectable()
 export class FoodService {
@@ -18,7 +19,8 @@ export class FoodService {
     });
   }
   findAll() {
-    return this.databaseService.food.findMany();
+    // return this.databaseService.food.findMany();
+    return FoodData;
   }
 
   findOne(uuid: string) {
