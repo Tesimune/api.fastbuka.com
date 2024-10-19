@@ -105,7 +105,7 @@ CREATE TABLE "Food" (
     "price" DOUBLE PRECISION NOT NULL,
     "discount" DOUBLE PRECISION NOT NULL,
     "processing_time" TEXT NOT NULL,
-    "ready_made" BOOLEAN NOT NULL,
+    "ready_made" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

@@ -29,6 +29,8 @@ export class AuthService {
       secret: keypair.secret(),
     };
   }
+
+  
   /**
    * Registration Service
    * @param user
@@ -77,8 +79,8 @@ export class AuthService {
         await prisma.userProfile.create({
           data: {
             user_uuid: createdUser.uuid,
-            first_name: user.first_name,
-            last_name: user.last_name,
+            first_name: user.name.split(' ')[0] || user.name,
+            last_name: user.name.split(' ')[1] || user.name,
           },
         });
 
@@ -117,6 +119,9 @@ export class AuthService {
 
     const user = await this.databaseService.user.findUnique({
       where: { email },
+      include: {
+        profile: true,
+      },
     });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {

@@ -8,6 +8,8 @@ import { VendorModule } from './vendor/vendor.module';
 import { CategoryModule } from './category/category.module';
 import { FoodModule } from './food/food.module';
 import { MiddlewareService } from './middleware/middleware.service';
+import { SeederService } from './seeder/seeder.service';
+import { SeederModule } from './seeder/seeder.module';
 
 @Module({
   imports: [
@@ -17,9 +19,10 @@ import { MiddlewareService } from './middleware/middleware.service';
     VendorModule,
     CategoryModule,
     FoodModule,
+    SeederModule,
   ],
   controllers: [AppController],
-  providers: [AppService, MiddlewareService],
+  providers: [AppService, MiddlewareService, SeederService],
   exports: [MiddlewareService],
 })
 export class AppModule {}
