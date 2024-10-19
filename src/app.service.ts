@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { FoodData } from './food/food.data';
+import { foods } from './seeder/data/foods.data';
 
 @Injectable()
 export class AppService {
@@ -12,6 +12,6 @@ export class AppService {
   }
 
   home(): string {
-    return JSON.stringify(FoodData);
+    return JSON.stringify(foods);
   }
 }

@@ -11,7 +11,7 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://postgres:password@postgres:5432/fastbuka
+      DATABASE_URL: postgres://postgres:password@localhost:5432/fastbuka
     depends_on:
       postgres:
         condition: service_healthy

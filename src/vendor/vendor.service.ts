@@ -33,26 +33,71 @@ export class VendorService {
       },
     });
 
-    return createdVendor;
+    return {
+      status: 200,
+      success: true,
+      message: 'Vendors retrieved successfully',
+      data: {
+        createdVendor
+      } 
+    }
   }
 
   findAll() {
-    return this.databaseService.vendor.findMany();
+    const vendors = this.databaseService.vendor.findMany();
+    return {
+      status: 200,
+      success: true,
+      message: 'Vendors retrieved successfully',
+      data: {
+        vendors
+      } 
+    }
   }
 
   findOne(uuid: string) {
-    return this.databaseService.vendor.findUnique({
+    const vendor = this.databaseService.vendor.findUnique({
       where: { uuid },
     });
+
+    return {
+      status: 200,
+      success: true,
+      message: 'Vendor retrieved successfully',
+      data: {
+        vendor
+      } 
+    }
   }
 
   update(uuid: string, updateVendorDto: UpdateVendorDto) {
-    return `This action updates a #${uuid} vendor`;
+    const vendor = this.databaseService.vendor.findUnique({
+      where: { uuid },
+    });
+
+    return {
+      status: 200,
+      success: true,
+      message: 'Vendor retrieved successfully',
+      data: {
+        vendor
+      } 
+    }
   }
 
   remove(uuid: string) {
-    return this.databaseService.vendor.delete({
+    this.databaseService.vendor.delete({
       where: { uuid },
     });
+
+    const vendor = this.databaseService.vendor.findUnique({
+      where: { uuid },
+    });
+
+    return {
+      status: 200,
+      success: true,
+      message: 'Vendor deleted successfully',
+    }
   }
 }
