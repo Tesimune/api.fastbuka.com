@@ -40,6 +40,7 @@ export class AuthService {
     const account = await this.databaseService.user.findUnique({
       where: { email: user.email },
     });
+  
     if (account) {
       throw new UnauthorizedException({
         status: 401,
@@ -47,53 +48,55 @@ export class AuthService {
         message: 'Email address is already in use',
       });
     }
-    // Extract the username from the email
-    const username = user.email.split('@')[0];
-
-    // Hash the password before saving
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-
-    // generate random password
-    const { publicKey, secret } = this.generateRandomWallet();
-
-    // Hash the secret key
-    const hashedSecret = await bcrypt.hash(secret, 10);
-
-    // Create a new user and profile in a transaction
-    try {
-      return await this.databaseService.$transaction(async (prisma) => {
-        const createdUser = await prisma.user.create({
-          data: {
-            email: user.email,
-            username: username,
-            password: hashedPassword,
-            contact: user.contact,
-            walletAddress: publicKey,
-            secretKey: hashedSecret,
-          },
-        });
-
-        // Create the UserProfile after the User is created
-        // const createdProfile = await prisma.userProfile.create({
-        await prisma.userProfile.create({
-          data: {
-            user_uuid: createdUser.uuid,
-            first_name: user.name.split(' ')[0] || user.name,
-            last_name: user.name.split(' ')[1] || user.name,
-          },
-        });
+  
+    let baseUsername = user.email.split('@')[0];
+    let username = baseUsername;
+  
+    let usernameExists = await this.databaseService.user.findUnique({
+      where: { username: username },
+    });
+  
+    let counter = 1;
+    while (usernameExists) {
+      username = `${baseUsername}${counter}`;
+      usernameExists = await this.databaseService.user.findUnique({
+        where: { username: username },
       });
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: 419,
-          success: true,
-          message: 'User registration failed. Please try again.',
-        },
-        419,
-      );
+      counter++;
     }
+  
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    const { publicKey, secret } = this.generateRandomWallet();
+    const hashedSecret = await bcrypt.hash(secret, 10);
+  
+    await this.databaseService.$transaction(async (prisma) => {
+      const createdUser = await prisma.user.create({
+        data: {
+          email: user.email,
+          username: username,
+          password: hashedPassword,
+          contact: user.contact,
+          walletAddress: publicKey,
+          secretKey: hashedSecret,
+        },
+      });
+
+      await prisma.userProfile.create({
+        data: {
+          user_uuid: createdUser.uuid,
+          first_name: user.name.split(' ')[0] || user.name,
+          last_name: user.name.split(' ')[1] || user.name,
+        },
+      });
+
+    });
+    return {
+      status: 200,
+      success: true,
+      message: 'Registration Successful, Proceed to login.',
+    };
   }
+  
 
   /**
    * Login Service
