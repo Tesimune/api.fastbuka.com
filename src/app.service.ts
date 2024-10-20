@@ -13,7 +13,7 @@ export class AppService {
     return 'Welcome to Fast Buka, Application running.';
   }
 
-  async home(): Promise<{}> {
+  async home(): Promise<object> {
     const foods = await this.databaseService.food.findMany();
     const vendor = await this.databaseService.vendor.findMany();
 
@@ -29,7 +29,7 @@ export class AppService {
     };
   }
 
-  async menu(): Promise<{}> {
+  async menu(): Promise<object> {
     const foods = await this.databaseService.food.findMany();
 
     return {
@@ -43,7 +43,7 @@ export class AppService {
     };
   }
 
-  async partner(): Promise<{}> {
+  async partner(): Promise<object> {
     return {
       status: 200,
       success: true,
@@ -54,7 +54,7 @@ export class AppService {
     };
   }
   
-  async about(): Promise<{}> {
+  async about(): Promise<object> {
     return {
       status: 200,
       success: true,
