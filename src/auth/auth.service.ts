@@ -30,7 +30,6 @@ export class AuthService {
     };
   }
 
-  
   /**
    * Registration Service
    * @param user
@@ -84,10 +83,23 @@ export class AuthService {
           },
         });
 
+        const token = this.generateRandomToken(45);
+        await this.databaseService.personalAccessToken.create({
+          data: {
+            user_uuid: createdUser.uuid,
+            token,
+          },
+        });
+
         return {
-          status: 200,
+          startus: 200,
           success: true,
-          message: 'success',
+          message: 'Registration successful',
+          data: {
+            emailIsVerified: createdUser.email_verified ? true : false,
+            token,
+            user,
+          },
         };
       });
     } catch (error) {
@@ -136,7 +148,16 @@ export class AuthService {
       },
     });
 
-    return { token, user };
+    return {
+      startus: 200,
+      success: true,
+      message: 'Login successful',
+      data: {
+        emailIsVerified: user.email_verified ? true : false,
+        token,
+        user,
+      },
+    };
   }
 
   /**
