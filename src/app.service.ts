@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from './database/database.service';
-import { Food } from '@prisma/client'; // Adjust import based on your setup
+import { Food } from '@prisma/client';
 
 @Injectable()
 export class AppService {
