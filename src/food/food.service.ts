@@ -13,30 +13,61 @@ export class FoodService {
       ...createFoodDto,
       image: `/uploads/${image.filename}`,
     };
-    return this.databaseService.food.create({
+    const food = this.databaseService.food.create({
       data: foodData as any,
     });
+
+    return {
+      status: 200,
+      success: true,
+      message: 'Food created successfully',
+      data: {
+        food,
+      },
+    };
   }
+
   findAll() {
     return this.databaseService.food.findMany();
   }
 
   findOne(uuid: string) {
-    return this.databaseService.food.findUnique({
+    const food = this.databaseService.food.findUnique({
       where: { uuid },
     });
+    return {
+      status: 200,
+      success: true,
+      message: 'Food retrieved successfully',
+      data: {
+        food,
+      },
+    };
   }
 
   update(uuid: string, updateFoodDto: UpdateFoodDto) {
-    return this.databaseService.food.update({
+    const food = this.databaseService.food.update({
       where: { uuid },
       data: updateFoodDto as any,
     });
+    return {
+      status: 200,
+      success: true,
+      message: 'Food updated successfully',
+      data: {
+        food,
+      },
+    };
   }
 
   remove(uuid: string) {
-    return this.databaseService.food.delete({
+    this.databaseService.food.delete({
       where: { uuid },
     });
+    return {
+      status: 200,
+      success: true,
+      message: 'Food deleted successfully',
+    };
   }
 }

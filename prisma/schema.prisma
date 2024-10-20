@@ -76,8 +76,9 @@ model PasswordResetTokens {
 model Vendor {
   id           Int        @id @default(autoincrement())
   uuid         String     @unique @default(uuid())
+  slug         String?    @unique
   user_uuid    String
-  name         String     @unique
+  name         String?
   description  String?
   cac_number   String?
   country      String?
@@ -114,13 +115,13 @@ model Food {
   uuid            String      @unique @default(uuid())
   vendor_uuid     String 
   category_uuid   String
-  name            String
-  description     String
-  image           String
-  price           Float
-  discount        Float
-  processing_time String
-  ready_made      Boolean
+  name            String?
+  description     String?
+  image           String?
+  price           Float       @default(0)
+  discount        Float       @default(0)
+  processing_time String?
+  ready_made      Boolean     @default(true)
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   vendor          Vendor      @relation(fields: [vendor_uuid], references: [uuid])
