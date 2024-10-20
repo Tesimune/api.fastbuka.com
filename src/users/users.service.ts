@@ -10,14 +10,24 @@ export class UsersService {
     private readonly MiddlewareService: MiddlewareService,
   ) {}
   async profile(token: string) {
-    const user = await this.MiddlewareService.decodeToken(token);
+    const auth = await this.MiddlewareService.decodeToken(token);
 
-    return this.databaseService.user.findUnique({
-      where: { uuid: user.uuid },
+    const user = this.databaseService.user.findUnique({
+      where: { uuid: auth.uuid },
       include: {
         profile: true,
       },
     });
+
+    return {
+      status: 200,
+      success: true,
+      message: 'Profile',
+      data: {
+        // emailIsVerified: user.email_verified ? true : false,
+        user,
+      },
+    };
   }
 
   update(token: string, updateUserDto: UpdateUserDto) {
