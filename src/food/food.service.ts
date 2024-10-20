@@ -28,7 +28,15 @@ export class FoodService {
   }
 
   findAll() {
-    return this.databaseService.food.findMany();
+    const foods = this.databaseService.food.findMany();
+    return {
+      status: 200,
+      success: true,
+      message: 'Food created successfully',
+      data: {
+        foods,
+      },
+    };
   }
 
   findOne(uuid: string) {
