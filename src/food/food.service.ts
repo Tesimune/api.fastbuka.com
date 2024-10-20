@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
 import { DatabaseService } from 'src/database/database.service';
-import { foods } from 'src/seeder/data/foods.data';
+import { Express } from 'express';
 
 @Injectable()
 export class FoodService {
@@ -22,9 +22,9 @@ export class FoodService {
       success: true,
       message: 'Food created successfully',
       data: {
-        food
-      } 
-    }
+        food,
+      },
+    };
   }
 
   findAll() {
@@ -32,11 +32,11 @@ export class FoodService {
     return {
       status: 200,
       success: true,
-      message: 'Foods retrieved successfully',
+      message: 'Food retrieved successfully',
       data: {
-        foods
-      } 
-    }
+        foods,
+      },
+    };
   }
 
   findOne(uuid: string) {
@@ -48,9 +48,9 @@ export class FoodService {
       success: true,
       message: 'Food retrieved successfully',
       data: {
-        food
-      } 
-    }
+        food,
+      },
+    };
   }
 
   update(uuid: string, updateFoodDto: UpdateFoodDto) {
@@ -63,9 +63,9 @@ export class FoodService {
       success: true,
       message: 'Food updated successfully',
       data: {
-        food
-      } 
-    }
+        food,
+      },
+    };
   }
 
   remove(uuid: string) {
@@ -76,6 +76,6 @@ export class FoodService {
       status: 200,
       success: true,
       message: 'Food deleted successfully',
-    }
+    };
   }
 }

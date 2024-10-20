@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { foods } from './seeder/data/foods.data';
+import { DatabaseService } from './database/database.service';
+import { Food } from '@prisma/client';
 
 @Injectable()
 export class AppService {
+  constructor(private readonly databaseService: DatabaseService) {}
+
   index(): string {
     return 'Welcome to Fast Buka';
   }
@@ -11,7 +14,8 @@ export class AppService {
     return 'Welcome to Fast Buka, Application running.';
   }
 
-  home(): string {
-    return JSON.stringify(foods);
+  async home(): Promise<Food[]> {
+    const foodData = await this.databaseService.food.findMany();
+    return foodData;
   }
 }

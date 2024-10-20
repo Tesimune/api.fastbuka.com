@@ -1,6 +1,7 @@
 import { Controller, Get, Version } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiTags } from '@nestjs/swagger';
+import { Food } from '@prisma/client';
 
 @Controller()
 export class AppController {
@@ -21,7 +22,7 @@ export class AppController {
   @Version('1')
   @Get('home')
   @ApiTags('app')
-  home(): string {
+  async home(): Promise<Food[]> {
     return this.appService.home();
   }
 }

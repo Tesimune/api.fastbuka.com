@@ -19,7 +19,7 @@ export class CategoryService {
   }
 
   findAll() {
-    return `This action returns all category`;
+    return this.databaseService.category.findMany();
   }
 
   findOne(uuid: string) {
