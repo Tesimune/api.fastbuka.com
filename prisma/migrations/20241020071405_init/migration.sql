@@ -8,8 +8,8 @@ CREATE TABLE "User" (
     "walletAddress" TEXT NOT NULL,
     "secretKey" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "email_verified" BOOLEAN NOT NULL DEFAULT false,
-    "account_type" TEXT NOT NULL DEFAULT 'user',
+    "email_verified" TEXT,
+    "account_type" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -64,8 +64,9 @@ CREATE TABLE "PasswordResetTokens" (
 CREATE TABLE "Vendor" (
     "id" SERIAL NOT NULL,
     "uuid" TEXT NOT NULL,
+    "slug" TEXT,
     "user_uuid" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
+    "name" TEXT,
     "description" TEXT,
     "cac_number" TEXT,
     "country" TEXT,
@@ -99,12 +100,12 @@ CREATE TABLE "Food" (
     "uuid" TEXT NOT NULL,
     "vendor_uuid" TEXT NOT NULL,
     "category_uuid" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "image" TEXT NOT NULL,
-    "price" DOUBLE PRECISION NOT NULL,
-    "discount" DOUBLE PRECISION NOT NULL,
-    "processing_time" TEXT NOT NULL,
+    "name" TEXT,
+    "description" TEXT,
+    "image" TEXT,
+    "price" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "discount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "processing_time" TEXT,
     "ready_made" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -199,7 +200,7 @@ CREATE UNIQUE INDEX "PersonalAccessToken_token_key" ON "PersonalAccessToken"("to
 CREATE UNIQUE INDEX "Vendor_uuid_key" ON "Vendor"("uuid");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Vendor_name_key" ON "Vendor"("name");
+CREATE UNIQUE INDEX "Vendor_slug_key" ON "Vendor"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Category_uuid_key" ON "Category"("uuid");

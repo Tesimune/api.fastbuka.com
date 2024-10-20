@@ -22,7 +22,7 @@ export const foods = [
     ready_made: true,
   },
   {
-    uuid: 'b21e9624-769c-4453-b409-1f10899ee5a3',
+    uuid: 'b21e9654-769c-4453-be09-1f30833ee5ae',
     category_uuid: 'b21e9654-769c-4453-be09-1f10833ee5a5',
     name: 'Pancake',
     description: 'Fresh pancake',
@@ -33,7 +33,7 @@ export const foods = [
     ready_made: true,
   },
   {
-    uuid: 'b21e9624-769c-4453-b409-1f10833ne5a3',
+    uuid: 'b21e9654-769c-4453-be09-1f30833ee5ae',
     category_uuid: 'b21e9654-769c-4453-be09-1f10873ee5ae',
     name: 'Beans Cake',
     description: 'African Beans cake',
@@ -44,7 +44,7 @@ export const foods = [
     ready_made: true,
   },
   {
-    uuid: 'b21e9624-769c-4453-b409-1f10833el5a3',
+    uuid: 'b21e9654-769c-3453-be09-1f10833ee5ae',
     category_uuid: 'b21e9654-769c-4453-be09-1f10833fe5ae',
     name: 'Vegetable Soup and Fufu',
     description: 'African vegetable soup with goat meat and fufu',
@@ -55,7 +55,7 @@ export const foods = [
     ready_made: true,
   },
   {
-    uuid: 'b21e9624-769c-4453-b199-1f10833ee5a3',
+    uuid: 'b21e9654-769c-4453-be09-1f30833ee5ae',
     category_uuid: 'b21e9654-769c-4453-be09-1f10833fe5ae',
     name: 'Beans, Egg and Bread',
     description: 'Beans, Corn, green pepper, Egg and Bread diet',
@@ -66,7 +66,7 @@ export const foods = [
     ready_made: true,
   },
   {
-    uuid: 'b21e9624-769c-1153-b409-1f10833ee5a3',
+    uuid: 'b21e9654-769c-4453-be09-1f30833ee5ae',
     category_uuid: 'b21e9624-769c-4453-be09-1f10833ee5ae',
     name: 'Chinese Rice',
     description: 'Rice with vegetables',
@@ -77,7 +77,7 @@ export const foods = [
     ready_made: true,
   },
   {
-    uuid: 'b21e9624-769c-4444-b409-1f10833ee5a3',
+    uuid: 'b21e9654-769c-4453-be09-1f30833ee5ae',
     category_uuid: 'b21e9624-769c-4453-be09-1f10833ee5ae',
     name: 'Jollof Rice',
     description: 'From Chourtiers Kitchen to you, enjoy mouthwatering African Jollof Rice',
@@ -88,7 +88,7 @@ export const foods = [
     ready_made: true,
   },
   {
-    uuid: 'b21e9624-777c-4453-b409-1f10833ee5a3',
+    uuid: 'b21e9654-769c-3453-be09-1f10833ee5ae',
     category_uuid: 'fab21e9624-769c-4453-be09-1f10833ee5aet_food',
     name: 'Tomato Pizza',
     description: 'Pizza like no other',
@@ -99,7 +99,7 @@ export const foods = [
     ready_made: true,
   },
   {
-    uuid: 'b21e9774-769c-4453-b409-1f10833ee5a3',
+    uuid: 'b21e9654-769c-4453-be09-1f30833ee5ae',
     category_uuid: 'b21e9624-769c-4453-be09-1f10833ee5ae',
     name: 'Latte and Bread',
     description: 'Breakfast for when you are on the go',

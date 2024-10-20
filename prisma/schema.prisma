@@ -24,8 +24,8 @@ model User {
   walletAddress  String                @unique
   secretKey      String                @unique
   password       String
-  email_verified Boolean               @default(false)
-  account_type   String                @default("user")
+  email_verified String?
+  account_type   String?
   createdAt      DateTime              @default(now())
   updatedAt      DateTime              @updatedAt
   cart           Cart?
