@@ -29,10 +29,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  if (process.env.ENVIRONMENT === 'local') {
-    const seeder = app.get(SeederService);
-    await seeder.seed();
-  }
+  // if (process.env.ENVIRONMENT === 'local') {
+  //   const seeder = app.get(SeederService);
+  //   await seeder.seed();
+  // }
 
   await app.listen(process.env.PORT ?? 3000);
 }

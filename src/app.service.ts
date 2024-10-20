@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from './database/database.service';
-import { Food } from '@prisma/client';
 
 @Injectable()
 export class AppService {
@@ -14,8 +13,77 @@ export class AppService {
     return 'Welcome to Fast Buka, Application running.';
   }
 
-  async home(): Promise<Food[]> {
-    const foodData = await this.databaseService.food.findMany();
-    return foodData;
+  async home(): Promise<{}> {
+    const foods = await this.databaseService.food.findMany();
+    const vendor = await this.databaseService.vendor.findMany();
+
+    return {
+      status: 200,
+      success: true,
+      message: 'Successfully',
+      data: {
+        trending: foods,
+        restaurants: vendor,
+        menu: foods,
+      },
+    };
+  }
+
+  async menu(): Promise<{}> {
+    const foods = await this.databaseService.food.findMany();
+
+    return {
+      status: 200,
+      success: true,
+      message: 'Successfully',
+      data: {
+        trending: foods,
+        menu: foods,
+      },
+    };
+  }
+
+  async partner(): Promise<{}> {
+    return {
+      status: 200,
+      success: true,
+      message: 'Successfully',
+      data: {
+        
+      },
+    };
+  }
+  
+  async about(): Promise<{}> {
+    return {
+      status: 200,
+      success: true,
+      message: 'Successfully',
+      data: {
+        
+      },
+    };
+  }
+
+  async contact(): Promise<{}> {
+    return {
+      status: 200,
+      success: true,
+      message: 'Successfully',
+      data: {
+        
+      },
+    };
+  }
+
+  async form(): Promise<{}> {
+    return {
+      status: 200,
+      success: true,
+      message: 'Successfully',
+      data: {
+        
+      },
+    };
   }
 }
