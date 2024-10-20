@@ -64,57 +64,57 @@ export class SeederService {
           create: { user_uuid: createdUser.uuid, first_name: firstName, last_name: lastName },
         });
 
-        if (createdUser.account_type == "vendor") {
-          await this.seedVendors(createdUser.uuid);
-        }
+        // if (createdUser.account_type == "vendor") {
+        //   await this.seedVendors(createdUser.uuid);
+        // }
       }
     });
   }
 
-  private async seedVendors(userUuid) {
-    return await this.databaseService.$transaction(async (prisma) => {
-      for (const vendor of vendors) {
-        const createVendor = await prisma.vendor.upsert({
-          where: {
-              user_uuid: userUuid,
-              name: vendor.name,
-          },
-          update: { ...vendor, user_uuid: userUuid },
-          create: { ...vendor, user_uuid: userUuid },
-        });
+  // private async seedVendors(userUuid) {
+  //   return await this.databaseService.$transaction(async (prisma) => {
+  //     for (const vendor of vendors) {
+  //       const createVendor = await prisma.vendor.upsert({
+  //         where: {
+  //             user_uuid: userUuid,
+  //             name: vendor.name,
+  //         },
+  //         update: { ...vendor, user_uuid: userUuid },
+  //         create: { ...vendor, user_uuid: userUuid },
+  //       });
 
-        await this.seedCategories(createVendor.uuid);
-        await this.seedFoods(createVendor.uuid);
-      }
-    });
-  }
+  //       await this.seedCategories(createVendor.uuid);
+  //       await this.seedFoods(createVendor.uuid);
+  //     }
+  //   });
+  // }
 
-  private async seedCategories(vendorUuid) {
-    return await this.databaseService.$transaction(async (prisma) => {
-      for (const category of categories) {
-        await prisma.category.upsert({
-          where: {
-            uuid: category.uuid,
-            name: category.name,
-          },
-          update: { ...category, vendor_uuid: vendorUuid },
-          create: { ...category, vendor_uuid: vendorUuid },
-        });
-      }
-    });
-  }
+  // private async seedCategories(vendorUuid) {
+  //   return await this.databaseService.$transaction(async (prisma) => {
+  //     for (const category of categories) {
+  //       await prisma.category.upsert({
+  //         where: {
+  //           uuid: category.uuid,
+  //           name: category.name,
+  //         },
+  //         update: { ...category, vendor_uuid: vendorUuid },
+  //         create: { ...category, vendor_uuid: vendorUuid },
+  //       });
+  //     }
+  //   });
+  // }
 
-  private async seedFoods(vendorUuid) {
-    return await this.databaseService.$transaction(async (prisma) => {
-      for (const food of foods) {
-        await prisma.food.upsert({
-          where: {
-            uuid: food.uuid
-          },
-          update: { ...food, vendor_uuid: vendorUuid },
-          create: { ...food, vendor_uuid: vendorUuid },
-        });
-      }
-    });
-  }
+  // private async seedFoods(vendorUuid) {
+  //   return await this.databaseService.$transaction(async (prisma) => {
+  //     for (const food of foods) {
+  //       await prisma.food.upsert({
+  //         where: {
+  //           uuid: food.uuid
+  //         },
+  //         update: { ...food, vendor_uuid: vendorUuid },
+  //         create: { ...food, vendor_uuid: vendorUuid },
+  //       });
+  //     }
+  //   });
+  // }
 }

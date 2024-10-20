@@ -13,9 +13,10 @@ export class VendorService {
 
   async create(token: string, vendor: CreateVendorDto) {
     const user = await this.MiddlewareService.decodeToken(token);
+    const slug = vendor.name.replace(/\s+/g, '_');
 
     const account = await this.databaseService.vendor.findUnique({
-      where: { name: vendor.name },
+      where: { slug },
     });
 
     if (account) {
