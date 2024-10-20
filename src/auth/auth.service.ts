@@ -82,16 +82,6 @@ export class AuthService {
             last_name: user.name.split(' ')[1] || user.name,
           },
         });
-
-        const token = this.generateRandomToken(45);
-        await this.databaseService.personalAccessToken.create({
-          data: {
-            user_uuid: createdUser.uuid,
-            token,
-          },
-        });
-
-        return { token, user };
       });
     } catch (error) {
       throw new HttpException(
