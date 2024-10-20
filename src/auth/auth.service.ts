@@ -91,16 +91,7 @@ export class AuthService {
           },
         });
 
-        return {
-          startus: 200,
-          success: true,
-          message: 'Registration successful',
-          data: {
-            emailIsVerified: createdUser.email_verified ? true : false,
-            token,
-            user,
-          },
-        };
+        return { token, user };
       });
     } catch (error) {
       throw new HttpException(
@@ -149,7 +140,7 @@ export class AuthService {
     });
 
     return {
-      startus: 200,
+      status: 200,
       success: true,
       message: 'Login successful',
       data: {

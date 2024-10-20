@@ -7,7 +7,7 @@ import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.int
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   const corsOptions: CorsOptions = {
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
@@ -37,10 +37,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  // if (process.env.ENVIRONMENT === 'local') {
-  //   const seeder = app.get(SeederService);
-  //   await seeder.seed();
-  // }
+  if (process.env.ENVIRONMENT === 'local') {
+    const seeder = app.get(SeederService);
+    await seeder.seed();
+  }
 
   await app.listen(process.env.PORT ?? 3000);
 }
