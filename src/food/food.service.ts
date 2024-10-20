@@ -32,7 +32,7 @@ export class FoodService {
     return {
       status: 200,
       success: true,
-      message: 'Food created successfully',
+      message: 'Food retrieved successfully',
       data: {
         foods,
       },
