@@ -11,13 +11,13 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://postgres:password@localhost:5432/fastbuka
     depends_on:
       postgres:
         condition: service_healthy
     command: >
       sh -c "npx prisma generate &&
              npx prisma migrate deploy &&
+             npm run build" &&
              npm run start:prod"
 
   postgres:
