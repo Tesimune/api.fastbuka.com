@@ -7,12 +7,18 @@ export class CreateAuthDto {
   name: string;
 
   @IsEmail()
-  @ApiProperty({ example: 'info@fastbuka.com', description: 'Your email address' })
+  @ApiProperty({
+    example: 'info@fastbuka.com',
+    description: 'Your email address',
+  })
   email: string;
 
   @IsString()
   @MinLength(8)
-  @ApiProperty({ example: '@password1', description: 'Your password, eight character long, symbol and number' })
+  @ApiProperty({
+    example: '@password1',
+    description: 'Your password, eight character long, symbol and number',
+  })
   password: string;
 
   @IsOptional()

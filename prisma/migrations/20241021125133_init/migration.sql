@@ -8,8 +8,11 @@ CREATE TABLE "User" (
     "walletAddress" TEXT NOT NULL,
     "secretKey" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "email_verified" TEXT,
-    "account_type" TEXT,
+    "email_verified" BOOLEAN NOT NULL DEFAULT false,
+    "contact_verified" BOOLEAN NOT NULL DEFAULT false,
+    "role" TEXT NOT NULL DEFAULT 'user',
+    "status" TEXT NOT NULL DEFAULT 'active',
+    "isOnline" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -36,6 +39,9 @@ CREATE TABLE "PersonalAccessToken" (
     "id" SERIAL NOT NULL,
     "user_uuid" TEXT NOT NULL,
     "token" TEXT NOT NULL,
+    "ipAddress" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "PersonalAccessToken_pkey" PRIMARY KEY ("id")
 );
@@ -46,6 +52,8 @@ CREATE TABLE "EmailVerificationTokens" (
     "user_uuid" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "token" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "EmailVerificationTokens_pkey" PRIMARY KEY ("id")
 );
@@ -56,6 +64,8 @@ CREATE TABLE "PasswordResetTokens" (
     "user_uuid" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "token" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "PasswordResetTokens_pkey" PRIMARY KEY ("id")
 );

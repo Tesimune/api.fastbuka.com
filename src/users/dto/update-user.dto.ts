@@ -4,8 +4,12 @@ import { ApiProperty, ApiTags } from '@nestjs/swagger';
 @ApiTags('users')
 export class UpdateUserDto {
   @IsString()
-  @ApiProperty({ example: 'John Doe', description: 'Your full name' })
-  name: string;
+  @ApiProperty({ example: 'John', description: 'First name' })
+  first_name: string;
+
+  @IsString()
+  @ApiProperty({ example: 'Doe', description: 'Last name' })
+  last_name: string;
 
   @IsEmail()
   @ApiProperty({
