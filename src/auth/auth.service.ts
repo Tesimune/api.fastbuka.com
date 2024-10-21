@@ -12,7 +12,11 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { Keypair } from '@stellar/stellar-sdk';
 import { MailerService } from 'src/mailer/mailer.service';
 import { Exceptions } from '@stellar/typescript-wallet-sdk';
-import { ResetPasswordDto, UpdatePasswordDto, VerifyEmailDto } from './dto/update-auth.dto';
+import {
+  ResetPasswordDto,
+  UpdatePasswordDto,
+  VerifyEmailDto,
+} from './dto/update-auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -105,12 +109,11 @@ export class AuthService {
       const mailer = {
         email: user.email,
         subject: 'Email verification',
-        message:
-          `<p>Hey ${createProfile.first_name} welcome to fastbuka, <br><br> Your vefication code is: ${code} <br><br>This code will expire in 10 minutes.<p>`,
+        message: `<p>Hey ${createProfile.first_name} welcome to fastbuka, <br><br> Your vefication code is: ${code} <br><br>This code will expire in 10 minutes.<p>`,
       };
       await this.mailerService.mailer(mailer);
 
-      return createdUser
+      return createdUser;
     });
     return {
       status: 200,
@@ -120,7 +123,6 @@ export class AuthService {
         user: newUser,
       },
     };
-
   }
 
   /**
@@ -215,8 +217,7 @@ export class AuthService {
       const mailer = {
         email: user.email,
         subject: 'Email Verification',
-        message:
-          `<p>Hey ${user.profile.first_name}, <br><br> Your vefication code is: ${code} <br><br>This code will expire in 10 minutes.<p>`,
+        message: `<p>Hey ${user.profile.first_name}, <br><br> Your vefication code is: ${code} <br><br>This code will expire in 10 minutes.<p>`,
       };
       await this.mailerService.mailer(mailer);
 
@@ -259,7 +260,7 @@ export class AuthService {
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid email or password');
-    }else if(user.status !== 'actived'){
+    } else if (user.status !== 'actived') {
       const code = Math.floor(1000 + Math.random() * 9000).toString();
 
       await this.databaseService.passwordResetTokens.create({
@@ -273,19 +274,21 @@ export class AuthService {
       const mailer = {
         email: user.email,
         subject: 'Activation Verification',
-        message:
-          `<p>Hey ${user.profile.first_name}, <br><br> Please use vefication code is: ${code} to activate your account.<br><br>This code will expire in 10 minutes.<p>`,
+        message: `<p>Hey ${user.profile.first_name}, <br><br> Please use vefication code is: ${code} to activate your account.<br><br>This code will expire in 10 minutes.<p>`,
       };
       await this.mailerService.mailer(mailer);
 
-      throw new HttpException({
-        status: 419,
-        success: false,
-        message: `Your account is currently ${user.status}. An email has been sent to you for reactivation.`,
-        data: {
-          user
-        }
-      }, 419)
+      throw new HttpException(
+        {
+          status: 419,
+          success: false,
+          message: `Your account is currently ${user.status}. An email has been sent to you for reactivation.`,
+          data: {
+            user,
+          },
+        },
+        419,
+      );
     }
 
     const token = this.generateRandomToken(45);
@@ -373,8 +376,7 @@ export class AuthService {
     const mailer = {
       email: user.email,
       subject: 'Forgot password verification',
-      message:
-      `<p>Hey ${user.profile.first_name}, <br><br> Your reset password vefication code is: ${code} <br><br>This code will expire in 10 minutes.<p>`,
+      message: `<p>Hey ${user.profile.first_name}, <br><br> Your reset password vefication code is: ${code} <br><br>This code will expire in 10 minutes.<p>`,
     };
     await this.mailerService.mailer(mailer);
 

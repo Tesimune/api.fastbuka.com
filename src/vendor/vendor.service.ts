@@ -39,9 +39,9 @@ export class VendorService {
       success: true,
       message: 'Vendors retrieved successfully',
       data: {
-        createdVendor
-      } 
-    }
+        createdVendor,
+      },
+    };
   }
 
   findAll() {
@@ -51,9 +51,9 @@ export class VendorService {
       success: true,
       message: 'Vendors retrieved successfully',
       data: {
-        vendors
-      } 
-    }
+        vendors,
+      },
+    };
   }
 
   findOne(uuid: string) {
@@ -62,7 +62,7 @@ export class VendorService {
       include: {
         categories: true,
         foods: true,
-      }
+      },
     });
 
     return {
@@ -70,9 +70,9 @@ export class VendorService {
       success: true,
       message: 'Vendor retrieved successfully',
       data: {
-        vendor
-      } 
-    }
+        vendor,
+      },
+    };
   }
 
   update(uuid: string, updateVendorDto: UpdateVendorDto) {
@@ -85,9 +85,9 @@ export class VendorService {
       success: true,
       message: 'Vendor retrieved successfully',
       data: {
-        vendor
-      } 
-    }
+        vendor,
+      },
+    };
   }
 
   remove(uuid: string) {
@@ -103,6 +103,6 @@ export class VendorService {
       status: 200,
       success: true,
       message: 'Vendor deleted successfully',
-    }
+    };
   }
 }

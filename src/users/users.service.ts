@@ -12,11 +12,10 @@ export class UsersService {
     private readonly MiddlewareService: MiddlewareService,
   ) {}
 
-
   /**
-   * 
+   *
    * @param token
-   * @returns 
+   * @returns
    */
   async profile(token: string) {
     const auth = await this.MiddlewareService.decodeToken(token);
@@ -41,22 +40,25 @@ export class UsersService {
   /**
    *
    * @param token
-   * @param updateUserDto 
-   * @returns 
+   * @param updateUserDto
+   * @returns
    */
   async update(token: string, updateUserDto: UpdateUserDto) {
     const auth = await this.MiddlewareService.decodeToken(token);
-    if(updateUserDto.email !== auth.email){
+    if (updateUserDto.email !== auth.email) {
       const account = await this.databaseService.user.findUnique({
         where: { email: updateUserDto.email },
       });
-  
+
       if (account) {
-        throw new HttpException({
-          status: 401,
-          success: false,
-          message: 'Email address is already in use',
-        }, 401);
+        throw new HttpException(
+          {
+            status: 401,
+            success: false,
+            message: 'Email address is already in use',
+          },
+          401,
+        );
       }
       await this.databaseService.user.update({
         where: {
@@ -65,8 +67,8 @@ export class UsersService {
         data: {
           email: updateUserDto.email,
           email_verified: false,
-        }
-      })
+        },
+      });
     }
     await this.databaseService.userProfile.update({
       where: {
@@ -74,8 +76,8 @@ export class UsersService {
       },
       data: {
         ...updateUserDto,
-      }
-    })
+      },
+    });
 
     return {
       status: 200,
@@ -85,18 +87,21 @@ export class UsersService {
   }
 
   /**
-   * 
-   * @param token 
-   * @returns 
+   *
+   * @param token
+   * @returns
    */
   async deactivate(token: string, password: string) {
     const auth = await this.MiddlewareService.decodeToken(token);
     if (!(await bcrypt.compare(password, auth.password))) {
-      throw new HttpException({
+      throw new HttpException(
+        {
           status: 401,
           success: false,
           message: 'Invalid password',
-      }, 401);
+        },
+        401,
+      );
     }
     await this.databaseService.user.update({
       where: {
@@ -104,13 +109,13 @@ export class UsersService {
       },
       data: {
         status: 'deactived',
-      }
-    })
-    
+      },
+    });
+
     await this.databaseService.personalAccessToken.delete({
       where: { token },
     });
-    
+
     return {
       status: 200,
       success: true,
@@ -129,14 +134,17 @@ export class UsersService {
         user_uuid: body.uuid,
         email: body.email,
         token: body.code,
-      }
-    })
-    if(!user){
-      throw new HttpException({
-        status: 400,
-        success: false,
-        message: 'Invalid token',
-      }, 400)
+      },
+    });
+    if (!user) {
+      throw new HttpException(
+        {
+          status: 400,
+          success: false,
+          message: 'Invalid token',
+        },
+        400,
+      );
     }
 
     const hashedPassword = await bcrypt.hash(body.new_password, 10);
@@ -147,9 +155,9 @@ export class UsersService {
       data: {
         status: 'actived',
         password: hashedPassword,
-      }
-    })
-    
+      },
+    });
+
     return {
       status: 200,
       success: true,
@@ -165,11 +173,14 @@ export class UsersService {
   async remove(token: string, password: string) {
     const auth = await this.MiddlewareService.decodeToken(token);
     if (!(await bcrypt.compare(password, auth.password))) {
-      throw new HttpException({
+      throw new HttpException(
+        {
           status: 401,
           success: false,
           message: 'Invalid password',
-      }, 401);
+        },
+        401,
+      );
     }
     await this.databaseService.user.update({
       where: {
@@ -177,8 +188,8 @@ export class UsersService {
       },
       data: {
         status: 'delete',
-      }
-    })
+      },
+    });
 
     await this.databaseService.personalAccessToken.delete({
       where: { token },

@@ -48,20 +48,16 @@ export class AppService {
       status: 200,
       success: true,
       message: 'Successfully',
-      data: {
-        
-      },
+      data: {},
     };
   }
-  
+
   async about(): Promise<object> {
     return {
       status: 200,
       success: true,
       message: 'Successfully',
-      data: {
-        
-      },
+      data: {},
     };
   }
 
@@ -70,9 +66,7 @@ export class AppService {
       status: 200,
       success: true,
       message: 'Successfully',
-      data: {
-        
-      },
+      data: {},
     };
   }
 
@@ -81,9 +75,7 @@ export class AppService {
       status: 200,
       success: true,
       message: 'Successfully',
-      data: {
-        
-      },
+      data: {},
     };
   }
 }
