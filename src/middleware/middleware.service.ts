@@ -1,21 +1,18 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
-import { User } from '@prisma/client';
 
 @Injectable()
 export class MiddlewareService {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  public async decodeToken(token: string): Promise<User> {
+  public async decodeToken(token: string) {
     if (!token) {
       throw new UnauthorizedException('Invalid token');
     }
 
-    const userToken = await this.databaseService.personalAccessToken.findUnique(
-      {
-        where: { token },
-      },
-    );
+    const userToken = await this.databaseService.personalAccessToken.findUnique({
+      where: { token },
+    });
 
     if (!userToken) {
       throw new UnauthorizedException({
