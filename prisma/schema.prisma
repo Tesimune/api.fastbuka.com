@@ -16,23 +16,26 @@ datasource db {
 
 
 model User {
-  id             Int                   @id @default(autoincrement())
-  uuid           String                @unique @default(uuid())
-  email          String                @unique
-  contact        String?               @unique
-  username       String                @unique
-  walletAddress  String                @unique
-  secretKey      String                @unique
-  password       String
-  email_verified String?
-  account_type   String?
-  createdAt      DateTime              @default(now())
-  updatedAt      DateTime              @updatedAt
-  cart           Cart?
-  orders         Order[]
-  vendors        Vendor[]
-  tokens         PersonalAccessToken[]
-  profile        UserProfile?
+  id                Int                   @id @default(autoincrement())
+  uuid              String                @unique @default(uuid())
+  email             String                @unique
+  contact           String?               @unique
+  username          String                @unique
+  walletAddress     String                @unique
+  secretKey         String                @unique
+  password          String
+  email_verified    Boolean               @default(false)
+  contact_verified  Boolean               @default(false)
+  role              String                @default("user")
+  status            String                @default("actived")
+  isOnline          Boolean               @default(true)
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  cart              Cart?
+  orders            Order[]
+  vendors           Vendor[]
+  tokens            PersonalAccessToken[]
+  profile           UserProfile?
 }
 
 
@@ -50,26 +53,33 @@ model UserProfile {
 }
 
 model PersonalAccessToken {
-  id        Int    @id @default(autoincrement())
-  user_uuid String
-  token     String @unique
-  User      User?  @relation(fields: [user_uuid], references: [uuid])
+  id          Int         @id @default(autoincrement())
+  user_uuid   String
+  token       String      @unique
+  ipAddress   String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  User        User?       @relation(fields: [user_uuid], references: [uuid])
 }
 
 // Emailverifications tanle mode'
 model EmailVerificationTokens {
-  id        Int    @id @default(autoincrement())
-  user_uuid String
-  email     String
-  token     String
+  id          Int       @id @default(autoincrement())
+  user_uuid   String
+  email       String
+  token       String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 // PasswordResetToken tanle models
 model PasswordResetTokens {
-  id        Int    @id @default(autoincrement())
-  user_uuid String
-  email     String
-  token     String
+  id          Int          @id @default(autoincrement())
+  user_uuid   String
+  email       String
+  token       String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 // Vendor table model

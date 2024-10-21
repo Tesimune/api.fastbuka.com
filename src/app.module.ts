@@ -10,6 +10,10 @@ import { FoodModule } from './food/food.module';
 import { MiddlewareService } from './middleware/middleware.service';
 import { SeederService } from './seeder/seeder.service';
 import { SeederModule } from './seeder/seeder.module';
+import { CartModule } from './cart/cart.module';
+import { OrderModule } from './order/order.module';
+import { MailerModule } from './mailer/mailer.module';
+import { MailerService } from './mailer/mailer.service';
 
 @Module({
   imports: [
@@ -20,9 +24,12 @@ import { SeederModule } from './seeder/seeder.module';
     CategoryModule,
     FoodModule,
     SeederModule,
+    CartModule,
+    OrderModule,
+    MailerModule,
   ],
   controllers: [AppController],
-  providers: [AppService, MiddlewareService, SeederService],
-  exports: [MiddlewareService],
+  providers: [AppService, MiddlewareService, MailerService, SeederService],
+  exports: [MiddlewareService, MailerService],
 })
 export class AppModule {}

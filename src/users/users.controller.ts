@@ -6,10 +6,12 @@ import {
   Patch,
   Delete,
   Version,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ResetPasswordDto } from 'src/auth/dto/update-auth.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -18,12 +20,14 @@ export class UsersController {
 
   @Version('1')
   @Get('profile')
+  @ApiOperation({ summary: 'Fetch profile' })
   profile(@Headers('token') token: string) {
     return this.usersService.profile(token);
   }
 
   @Version('1')
   @Patch('profile')
+  @ApiOperation({ summary: 'Update Profile' })
   update(
     @Headers('token') token: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -32,8 +36,23 @@ export class UsersController {
   }
 
   @Version('1')
+  @Patch('deactivate')
+  @ApiOperation({ summary: 'Deactivate account' })
+  deactivate(@Headers('token') token: string, @Body() password: string) {
+    return this.usersService.deactivate(token, password);
+  }
+
+  @Version('1')
+  @Patch('activate')
+  @ApiOperation({ summary: 'Activate account' })
+  activate(@Body(ValidationPipe) body: ResetPasswordDto) {
+    return this.usersService.activate(body);
+  }
+
+  @Version('1')
   @Delete('account')
-  remove(@Headers('token') token: string) {
-    return this.usersService.remove(token);
+  @ApiOperation({ summary: 'Delete acount' })
+  remove(@Headers('token') token: string, @Body() password: string) {
+    return this.usersService.remove(token, password);
   }
 }
