@@ -59,6 +59,10 @@ export class VendorService {
   findOne(uuid: string) {
     const vendor = this.databaseService.vendor.findUnique({
       where: { uuid },
+      include: {
+        categories: true,
+        foods: true,
+      }
     });
 
     return {
