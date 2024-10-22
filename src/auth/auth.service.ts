@@ -467,7 +467,12 @@ export class AuthService {
     await this.databaseService.personalAccessToken.delete({
       where: { token },
     });
-    return 'User logged out successfully';
+    
+    return {
+      status: 200,
+      success: true,
+      message: 'User logged out successfully.',
+    };
   }
 }
 
