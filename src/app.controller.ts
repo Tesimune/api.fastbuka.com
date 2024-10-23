@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Post, Query, Version } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, ValidationPipe, Version } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiTags } from '@nestjs/swagger';
+import { query } from 'express';
+import { QueryParamsDto } from './app.dto';
 
 @Controller()
 export class AppController {
@@ -22,24 +24,22 @@ export class AppController {
   @Get('home')
   @ApiTags('app')
   home(
-    @Query('page') page: number = 1,
-    @Query('pageSize') pageSize: number = 20,
-    @Query('sortField') sortField?: string,
-    @Query('sortOrder') sortOrder: 'asc' | 'desc' = 'desc',
+    @Query(ValidationPipe) query: QueryParamsDto
   ): Promise<{}> {
-    return this.appService.home(page, pageSize, sortField, sortOrder);
+    const page = +query.page ? +query.page : 1;
+    const perPage = query.perPage ? query.perPage : 20;
+    return this.appService.home(+page, +perPage, query.sortField, query.sortOrder);
   }
 
   @Version('1')
   @Get('menu')
   @ApiTags('app')
   menu(
-    @Query('page') page: number = 1,
-    @Query('pageSize') pageSize: number = 20,
-    @Query('sortField') sortField?: string,
-    @Query('sortOrder') sortOrder: 'asc' | 'desc' = 'desc',
+    @Query(ValidationPipe) query: QueryParamsDto
   ): Promise<{}> {
-    return this.appService.menu(page, pageSize, sortField, sortOrder);
+    const page = +query.page ? +query.page : 1;
+    const perPage = query.perPage ? query.perPage : 20;
+    return this.appService.menu(+page, +perPage, query.sortField, query.sortOrder);
   }
 
   @Version('1')

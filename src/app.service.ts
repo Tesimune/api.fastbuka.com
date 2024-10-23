@@ -28,11 +28,11 @@ export class AppService {
   /**
    * 
    * @param page 
-   * @param pageSize 
+   * @param perPage 
    * @returns Home page
    */
-  async home(page: number, pageSize: number, sortField: string = 'updatedAt', sortOrder: 'asc' | 'desc' = 'desc'): Promise<object> {
-    const skip = (page - 1) * pageSize;
+  async home(page: number, perPage: number, sortField: string = 'updatedAt', sortOrder: 'asc' | 'desc' = 'desc'): Promise<object> {
+    const skip = (page - 1) * perPage;
     const totalCount = await this.databaseService.food.count();
 
     const validSortFields = ['price', 'tag', 'ratings', 'featured', 'createdAt', 'updatedAt'];
@@ -56,13 +56,16 @@ export class AppService {
     });
 
     const food = await this.databaseService.food.findMany({
-      skip,
-      take: pageSize,
+      skip: isNaN(skip) ? 0 : skip,
+      take: perPage,
       orderBy: {
         [sortField]: sortOrder,
       },
     });
 
+    const totalPages = Math.ceil(totalCount / perPage);
+    const nextPage = page < totalPages ? page + 1 : null;
+    const previousPage = page > 1 ? page - 1 : null;
 
     return {
       status: 200,
@@ -73,9 +76,14 @@ export class AppService {
         restaurants,
         menu: {
           food,
-          totalCount,
-          page,
-          pageSize,
+          pagination: {
+            totalCount,
+            totalPages,
+            nextPage,
+            previousPage,
+            page,
+            perPage,
+          }
         },
       },
     };
@@ -84,11 +92,11 @@ export class AppService {
   /**
    * 
    * @param page 
-   * @param pageSize 
+   * @param perPage 
    * @returns Menu Page
    */
-  async menu(page: number, pageSize: number, sortField: string = 'updatedAt', sortOrder: 'asc' | 'desc' = 'desc'): Promise<object> {
-    const skip = (page - 1) * pageSize;
+  async menu(page: number, perPage: number, sortField: string = 'updatedAt', sortOrder: 'asc' | 'desc' = 'desc'): Promise<object> {
+    const skip = (page - 1) * perPage;
     const totalCount = await this.databaseService.food.count();
 
     const validSortFields = ['price', 'tag', 'ratings', 'featured', 'createdAt', 'updatedAt'];
@@ -107,8 +115,8 @@ export class AppService {
     });
 
     const food = await this.databaseService.food.findMany({
-        skip,
-        take: pageSize,
+        skip: isNaN(skip) ? 0 : skip,
+        take: perPage,
         where: {
             on_menu: true,
         },
@@ -116,6 +124,10 @@ export class AppService {
             [sortField]: sortOrder,
         },
     });
+
+    const totalPages = Math.ceil(totalCount / perPage);
+    const nextPage = page < totalPages ? page + 1 : null;
+    const previousPage = page > 1 ? page - 1 : null;
 
     return {
         status: 200,
@@ -125,13 +137,18 @@ export class AppService {
             featured,
             meal: {
                 food,
-                totalCount,
-                page,
-                pageSize,
+                pagination: {
+                  totalCount,
+                  totalPages,
+                  nextPage,
+                  previousPage,
+                  page,
+                  perPage,
+                }
             },
         },
     };
-}
+  }
 
 
   /**
