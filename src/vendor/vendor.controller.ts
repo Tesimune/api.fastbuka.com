@@ -20,6 +20,12 @@ import { UpdateVendorDto } from './dto/update-vendor.dto';
 export class VendorController {
   constructor(private readonly vendorService: VendorService) {}
 
+  /**
+   * 
+   * @param token 
+   * @param vendor 
+   * @returns 
+   */
   @Version('1')
   @Post('/')
   create(
@@ -29,30 +35,56 @@ export class VendorController {
     return this.vendorService.create(token, vendor);
   }
 
+  /**
+   * 
+   * @param page 
+   * @param pageSize 
+   * @returns 
+   */
   @Version('1')
   @Get()
-  findAll() {
-    return this.vendorService.findAll();
+  findAll(@Headers('token') token: string) {
+    return this.vendorService.findAll(token);
   }
 
+  /**
+   * 
+   * @param slug 
+   * @returns 
+   */
   @Version('1')
-  @Get(':uuid')
-  findOne(@Param('uuid') uuid: string) {
-    return this.vendorService.findOne(uuid);
+  @Get(':slug')
+  findOne(@Param('slug') slug: string) {
+    return this.vendorService.findOne(slug);
   }
 
+  /**
+   * 
+   * @param uuid 
+   * @param VendorUpdateInput 
+   * @returns 
+   */
   @Version('1')
   @Patch(':uuid')
   update(
+    @Headers('token') token: string,
     @Param('uuid') uuid: string,
     @Body() VendorUpdateInput: UpdateVendorDto,
   ) {
-    return this.vendorService.update(uuid, VendorUpdateInput);
+    return this.vendorService.update(token, uuid, VendorUpdateInput);
   }
 
+  /**
+   * 
+   * @param uuid 
+   * @returns 
+   */
   @Version('1')
   @Delete(':uuid')
-  remove(@Param('uuid') uuid: string) {
-    return this.vendorService.remove(uuid);
+  remove(
+    @Headers('token') token: string,
+    @Param('uuid') uuid: string,
+  ) {
+    return this.vendorService.remove(token, uuid);
   }
 }
