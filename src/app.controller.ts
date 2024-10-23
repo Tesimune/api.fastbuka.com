@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Version } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Version } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -21,15 +21,25 @@ export class AppController {
   @Version('1')
   @Get('home')
   @ApiTags('app')
-  home(): Promise<{}> {
-    return this.appService.home();
+  home(
+    @Query('page') page: number = 1,
+    @Query('pageSize') pageSize: number = 20,
+    @Query('sortField') sortField?: string,
+    @Query('sortOrder') sortOrder: 'asc' | 'desc' = 'desc',
+  ): Promise<{}> {
+    return this.appService.home(page, pageSize, sortField, sortOrder);
   }
 
   @Version('1')
   @Get('menu')
   @ApiTags('app')
-  menu(): Promise<{}> {
-    return this.appService.menu();
+  menu(
+    @Query('page') page: number = 1,
+    @Query('pageSize') pageSize: number = 20,
+    @Query('sortField') sortField?: string,
+    @Query('sortOrder') sortOrder: 'asc' | 'desc' = 'desc',
+  ): Promise<{}> {
+    return this.appService.menu(page, pageSize, sortField, sortOrder);
   }
 
   @Version('1')
@@ -56,7 +66,7 @@ export class AppController {
   @Version('1')
   @Post('contact')
   @ApiTags('app')
-  form(): Promise<{}> {
-    return this.appService.form();
+  form(@Body() name: string, email: string, subject: string, phone: string, message: string): Promise<{}> {
+    return this.appService.form(name, email, subject, phone, message);
   }
 }
