@@ -44,7 +44,8 @@ export class AppService {
     const trending = await this.databaseService.food.findMany({
       take: 10,
       include: {
-        category: true
+        category: true,
+        vendor: true,
       },
     })
     
@@ -63,7 +64,8 @@ export class AppService {
       skip: isNaN(skip) ? 0 : skip,
       take: perPage,
       include: {
-        category: true
+        category: true,
+        vendor: true,
       },
       orderBy: {
         [sortField]: sortOrder,
@@ -117,7 +119,8 @@ export class AppService {
             on_menu: true,
         },
         include: {
-          category: true
+          category: true,
+          vendor: true,
         },
         orderBy: {
           featured: 'desc',
@@ -131,7 +134,8 @@ export class AppService {
             on_menu: true,
         },
         include: {
-          category: true
+          category: true,
+          vendor: true,
         },
         orderBy: {
             [sortField]: sortOrder,
