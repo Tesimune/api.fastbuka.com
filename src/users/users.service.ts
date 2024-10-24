@@ -20,7 +20,7 @@ export class UsersService {
   async profile(token: string) {
     const auth = await this.MiddlewareService.decodeToken(token);
 
-    const user = this.databaseService.user.findUnique({
+    const user = await this.databaseService.user.findUnique({
       where: { uuid: auth.uuid },
       include: {
         profile: true,
