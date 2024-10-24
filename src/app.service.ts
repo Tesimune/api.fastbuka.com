@@ -35,7 +35,7 @@ export class AppService {
     const skip = (page - 1) * perPage;
     const totalCount = await this.databaseService.food.count();
 
-    const validSortFields = ['price', 'tag', 'ratings', 'featured', 'createdAt', 'updatedAt'];
+    const validSortFields = ['price', 'category', 'ratings', 'featured', 'createdAt', 'updatedAt'];
     if (!validSortFields.includes(sortField)) {
         sortField = 'updatedAt';
     }
@@ -99,7 +99,7 @@ export class AppService {
     const skip = (page - 1) * perPage;
     const totalCount = await this.databaseService.food.count();
 
-    const validSortFields = ['price', 'tag', 'ratings', 'featured', 'createdAt', 'updatedAt'];
+    const validSortFields = ['price', 'category', 'ratings', 'featured', 'createdAt', 'updatedAt'];
     if (!validSortFields.includes(sortField)) {
         sortField = 'updatedAt';
     }

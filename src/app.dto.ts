@@ -14,10 +14,10 @@ export class QueryParamsDto {
   @IsPositive()
   perPage?: number | null;
 
-  @ApiPropertyOptional({ enum: ['price', 'tag', 'ratings', 'featured', 'createdAt', 'updatedAt'] })
+  @ApiPropertyOptional({ enum: ['price', 'category', 'ratings', 'featured', 'createdAt', 'updatedAt'] })
   @IsOptional()
-  @IsEnum(['price', 'tag', 'ratings', 'featured', 'createdAt', 'updatedAt'])
-  sortField?: 'price' | 'tag' | 'ratings' | 'featured' | 'createdAt' | 'updatedAt' | null;
+  @IsEnum(['price', 'category', 'ratings', 'featured', 'createdAt', 'updatedAt'])
+  sortField?: 'price' | 'category' | 'ratings' | 'featured' | 'createdAt' | 'updatedAt' | null;
 
   @ApiPropertyOptional({ enum: ['asc', 'desc'] })
   @IsOptional()

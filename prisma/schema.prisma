@@ -105,7 +105,7 @@ model Vendor {
   featured     Float      @default(0)
   status       String     @default("pending")
   is_online    Boolean    @default(true)
-  vendor_tags  String?
+  category     String?
   opening_time String?
   closing_time String?
   createdAt    DateTime   @default(now())
