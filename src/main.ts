@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { RequestMethod, VersioningType } from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
-// import { SeederService } from './seeder/seeder.service';
+import { SeederService } from './seeder/seeder.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -37,10 +37,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  // if (process.env.NODE_ENV === 'local') {
-  //   const seeder = app.get(SeederService);
-  //   await seeder.seed();
-  // }
+  if (process.env.NODE_ENV === 'local') {
+    const seeder = app.get(SeederService);
+    await seeder.seed();
+  }
 
   await app.listen(process.env.PORT ?? 3000);
 }

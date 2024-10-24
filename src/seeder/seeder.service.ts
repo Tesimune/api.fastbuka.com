@@ -77,7 +77,7 @@ export class SeederService {
           });
 
           if (createdUser.role == 'vendor') {
-            await this.seedVendors(createdUser.uuid);
+            // await this.seedVendors(createdUser.uuid);
             this.logger.log('Vendor seeding completed!');
           }
         }
