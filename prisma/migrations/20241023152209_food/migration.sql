@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Food" ADD COLUMN     "featured" DOUBLE PRECISION NOT NULL DEFAULT 0;

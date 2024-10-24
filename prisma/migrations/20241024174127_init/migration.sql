@@ -5,6 +5,7 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "contact" TEXT,
     "username" TEXT NOT NULL,
+    "balance" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "walletAddress" TEXT NOT NULL,
     "secretKey" TEXT NOT NULL,
     "password" TEXT NOT NULL,
@@ -78,17 +79,41 @@ CREATE TABLE "Vendor" (
     "user_uuid" TEXT NOT NULL,
     "name" TEXT,
     "description" TEXT,
-    "cac_number" TEXT,
+    "profile" TEXT,
+    "cover" TEXT,
     "country" TEXT,
     "state" TEXT,
     "city" TEXT,
+    "location" TEXT,
+    "longitude" TEXT,
+    "latitude" TEXT,
     "address" TEXT,
+    "ratings" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "featured" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "status" TEXT NOT NULL DEFAULT 'pending',
+    "is_online" BOOLEAN NOT NULL DEFAULT true,
+    "category" TEXT,
     "opening_time" TEXT,
     "closing_time" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Vendor_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "VendorDocuments" (
+    "id" SERIAL NOT NULL,
+    "uuid" TEXT NOT NULL,
+    "country" TEXT,
+    "id_number" TEXT,
+    "id_upload" TEXT,
+    "business_number" TEXT,
+    "business_upload" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "VendorDocuments_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -116,7 +141,10 @@ CREATE TABLE "Food" (
     "price" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "discount" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "processing_time" TEXT,
+    "ratings" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "featured" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "ready_made" BOOLEAN NOT NULL DEFAULT true,
+    "on_menu" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -213,6 +241,9 @@ CREATE UNIQUE INDEX "Vendor_uuid_key" ON "Vendor"("uuid");
 CREATE UNIQUE INDEX "Vendor_slug_key" ON "Vendor"("slug");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "VendorDocuments_uuid_key" ON "VendorDocuments"("uuid");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Category_uuid_key" ON "Category"("uuid");
 
 -- CreateIndex
@@ -241,6 +272,9 @@ ALTER TABLE "PersonalAccessToken" ADD CONSTRAINT "PersonalAccessToken_user_uuid_
 
 -- AddForeignKey
 ALTER TABLE "Vendor" ADD CONSTRAINT "Vendor_user_uuid_fkey" FOREIGN KEY ("user_uuid") REFERENCES "User"("uuid") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "VendorDocuments" ADD CONSTRAINT "VendorDocuments_uuid_fkey" FOREIGN KEY ("uuid") REFERENCES "Vendor"("uuid") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Category" ADD CONSTRAINT "Category_vendor_uuid_fkey" FOREIGN KEY ("vendor_uuid") REFERENCES "Vendor"("uuid") ON DELETE RESTRICT ON UPDATE CASCADE;
