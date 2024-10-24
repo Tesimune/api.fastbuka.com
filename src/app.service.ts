@@ -1,6 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { DatabaseService } from './database/database.service';
 import { MailerService } from './mailer/mailer.service';
+import { categories } from './seeder/data/categories.data';
 
 @Injectable()
 export class AppService {
@@ -42,6 +43,9 @@ export class AppService {
 
     const trending = await this.databaseService.food.findMany({
       take: 10,
+      include: {
+        category: true
+      },
     })
     
     const restaurants = await this.databaseService.vendor.findMany({
@@ -58,6 +62,9 @@ export class AppService {
     const food = await this.databaseService.food.findMany({
       skip: isNaN(skip) ? 0 : skip,
       take: perPage,
+      include: {
+        category: true
+      },
       orderBy: {
         [sortField]: sortOrder,
       },
@@ -109,6 +116,9 @@ export class AppService {
         where: {
             on_menu: true,
         },
+        include: {
+          category: true
+        },
         orderBy: {
           featured: 'desc',
         },
@@ -119,6 +129,9 @@ export class AppService {
         take: perPage,
         where: {
             on_menu: true,
+        },
+        include: {
+          category: true
         },
         orderBy: {
             [sortField]: sortOrder,
