@@ -4,7 +4,6 @@ export const vendors = [
     slug: 'fastbuka',
     name: 'Fastbuka',
     description: 'Quick and delicious meals',
-    cac_number: '123456789',
     country: 'Nigeria',
     state: 'Lagos',
     city: 'Ikeja',
