@@ -14,6 +14,10 @@ import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
 import { MailerModule } from './mailer/mailer.module';
 import { MailerService } from './mailer/mailer.service';
+import { StorageModule } from './storage/storage.module';
+import { StorageService } from './storage/storage.service';
+import { MulterModule } from '@nestjs/platform-express';
+import * as multer from 'multer';
 
 @Module({
   imports: [
@@ -27,9 +31,13 @@ import { MailerService } from './mailer/mailer.service';
     CartModule,
     OrderModule,
     MailerModule,
+    StorageModule,
+    MulterModule.register({
+      storage: multer.memoryStorage(),
+    }),
   ],
   controllers: [AppController],
-  providers: [AppService, MiddlewareService, MailerService, SeederService],
-  exports: [MiddlewareService, MailerService],
+  providers: [AppService, MiddlewareService, MailerService, StorageService, SeederService],
+  exports: [MiddlewareService, MailerService, StorageService],
 })
 export class AppModule {}
