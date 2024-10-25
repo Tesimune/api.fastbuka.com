@@ -26,6 +26,13 @@ export class UsersController {
   }
 
   @Version('1')
+  @Get('wallet')
+  @ApiOperation({ summary: 'Fetch wallet' })
+  wallet(@Headers('token') token: string) {
+    return this.usersService.wallet(token);
+  }
+
+  @Version('1')
   @Patch('profile')
   @ApiOperation({ summary: 'Update Profile' })
   update(
