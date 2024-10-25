@@ -72,6 +72,20 @@ CREATE TABLE "PasswordResetTokens" (
 );
 
 -- CreateTable
+CREATE TABLE "Storage" (
+    "id" SERIAL NOT NULL,
+    "uuid" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "user_uuid" TEXT NOT NULL,
+    "name" TEXT,
+    "base_url" TEXT,
+    "path" TEXT NOT NULL,
+    "size" TEXT,
+
+    CONSTRAINT "Storage_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Vendor" (
     "id" SERIAL NOT NULL,
     "uuid" TEXT NOT NULL,
@@ -235,6 +249,12 @@ CREATE UNIQUE INDEX "UserProfile_user_uuid_key" ON "UserProfile"("user_uuid");
 CREATE UNIQUE INDEX "PersonalAccessToken_token_key" ON "PersonalAccessToken"("token");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Storage_uuid_key" ON "Storage"("uuid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Storage_slug_key" ON "Storage"("slug");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Vendor_uuid_key" ON "Vendor"("uuid");
 
 -- CreateIndex
@@ -269,6 +289,9 @@ ALTER TABLE "UserProfile" ADD CONSTRAINT "UserProfile_user_uuid_fkey" FOREIGN KE
 
 -- AddForeignKey
 ALTER TABLE "PersonalAccessToken" ADD CONSTRAINT "PersonalAccessToken_user_uuid_fkey" FOREIGN KEY ("user_uuid") REFERENCES "User"("uuid") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Storage" ADD CONSTRAINT "Storage_user_uuid_fkey" FOREIGN KEY ("user_uuid") REFERENCES "User"("uuid") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Vendor" ADD CONSTRAINT "Vendor_user_uuid_fkey" FOREIGN KEY ("user_uuid") REFERENCES "User"("uuid") ON DELETE RESTRICT ON UPDATE CASCADE;

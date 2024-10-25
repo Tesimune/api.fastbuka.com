@@ -32,10 +32,11 @@ model User {
   isOnline          Boolean               @default(true)
   createdAt         DateTime              @default(now())
   updatedAt         DateTime              @updatedAt
-  cart              Cart?
+  cart              Cart[]
   orders            Order[]
   vendors           Vendor[]
   tokens            PersonalAccessToken[]
+  storage           Storage[]
   profile           UserProfile?
 }
 
@@ -81,6 +82,18 @@ model PasswordResetTokens {
   token       String
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+}
+
+model Storage {
+  id          Int       @id @default(autoincrement())
+  uuid        String    @unique @default(uuid())
+  slug        String    @unique
+  user_uuid   String
+  name        String?
+  base_url    String?
+  path        String
+  size        String?
+  user        User      @relation(fields: [user_uuid], references: [uuid])
 }
 
 
