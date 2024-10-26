@@ -2,19 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
 import { DatabaseService } from 'src/database/database.service';
-import { Express } from 'express';
 
 @Injectable()
 export class FoodService {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  create(createFoodDto: CreateFoodDto, image: Express.Multer.File) {
-    const foodData = {
-      ...createFoodDto,
-      image: `/uploads/${image.filename}`,
-    };
+  create(createFoodDto: CreateFoodDto) {
     const food = this.databaseService.food.create({
-      data: foodData as any,
+      data: createFoodDto as any,
     });
 
     return {

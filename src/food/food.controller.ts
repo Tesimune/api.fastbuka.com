@@ -6,15 +6,11 @@ import {
   Patch,
   Param,
   Delete,
-  UseInterceptors,
-  UploadedFile,
   Version,
 } from '@nestjs/common';
 import { FoodService } from './food.service';
 import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { Express } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('food')
@@ -24,12 +20,10 @@ export class FoodController {
 
   @Version('1')
   @Post()
-  @UseInterceptors(FileInterceptor('image'))
   create(
     @Body() createFoodDto: CreateFoodDto,
-    @UploadedFile() image: Express.Multer.File,
   ) {
-    return this.foodService.create(createFoodDto, image);
+    return this.foodService.create(createFoodDto);
   }
 
   @Version('1')
