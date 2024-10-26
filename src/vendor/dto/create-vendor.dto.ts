@@ -9,11 +9,6 @@ export class CreateVendorDto {
   name: string;
 
   @IsString()
-  @IsOptional()
-  @ApiProperty()
-  cac_number: string;
-
-  @IsString()
   @ApiProperty()
   description: string;
 

@@ -22,7 +22,7 @@ import {
 export class AuthService {
   constructor(
     private readonly databaseService: DatabaseService,
-    private readonly MiddlewareService: MiddlewareService,
+    private readonly middlewareService: MiddlewareService,
     private readonly mailerService: MailerService,
   ) {}
 
@@ -317,7 +317,7 @@ export class AuthService {
    * @returns
    */
   async updatePassword(body: UpdatePasswordDto, token: string) {
-    const user = await this.MiddlewareService.decodeToken(token);
+    const user = await this.middlewareService.decodeToken(token);
     if (!user || !(await bcrypt.compare(body.old_password, user.password))) {
       throw new UnauthorizedException('Password is incorrect');
     }
@@ -456,7 +456,7 @@ export class AuthService {
    * @returns
    */
   async logout(token: string) {
-    const user = await this.MiddlewareService.decodeToken(token);
+    const user = await this.middlewareService.decodeToken(token);
     if (!user) {
       throw new UnauthorizedException({
         status: 412,

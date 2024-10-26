@@ -1,35 +1,36 @@
-import { Controller, Get, Post, Patch, Param, Delete, UseInterceptors, UploadedFile, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Delete, UseInterceptors, UploadedFile, Headers, Body, ValidationPipe, Version } from '@nestjs/common';
 import { StorageService } from './storage.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateStorageDto } from './dto/create-storage.dto';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('storage')
 @Controller('storage')
 export class StorageController {
   constructor(private readonly storageService: StorageService) {}
 
+  @Version('1')
   @Post()
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
-  create(@Headers() token: string, @UploadedFile() file: Express.Multer.File) {
-    return this.storageService.create(token, file);
+  create(
+    @Headers('token') token: string,
+    @Body(ValidationPipe) body: CreateStorageDto,
+    @UploadedFile('file') file: Express.Multer.File
+  ) {
+    return this.storageService.create(token, body.use, file);
   }
 
-  @Get()
-  findAll(@Headers() token: string) {
-    return this.storageService.findAll(token);
-  }
 
-  @Get(':uuid')
-  findOne(@Headers() token: string, @Param('uuid') uuid: string) {
-    return this.storageService.findOne(token, uuid);
-  }
-
-  @Patch(':uuid')
+  @Version('1')
+  @Patch()
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
-  update(@Headers() token: string, @Param('uuid') uuid: string, @UploadedFile() file: Express.Multer.File) {
-    return this.storageService.update(token, uuid, file);
-  }
-
-  @Delete(':uuid')
-  remove(@Headers() token: string, @Param('uuid') uuid: string) {
-    return this.storageService.remove(token, uuid);
+  update(
+    @Headers('token') token: string,
+    @Body(ValidationPipe) body: CreateStorageDto,
+    @UploadedFile('file') file: Express.Multer.File
+  ) {
+    return this.storageService.update(token, body.use, file);
   }
 }
