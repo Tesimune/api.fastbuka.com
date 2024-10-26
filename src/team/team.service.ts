@@ -6,43 +6,38 @@ import { CreateTeamDTO } from "./dto/create-team.dto";
 export class TeamService {
     constructor(private readonly databaseService: DatabaseService) {}
 
-    create(createTeamDto: CreateTeamDTO, profile: Express.Multer.File){
-        const Team = {
-            ...createTeamDto,
-            profile: `/uploads/${profile.filename}`,
-        };
-
-        const team = this.databaseService.team.create({
-            data: Team
+    async create(createTeamDto: CreateTeamDTO) {
+        const team = await this.databaseService.team.create({
+            data: createTeamDto,
         });
 
         return {
             status: 200,
             success: true,
             message: 'Team member added successfully',
-            data:{
-                team,
-            }
-        }
-    }
-
-    findAll(){
-        const team = this.databaseService.team.findMany();
-        return{
-            status: 200,
-            success: true,
-            message: 'Team members successfully retrieved',
-            data:{
+            data: {
                 team,
             }
         };
     }
 
-    findOne(uuid: string){
-        const team = this.databaseService.team.findUnique({
-            where: {uuid},
+    async findAll() {
+        const team = await this.databaseService.team.findMany();
+        return {
+            status: 200,
+            success: true,
+            message: 'Team members successfully retrieved',
+            data: {
+                team,
+            }
+        };
+    }
+
+    async findOne(uuid: string) {
+        const team = await this.databaseService.team.findUnique({
+            where: { uuid },
         });
-        return{
+        return {
             status: 200,
             success: true,
             message: 'Member fetched successfully',
@@ -52,12 +47,12 @@ export class TeamService {
         };
     }
 
-    remove(uuid: string){
-        this.databaseService.team.delete({
-            where: {uuid},
+    async remove(uuid: string) {
+        await this.databaseService.team.delete({
+            where: { uuid },
         });
-        return{
-            status:200,
+        return {
+            status: 200,
             success: true,
             message: 'Member deleted successfully'
         };

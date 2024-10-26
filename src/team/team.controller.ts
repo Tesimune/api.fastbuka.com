@@ -1,8 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, UploadedFiles, UseInterceptors, Version } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Version } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { TeamService } from "./team.service";
 import { CreateTeamDTO } from "./dto/create-team.dto";
-import { FileInterceptor } from "@nestjs/platform-express";
+// import { FileInterceptor } from "@nestjs/platform-express";
 
 @ApiTags('team')
 @Controller('team')
@@ -11,12 +11,10 @@ export class TeamController{
 
     @Version('1')
     @Post()
-    @UseInterceptors(FileInterceptor('profile'))
     create(
         @Body() createTeamDto: CreateTeamDTO,
-        @UploadedFiles() profile: Express.Multer.File,
     ){
-        return this.teamService.create(createTeamDto, profile)
+        return this.teamService.create(createTeamDto)
     }
 
     @Version('1')

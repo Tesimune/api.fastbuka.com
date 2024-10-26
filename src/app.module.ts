@@ -18,6 +18,8 @@ import { StorageModule } from './storage/storage.module';
 import { StorageService } from './storage/storage.service';
 import { MulterModule } from '@nestjs/platform-express';
 import * as multer from 'multer';
+import { TeamModule } from './team/team.module';
+import { ContactModule } from './contact/contact.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import * as multer from 'multer';
     OrderModule,
     MailerModule,
     StorageModule,
+    TeamModule,
+    ContactModule,
     MulterModule.register({
       storage: multer.memoryStorage(),
     }),
