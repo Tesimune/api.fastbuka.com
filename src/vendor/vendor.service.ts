@@ -36,6 +36,7 @@ export class VendorService {
     const createdVendor = await this.databaseService.vendor.create({
       data: {
         user_uuid: user.uuid,
+        slug,
         ...vendor,
       },
     });
