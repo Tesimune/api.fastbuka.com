@@ -242,3 +242,29 @@ model OrderItem {
   order      Order    @relation(fields: [order_uuid], references: [uuid])
   food       Food     @relation(fields: [food_uuid], references: [uuid])
 }
+
+model Team {
+  id            Int       @id @default(autoincrement())
+  uuid          String    @unique @default(uuid())
+  profile       String 
+  name          String
+  role          String
+  description   String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model Contact {
+  id          Int     @id @default(autoincrement())
+  uuid        String  @unique @default(uuid())
+  email       String
+  phone       String
+  address     String
+}
+
+model Partner {
+  id      Int         @id @default(autoincrement())
+  uuid    String      @unique @default(uuid())
+  logo    String
+  name    String
+}
