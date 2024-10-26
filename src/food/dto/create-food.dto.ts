@@ -1,5 +1,6 @@
 import { ApiProperty, ApiTags } from '@nestjs/swagger';
 import { IsString, IsOptional, IsBoolean, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
 
 @ApiTags('food')
 export class CreateFoodDto {
@@ -7,9 +8,9 @@ export class CreateFoodDto {
   @ApiProperty()
   vendor_uuid: string;
 
-  @IsString()
+  @IsOptional()
   @ApiProperty()
-  category_uuid: string;
+  category_uuid?: string;
 
   @IsString()
   @ApiProperty()
@@ -19,9 +20,9 @@ export class CreateFoodDto {
   @ApiProperty()
   description: string;
 
-  @IsString()
-  @ApiProperty()
-  image: string;
+  @Type(() => Object)
+  @ApiProperty({ type: 'string', format: 'binary', required: true })
+  image: Express.Multer.File;
 
   @IsNumber()
   @ApiProperty()

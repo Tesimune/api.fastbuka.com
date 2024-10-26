@@ -89,11 +89,13 @@ model Storage {
   uuid        String    @unique @default(uuid())
   slug        String    @unique
   user_uuid   String
-  name        String?
+  use         String?
   base_url    String?
   path        String
+  type        String?
   size        String?
   user        User      @relation(fields: [user_uuid], references: [uuid])
+  @@unique([user_uuid, use])
 }
 
 
@@ -163,7 +165,7 @@ model Food {
   id              Int         @id @default(autoincrement())
   uuid            String      @unique @default(uuid())
   vendor_uuid     String 
-  category_uuid   String
+  category_uuid   String?
   name            String?
   description     String?
   image           String?
@@ -177,7 +179,7 @@ model Food {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   vendor          Vendor      @relation(fields: [vendor_uuid], references: [uuid])
-  category        Category    @relation(fields: [category_uuid], references: [uuid])
+  category        Category?    @relation(fields: [category_uuid], references: [uuid])
   cartItems       CartItem[]
   orderItems      OrderItem[]
 }
