@@ -64,7 +64,7 @@ export class VendorService {
   async findAll(token: string) {
     const user = await this.MiddlewareService.decodeToken(token);
 
-    const vendors = this.databaseService.vendor.findMany({
+    const vendors = await this.databaseService.vendor.findMany({
       where: {
         user_uuid: user.uuid
       },
@@ -88,8 +88,8 @@ export class VendorService {
    * @param uuid 
    * @returns Show vendor
    */
-  findOne(slug: string) {
-    const vendor = this.databaseService.vendor.findUnique({
+  async findOne(slug: string) {
+    const vendor = await this.databaseService.vendor.findUnique({
       where: { slug },
       include: {
         categories: true,
