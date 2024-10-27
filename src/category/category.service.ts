@@ -136,7 +136,17 @@ export class CategoryService {
       }, 401)
     }
 
-    const bucket = await this.storageService.bucket(token, uuid, image)
+    const existingCategory = await this.databaseService.category.findUnique({
+      where: { uuid },
+    });
+
+    let bucket: string;
+
+    if (image instanceof File) {
+      bucket = await this.storageService.bucket(token, `category_${uuid}`, image);
+    } else {
+      bucket = existingCategory?.image || null;
+    }
 
     const CategoryData = {
       uuid,

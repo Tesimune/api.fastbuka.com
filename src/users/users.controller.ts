@@ -7,11 +7,14 @@ import {
   Delete,
   Version,
   ValidationPipe,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ResetPasswordDto } from 'src/auth/dto/update-auth.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('users')
 @Controller('users')
@@ -35,11 +38,14 @@ export class UsersController {
   @Version('1')
   @Patch('profile')
   @ApiOperation({ summary: 'Update Profile' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('profile'))
   update(
     @Headers('token') token: string,
     @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile('profile') profile?: Express.Multer.File,
   ) {
-    return this.usersService.update(token, updateUserDto);
+    return this.usersService.update(token, updateUserDto, profile);
   }
 
   @Version('1')
