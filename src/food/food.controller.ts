@@ -31,7 +31,7 @@ export class FoodController {
     @Headers('token') token: string,
     @Param('vendor_slug') vendor_slug: string,
     @Body() createFoodDto: CreateFoodDto,
-    @UploadedFile('image') image: Express.Multer.File
+    @UploadedFile('image') image?: Express.Multer.File
   ) {
     return this.foodService.create(token, vendor_slug, createFoodDto, image);
   }

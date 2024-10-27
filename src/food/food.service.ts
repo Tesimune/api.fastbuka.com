@@ -130,7 +130,19 @@ export class FoodService {
         message: 'Unauthorized'
       }, 401)
     }
-    const bucket = await this.storageService.bucket(token, uuid, image)
+    
+    const existingFood = await this.databaseService.food.findUnique({
+      where: { uuid },
+    });
+
+    let bucket: string;
+
+    if (image instanceof File) {
+      bucket = await this.storageService.bucket(token, `food_${uuid}`, image);
+    } else {
+      bucket = existingFood?.image || null;
+    }
+
     const foodData = {
       image: bucket,
       ...updateFoodDto,

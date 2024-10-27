@@ -1,5 +1,6 @@
 import { IsEmail, IsString, IsOptional, MinLength } from 'class-validator';
 import { ApiProperty, ApiTags } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 @ApiTags('users')
 export class UpdateUserDto {
@@ -36,9 +37,9 @@ export class UpdateUserDto {
   account_type?: string = 'user';
 
   @IsOptional()
-  @IsString()
-  @ApiProperty()
-  profile?: string;
+  @Type(() => Object)
+  @ApiProperty({ type: 'string', format: 'binary', required: true })
+  profile?: Express.Multer.File;
 
   @IsOptional()
   @IsString()

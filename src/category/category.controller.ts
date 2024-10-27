@@ -30,7 +30,7 @@ export class CategoryController {
     @Headers('token') token: string, 
     @Param('vendor_slug') vendor_slug:string, 
     @Body() createCategoryDto: CreateCategoryDto,
-    @UploadedFile('image') image: Express.Multer.File
+    @UploadedFile('image') image?: Express.Multer.File
   ) {
     return this.categoryService.create(token, vendor_slug, createCategoryDto, image);
   }
