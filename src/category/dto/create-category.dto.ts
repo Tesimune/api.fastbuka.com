@@ -1,4 +1,5 @@
 import { ApiProperty, ApiTags } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsString } from 'class-validator';
 
 @ApiTags('category')
@@ -11,7 +12,7 @@ export class CreateCategoryDto {
   @ApiProperty()
   name: string;
 
-  @IsString()
-  @ApiProperty()
-  image: string;
+  @Type(() => Object)
+  @ApiProperty({ type: 'string', format: 'binary', required: true })
+  image: Express.Multer.File;
 }

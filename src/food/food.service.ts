@@ -1,15 +1,45 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
 import { DatabaseService } from 'src/database/database.service';
+import { Express } from 'express';
+import { MiddlewareService } from 'src/middleware/middleware.service';
+import { StorageService } from 'src/storage/storage.service';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class FoodService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private readonly middlewareService: MiddlewareService,
+    private readonly storageService: StorageService
+  ) {}
 
-  async create(createFoodDto: CreateFoodDto) {
-    const food = await this.databaseService.food.create({
-      data: createFoodDto as any,
+  async create(token, vendor_slug: string, createFoodDto: CreateFoodDto, image: Express.Multer.File) {
+    const auth = await this.middlewareService.decodeToken(token);
+    const vendor = await this.databaseService.vendor.findFirst({
+      where: {
+        uuid: vendor_slug,
+        user_uuid: auth.uuid
+      }
+    });
+    if(!vendor){
+      throw new HttpException({
+        status: 401,
+        success: false,
+        message: 'Unauthorized'
+      }, 401)
+    }
+    const uuid = randomUUID();
+    const bucket = await this.storageService.bucket(token, uuid, image)
+    const foodData = {
+      uuid,
+      vendor_uuid: vendor.uuid,
+      image: bucket,
+      ...createFoodDto,
+    };
+    const food = this.databaseService.food.create({
+      data: foodData as any,
     });
 
     return {
@@ -22,8 +52,25 @@ export class FoodService {
     };
   }
 
-  async findAll() {
-    const foods = await this.databaseService.food.findMany();
+  async findAll(vendor_slug: string) {
+    const vendor = await this.databaseService.vendor.findFirst({
+      where: {
+        uuid: vendor_slug,
+      }
+    });
+    if(!vendor){
+      throw new HttpException({
+        status: 404,
+        success: false,
+        message: 'Vendor Does not exist'
+      }, 404)
+    }
+
+    const foods = this.databaseService.food.findMany({
+      where: {
+        vendor_uuid: vendor.uuid,
+      }
+    });
     return {
       status: 200,
       success: true,
@@ -34,10 +81,30 @@ export class FoodService {
     };
   }
 
-  async findOne(uuid: string) {
-    const food = await this.databaseService.food.findUnique({
-      where: { uuid },
+  async findOne(vendor_slug: string, uuid: string) {
+    const vendor = await this.databaseService.vendor.findFirst({
+      where: {
+        uuid: vendor_slug,
+      }
     });
+    if(!vendor){
+      throw new HttpException({
+        status: 404,
+        success: false,
+        message: 'Vendor Does not exist'
+      }, 404)
+    }
+
+    const food = await this.databaseService.food.findUnique({
+      where: { uuid, vendor_uuid: vendor.uuid },
+    });
+    if(!food){
+      throw new HttpException({
+        status: 404,
+        success: false,
+        message: 'food not found, or deleted'
+      }, 404)
+    }
     return {
       status: 200,
       success: true,
@@ -48,10 +115,41 @@ export class FoodService {
     };
   }
 
-  async update(uuid: string, updateFoodDto: UpdateFoodDto) {
-    const food = await this.databaseService.food.update({
+  async update(token: string, vendor_slug: string, uuid: string, updateFoodDto: UpdateFoodDto, image: Express.Multer.File) {
+    const auth = await this.middlewareService.decodeToken(token);
+    const vendor = await this.databaseService.vendor.findFirst({
+      where: {
+        uuid: vendor_slug,
+        user_uuid: auth.uuid
+      }
+    });
+    if(!vendor){
+      throw new HttpException({
+        status: 401,
+        success: false,
+        message: 'Unauthorized'
+      }, 401)
+    }
+    
+    const existingFood = await this.databaseService.food.findUnique({
       where: { uuid },
-      data: updateFoodDto as any,
+    });
+
+    let bucket: string;
+
+    if (image instanceof File) {
+      bucket = await this.storageService.bucket(token, `food_${uuid}`, image);
+    } else {
+      bucket = existingFood?.image || null;
+    }
+
+    const foodData = {
+      image: bucket,
+      ...updateFoodDto,
+    };
+    const food = this.databaseService.food.update({
+      where: { uuid },
+      data: foodData as any,
     });
     return {
       status: 200,
@@ -63,9 +161,24 @@ export class FoodService {
     };
   }
 
-  async remove(uuid: string) {
-    await this.databaseService.food.delete({
-      where: { uuid },
+  async remove(token: string, vendor_slug: string, uuid: string) {
+    const auth = await this.middlewareService.decodeToken(token);
+    const vendor = await this.databaseService.vendor.findFirst({
+      where: {
+        uuid: vendor_slug,
+        user_uuid: auth.uuid
+      }
+    });
+    if(!vendor){
+      throw new HttpException({
+        status: 401,
+        success: false,
+        message: 'Unauthorized'
+      }, 401)
+    }
+
+    this.databaseService.food.delete({
+      where: { uuid, vendor_uuid: vendor.uuid },
     });
     return {
       status: 200,

@@ -89,11 +89,13 @@ model Storage {
   uuid        String    @unique @default(uuid())
   slug        String    @unique
   user_uuid   String
-  name        String?
+  use         String?
   base_url    String?
   path        String
+  type        String?
   size        String?
   user        User      @relation(fields: [user_uuid], references: [uuid])
+  @@unique([user_uuid, use])
 }
 
 
@@ -163,7 +165,7 @@ model Food {
   id              Int         @id @default(autoincrement())
   uuid            String      @unique @default(uuid())
   vendor_uuid     String 
-  category_uuid   String
+  category_uuid   String?
   name            String?
   description     String?
   image           String?
@@ -177,7 +179,7 @@ model Food {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   vendor          Vendor      @relation(fields: [vendor_uuid], references: [uuid])
-  category        Category    @relation(fields: [category_uuid], references: [uuid])
+  category        Category?    @relation(fields: [category_uuid], references: [uuid])
   cartItems       CartItem[]
   orderItems      OrderItem[]
 }
@@ -186,26 +188,29 @@ model Food {
 model Cart {
   id          Int        @id @default(autoincrement())
   uuid        String     @unique @default(uuid())
-  user_uuid   String     @unique
+  user_uuid   String
   vendor_uuid String
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   user        User       @relation(fields: [user_uuid], references: [uuid])
   vendor      Vendor     @relation(fields: [vendor_uuid], references: [uuid])
   cartItems   CartItem[]
+  @@unique([user_uuid, vendor_uuid])
 }
 
 // CartItem table model
 model CartItem {
-  id        Int      @id @default(autoincrement())
-  uuid      String   @unique @default(uuid())
-  cart_uuid String
-  food_uuid String
-  quantity  Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  cart      Cart     @relation(fields: [cart_uuid], references: [uuid])
-  food      Food     @relation(fields: [food_uuid], references: [uuid])
+  id             Int      @id @default(autoincrement())
+  uuid           String   @unique @default(uuid())
+  cart_uuid      String
+  food_uuid      String
+  price          Float    @default(0)
+  quantity       Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  cart           Cart     @relation(fields: [cart_uuid], references: [uuid])
+  food           Food     @relation(fields: [food_uuid], references: [uuid])
+  @@unique([cart_uuid, food_uuid])
 }
 
 // Order table model
@@ -214,18 +219,22 @@ model Order {
   uuid             String      @unique @default(uuid())
   user_uuid        String
   vendor_uuid      String
-  order_number     String
-  total_amount     Float
-  discount_amount  Float
-  paid_amount      Float
-  delivery_address String
-  payment_method   String
-  payment_status   String
-  delivery_status  String
+  order_number     String?
+  total_amount     Float      @default(0)
+  discount_amount  Float      @default(0)
+  paid_amount      Float      @default(0)
+  delivery_name    String?
+  delivery_email   String?
+  delivery_contact String?
+  delivery_address String?
+  payment_method   String?
+  payment_status   String      @default("pending")
+  delivery_charges Float       @default(0)
+  order_status     String      @default("pending")
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
-  user             User        @relation(fields: [user_uuid], references: [uuid])
-  vendor           Vendor      @relation(fields: [vendor_uuid], references: [uuid])
+  user             User?       @relation(fields: [user_uuid], references: [uuid])
+  vendor           Vendor?     @relation(fields: [vendor_uuid], references: [uuid])
   orderItems       OrderItem[]
 }
 

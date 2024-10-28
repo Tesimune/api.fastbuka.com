@@ -6,37 +6,45 @@ import {
   Patch,
   Param,
   Delete,
+  Version,
+  Headers,
+  Query,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('order')
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.orderService.create(createOrderDto);
+  @Version('1')
+  @Post(':cart_uuid')
+  create(
+    @Headers('token') token: string,
+    @Param('cart_uuid') cart_uuid: string,
+    @Body() createOrderDto: CreateOrderDto
+  ) {
+    return this.orderService.create(token, cart_uuid, createOrderDto);
   }
 
+  @Version('1')
   @Get()
-  findAll() {
-    return this.orderService.findAll();
+  findAll(
+    @Headers('token') token: string,
+    @Query('order_status') order_status?: string,
+  ) {
+    return this.orderService.findAll(token, order_status);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.orderService.update(+id, updateOrderDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderService.remove(+id);
+  @Version('1')
+  @Get()
+  findOne(
+    @Headers('token') token: string,
+    @Query('order_status') order_status?: string,
+  ) {
+    return this.orderService.findOne(token, order_status);
   }
 }

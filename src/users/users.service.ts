@@ -5,6 +5,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ResetPasswordDto } from 'src/auth/dto/update-auth.dto';
 import * as bcrypt from 'bcryptjs';
 import { StrKey, Horizon } from '@stellar/stellar-sdk';
+import { StorageService } from 'src/storage/storage.service';
 
 
 interface AssetBalance {
@@ -20,6 +21,7 @@ export class UsersService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly MiddlewareService: MiddlewareService,
+    private readonly storageService: StorageService,
   ) {}
 
   /**
@@ -191,46 +193,62 @@ private async getAssetBalances(walletAddress: string, server: Horizon.Server) {
    * @param updateUserDto
    * @returns
    */
-  async update(token: string, updateUserDto: UpdateUserDto) {
+  async update(token: string, updateUserDto: UpdateUserDto, profile: Express.Multer.File) {
     const auth = await this.MiddlewareService.decodeToken(token);
-    if (updateUserDto.email !== auth.email) {
-      const account = await this.databaseService.user.findUnique({
-        where: { email: updateUserDto.email },
-      });
 
-      if (account) {
-        throw new HttpException(
-          {
-            status: 401,
-            success: false,
-            message: 'Email address is already in use',
-          },
-          401,
-        );
-      }
-      await this.databaseService.user.update({
+    if (updateUserDto.email !== auth.email) {
+        const account = await this.databaseService.user.findUnique({
+            where: { email: updateUserDto.email },
+        });
+
+        if (account) {
+          throw new HttpException(
+            {
+              status: 401,
+              success: false,
+              message: 'Email address is already in use',
+            },
+            401,
+          );
+        }
+
+        await this.databaseService.user.update({
+            where: {
+                uuid: auth.uuid,
+            },
+            data: {
+                email: updateUserDto.email,
+                email_verified: false,
+            },
+        });
+    }
+
+    const existingProfile = await this.databaseService.userProfile.findUnique({
+        where: { user_uuid: auth.uuid },
+    });
+
+    let profile_url: string;
+
+    if (profile instanceof File) {
+        profile_url = await this.storageService.bucket(token, 'user_profile', profile);
+    } else {
+        profile_url = existingProfile?.profile || null;
+    }
+
+    await this.databaseService.userProfile.update({
         where: {
-          uuid: auth.uuid,
+            user_uuid: auth.uuid,
         },
         data: {
-          email: updateUserDto.email,
-          email_verified: false,
+            profile: profile_url,
+            ...updateUserDto as any,
         },
-      });
-    }
-    await this.databaseService.userProfile.update({
-      where: {
-        user_uuid: auth.uuid,
-      },
-      data: {
-        ...updateUserDto,
-      },
     });
 
     return {
-      status: 200,
-      success: true,
-      message: 'Profile updated',
+        status: 200,
+        success: true,
+        message: 'Profile updated successfully',
     };
   }
 
