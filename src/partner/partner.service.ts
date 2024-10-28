@@ -6,8 +6,8 @@ import { CreatePartnerDTO } from "./dto/create-partner-dto";
 export class PartnerService{
     constructor (private readonly databaseService: DatabaseService){}
 
-    create(createPartnerDto: CreatePartnerDTO){
-        const Partner = this.databaseService.partner.create({
+    async create(createPartnerDto: CreatePartnerDTO){
+        const Partner = await this.databaseService.partner.create({
             data: createPartnerDto,
         });
         return{
@@ -20,8 +20,8 @@ export class PartnerService{
         }
     }
 
-    findAll(){
-        const Partner = this.databaseService.partner.findMany();
+    async findAll(){
+        const Partner = await this.databaseService.partner.findMany();
         return{
             status: 200,
             success: true,
@@ -32,8 +32,8 @@ export class PartnerService{
         }
     }
 
-    findOne(uuid: string){
-        const Partner = this.databaseService.partner.findUnique({
+    async findOne(uuid: string){
+        const Partner = await this.databaseService.partner.findUnique({
             where: {uuid},
         });
         return{
@@ -45,8 +45,8 @@ export class PartnerService{
             }
         }
     }
-    remove(uuid: string){
-        this.databaseService.partner.delete({
+    async remove(uuid: string){
+        await this.databaseService.partner.delete({
             where: {uuid},
         });
         return{

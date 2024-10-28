@@ -7,8 +7,8 @@ import { DatabaseService } from 'src/database/database.service';
 export class FoodService {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  create(createFoodDto: CreateFoodDto) {
-    const food = this.databaseService.food.create({
+  async create(createFoodDto: CreateFoodDto) {
+    const food = await this.databaseService.food.create({
       data: createFoodDto as any,
     });
 
@@ -22,8 +22,8 @@ export class FoodService {
     };
   }
 
-  findAll() {
-    const foods = this.databaseService.food.findMany();
+  async findAll() {
+    const foods = await this.databaseService.food.findMany();
     return {
       status: 200,
       success: true,
@@ -34,8 +34,8 @@ export class FoodService {
     };
   }
 
-  findOne(uuid: string) {
-    const food = this.databaseService.food.findUnique({
+  async findOne(uuid: string) {
+    const food = await this.databaseService.food.findUnique({
       where: { uuid },
     });
     return {
@@ -48,8 +48,8 @@ export class FoodService {
     };
   }
 
-  update(uuid: string, updateFoodDto: UpdateFoodDto) {
-    const food = this.databaseService.food.update({
+  async update(uuid: string, updateFoodDto: UpdateFoodDto) {
+    const food = await this.databaseService.food.update({
       where: { uuid },
       data: updateFoodDto as any,
     });
@@ -63,8 +63,8 @@ export class FoodService {
     };
   }
 
-  remove(uuid: string) {
-    this.databaseService.food.delete({
+  async remove(uuid: string) {
+    await this.databaseService.food.delete({
       where: { uuid },
     });
     return {
