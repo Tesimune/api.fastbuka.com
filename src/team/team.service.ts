@@ -22,19 +22,19 @@ export class TeamService {
     }
 
     async findAll() {
-        const team = await this.databaseService.team.findMany();
+        const Team = await this.databaseService.team.findMany();
         return {
             status: 200,
             success: true,
             message: 'Team members successfully retrieved',
             data: {
-                team,
+                Team,
             }
         };
     }
 
     async findOne(uuid: string) {
-        const team = await this.databaseService.team.findUnique({
+        const Team = await this.databaseService.team.findUnique({
             where: { uuid },
         });
         return {
@@ -42,7 +42,7 @@ export class TeamService {
             success: true,
             message: 'Member fetched successfully',
             data: {
-                team,
+                Team,
             }
         };
     }
