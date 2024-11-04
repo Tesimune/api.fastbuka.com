@@ -2,7 +2,6 @@ import { Body, Controller, Delete, Get, Param, Post, Version } from "@nestjs/com
 import { ApiTags } from "@nestjs/swagger";
 import { TeamService } from "./team.service";
 import { CreateTeamDTO } from "./dto/create-team.dto";
-// import { FileInterceptor } from "@nestjs/platform-express";
 
 @ApiTags('team')
 @Controller('team')
@@ -24,7 +23,7 @@ export class TeamController{
     }
 
     @Version('1')
-    @Get()
+    @Get(':uuid')
     findOne(@Param('uuid') uuid: string){
         return this.teamService.findOne(uuid);
     }

@@ -6,8 +6,8 @@ import { CreateContactDTO } from "./dto/create-contact.dto";
 export class ContactService {
     constructor(private readonly databaseService: DatabaseService){}
 
-    create(createContactDto: CreateContactDTO){
-        const Contact = this.databaseService.contact.create({
+    async create(createContactDto: CreateContactDTO){
+        const Contact = await this.databaseService.contact.create({
             data: createContactDto,
         });
         return {
@@ -20,8 +20,8 @@ export class ContactService {
         }
     }
 
-    findAll(){
-        const Contact = this.databaseService.contact.findMany();
+    async findAll(){
+        const Contact = await this.databaseService.contact.findMany();
         return{
             status: 200,
             success: true,

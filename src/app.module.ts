@@ -23,6 +23,7 @@ import { ContactModule } from './contact/contact.module';
 import { PaymentModule } from './payment/payment.module';
 import { EncryptionService } from './encryption/encryption.service';
 import { EncryptionModule } from './encryption/encryption.module';
+import { PartnerModule } from './partner/partner.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { EncryptionModule } from './encryption/encryption.module';
     TeamModule,
     ContactModule,
     EncryptionModule,
+    PartnerModule,
     MulterModule.register({
       storage: multer.memoryStorage(),
     }),
