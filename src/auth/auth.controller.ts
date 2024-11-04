@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Body,
+  Get,
   Headers,
   Delete,
   ValidationPipe,
@@ -17,6 +18,7 @@ import {
   UpdateAuthDto,
   UpdatePasswordDto,
   VerifyEmailDto,
+  DecryptDto,
 } from './dto/update-auth.dto';
 
 @ApiTags('auth')
@@ -105,6 +107,34 @@ export class AuthController {
     return this.authService.resetPassword(body);
   }
 
+  /**
+   * Decrypt route
+   * @param token
+   * @returns
+   */
+
+  @Version('1')
+  @Get('decrypt')
+  @ApiOperation({ summary: 'Decrypt secret key using authorization token' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Successfully decrypted secret key' 
+  })
+  @ApiResponse({ 
+    status: 401, 
+    description: 'Unauthorized - Invalid token' 
+  })
+  @ApiResponse({ 
+    status: 403, 
+    description: 'Forbidden.' 
+  })
+  @ApiResponse({ 
+    status: 404, 
+    description: 'Secret key not found' 
+  })
+  decrypt(@Headers('token') token: string) {
+    return this.authService.decrypt(token);
+  }
   /**
    * Logout route
    * @param token
