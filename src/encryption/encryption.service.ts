@@ -12,11 +12,11 @@ export class EncryptionService implements OnModuleInit {
 
   async onModuleInit() {
     // Generate a secure master key if not exists
-    if (!process.env.MASTER_ENCRYPTION_KEY) {
-      const generatedKey = crypto.randomBytes(32).toString('base64');
-      console.log('Generated new MASTER_ENCRYPTION_KEY:', generatedKey);
-      process.env.MASTER_ENCRYPTION_KEY = generatedKey;
-    }
+    // if (!process.env.MASTER_ENCRYPTION_KEY) {
+    //   const generatedKey = crypto.randomBytes(32).toString('base64');
+    //   console.log('Generated new MASTER_ENCRYPTION_KEY:', generatedKey);
+    //   process.env.MASTER_ENCRYPTION_KEY = generatedKey;
+    // }
 
     this.masterKey = Buffer.from(process.env.MASTER_ENCRYPTION_KEY, 'base64');
   }
