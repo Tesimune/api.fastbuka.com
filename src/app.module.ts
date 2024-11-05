@@ -21,6 +21,8 @@ import * as multer from 'multer';
 import { TeamModule } from './team/team.module';
 import { ContactModule } from './contact/contact.module';
 import { PaymentModule } from './payment/payment.module';
+import { EncryptionService } from './encryption/encryption.service';
+import { EncryptionModule } from './encryption/encryption.module';
 import { PartnerModule } from './partner/partner.module';
 
 @Module({
@@ -38,6 +40,7 @@ import { PartnerModule } from './partner/partner.module';
     StorageModule,
     TeamModule,
     ContactModule,
+    EncryptionModule,
     PartnerModule,
     MulterModule.register({
       storage: multer.memoryStorage(),
@@ -45,7 +48,7 @@ import { PartnerModule } from './partner/partner.module';
     PaymentModule,
   ],
   controllers: [AppController],
-  providers: [AppService, MiddlewareService, MailerService, StorageService, SeederService],
-  exports: [MiddlewareService, MailerService, StorageService],
+  providers: [AppService, MiddlewareService, MailerService, StorageService, SeederService, EncryptionService],
+  exports: [MiddlewareService, MailerService, StorageService, EncryptionService],
 })
 export class AppModule {}

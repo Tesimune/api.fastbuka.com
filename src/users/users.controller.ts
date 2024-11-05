@@ -9,10 +9,12 @@ import {
   ValidationPipe,
   UploadedFile,
   UseInterceptors,
+  Post,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ResetPasswordDto } from 'src/auth/dto/update-auth.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -35,6 +37,28 @@ export class UsersController {
     return this.usersService.wallet(token);
   }
 
+  @Version('1')
+  @Get('decrypt')
+  @ApiOperation({ summary: 'Decrypt secret key using authorization token' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Successfully decrypted secret key' 
+  })
+  @ApiResponse({ 
+    status: 401, 
+    description: 'Unauthorized - Invalid token' 
+  })
+  @ApiResponse({ 
+    status: 403, 
+    description: 'Forbidden.' 
+  })
+  @ApiResponse({ 
+    status: 404, 
+    description: 'Secret key not found' 
+  })
+  decrypt(@Headers('token') token: string) {
+    return this.usersService.decrypt(token);
+  }
   @Version('1')
   @Patch('profile')
   @ApiOperation({ summary: 'Update Profile' })

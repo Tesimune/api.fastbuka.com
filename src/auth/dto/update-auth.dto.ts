@@ -44,6 +44,16 @@ export class ForgotPasswordDto {
   email: string;
 }
 
+export class DecryptDto {
+  @IsString()
+  @ApiProperty({
+    description: 'Authorization token',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  })
+  @IsString()
+  token: string;
+}
+
 export class ResetPasswordDto {
   @IsString()
   @ApiProperty({

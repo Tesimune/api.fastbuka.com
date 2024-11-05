@@ -24,6 +24,7 @@ model User {
   balance           Float                 @default(0)
   walletAddress     String                @unique
   secretKey         String                @unique
+  trustlines        Boolean               @default(false)
   password          String
   email_verified    Boolean               @default(false)
   contact_verified  Boolean               @default(false)
