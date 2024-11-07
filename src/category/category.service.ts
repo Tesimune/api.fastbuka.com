@@ -20,7 +20,7 @@ export class CategoryService {
     const auth = await this.middlewareService.decodeToken(token);
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
-        uuid: vendor_slug,
+        slug: vendor_slug,
         user_uuid: auth.uuid
       }
     });
@@ -56,7 +56,7 @@ export class CategoryService {
   async findAll(vendor_slug: string) {
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
-        uuid: vendor_slug,
+        slug: vendor_slug,
       }
     });
     if(!vendor){
@@ -84,7 +84,7 @@ export class CategoryService {
   async findOne(vendor_slug: string, uuid: string) {
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
-        uuid: vendor_slug,
+        slug: vendor_slug,
       }
     });
     if(!vendor){
@@ -124,7 +124,7 @@ export class CategoryService {
     const auth = await this.middlewareService.decodeToken(token);
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
-        uuid: vendor_slug,
+        slug: vendor_slug,
         user_uuid: auth.uuid
       }
     });
@@ -180,7 +180,7 @@ export class CategoryService {
     const auth = await this.middlewareService.decodeToken(token);
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
-        uuid: vendor_slug,
+        slug: vendor_slug,
         user_uuid: auth.uuid
       }
     });
