@@ -521,69 +521,64 @@ async decrypt(token: string) {
   async remove(token: string, password: string) {
     const auth = await this.middlewareService.decodeToken(token);
 
-    if (!(await bcrypt.compare(password, auth.password))) {
-      throw new HttpException(
-        {
-          status: 401,
-          success: false,
-          message: 'Invalid password',
-        },
-        401,
-      );
+    if (!password) {
+        throw new UnauthorizedException('Password is required');
+    }
+  
+    if (!(await bcrypt.compare(password, (auth.password)))) {
+      throw new UnauthorizedException('Invalid password');
     }
 
-    await this.databaseService.$transaction(async (prisma) => {
-        await prisma.personalAccessToken.deleteMany({
-          where: {
-            user_uuid: auth.uuid,
-          },
-        }).catch(() => {});;
+    await this.databaseService.personalAccessToken.deleteMany({
+      where: {
+        user_uuid: auth.uuid,
+      },
+    }).catch(() => {});;
 
-        await prisma.user.update({
-          where: {
-            uuid: auth.uuid,
-          },
-          data: {
-            status: 'delete',
-          },
-        }).catch(() => {});;
+    await this.databaseService.user.update({
+      where: {
+        uuid: auth.uuid,
+      },
+      data: {
+        status: 'delete',
+      },
+    }).catch(() => {});;
 
-        await prisma.cart.deleteMany({
-          where: {
-            user_uuid: auth.uuid,
-          },
-        }).catch(() => {});;
+    await this.databaseService.cart.deleteMany({
+      where: {
+        user_uuid: auth.uuid,
+      },
+    }).catch(() => {});;
 
-        await prisma.order.deleteMany({
-          where: {
-            user_uuid: auth.uuid,
-          },
-        }).catch(() => {});;
+    await this.databaseService.order.deleteMany({
+      where: {
+        user_uuid: auth.uuid,
+      },
+    }).catch(() => {});;
 
-        await prisma.vendor.deleteMany({
-          where: {
-            user_uuid: auth.uuid,
-          },
-        }).catch(() => {});;
+    await this.databaseService.vendor.deleteMany({
+      where: {
+        user_uuid: auth.uuid,
+      },
+    }).catch(() => {});;
 
-        await prisma.storage.deleteMany({
-          where: {
-            user_uuid: auth.uuid,
-          },
-        }).catch(() => {});;
+    await this.databaseService.storage.deleteMany({
+      where: {
+        user_uuid: auth.uuid,
+      },
+    }).catch(() => {});;
 
-        await prisma.userProfile.delete({
-          where: {
-            user_uuid: auth.uuid,
-          },
-        }).catch(() => {});
+    await this.databaseService.userProfile.delete({
+      where: {
+        user_uuid: auth.uuid,
+      },
+    }).catch(() => {});
 
-        await prisma.user.delete({
-          where: {
-            uuid: auth.uuid,
-          },
-        }).catch(() => {});;
-    });
+    await this.databaseService.user.delete({
+      where: {
+        uuid: auth.uuid,
+      },
+    }).catch(() => {});;
 
     return {
       status: 200,

@@ -61,3 +61,13 @@ export class UpdateUserDto {
   @ApiProperty()
   address?: string;
 }
+
+
+export class PasswordDto {
+  @IsString()
+  @ApiProperty({
+    example: '@password1',
+    description: 'Your password, eight character long, symbol and number',
+  })
+  password: string;
+}

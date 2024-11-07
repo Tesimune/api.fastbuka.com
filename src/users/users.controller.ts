@@ -13,7 +13,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { PasswordDto, UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiConsumes, ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ResetPasswordDto } from 'src/auth/dto/update-auth.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -89,7 +89,7 @@ export class UsersController {
   @Version('1')
   @Delete('account')
   @ApiOperation({ summary: 'Delete acount' })
-  remove(@Headers('token') token: string, @Body() password: string) {
-    return this.usersService.remove(token, password);
+  remove(@Headers('token') token: string, @Body() body: PasswordDto) {
+    return this.usersService.remove(token, body.password);
   }
 }
