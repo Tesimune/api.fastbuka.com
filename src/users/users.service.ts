@@ -520,6 +520,7 @@ async decrypt(token: string) {
    */
   async remove(token: string, password: string) {
     const auth = await this.middlewareService.decodeToken(token);
+
     if (!(await bcrypt.compare(password, auth.password))) {
       throw new HttpException(
         {
@@ -530,23 +531,65 @@ async decrypt(token: string) {
         401,
       );
     }
-    await this.databaseService.user.update({
-      where: {
-        uuid: auth.uuid,
-      },
-      data: {
-        status: 'delete',
-      },
-    });
 
-    await this.databaseService.personalAccessToken.delete({
-      where: { token },
+    await this.databaseService.$transaction(async (prisma) => {
+        await prisma.personalAccessToken.deleteMany({
+          where: {
+            user_uuid: auth.uuid,
+          },
+        });
+
+        await prisma.user.update({
+          where: {
+            uuid: auth.uuid,
+          },
+          data: {
+            status: 'delete',
+          },
+        });
+
+        await prisma.cart.deleteMany({
+          where: {
+            user_uuid: auth.uuid,
+          },
+        });
+
+        await prisma.order.deleteMany({
+          where: {
+            user_uuid: auth.uuid,
+          },
+        });
+
+        await prisma.vendor.deleteMany({
+          where: {
+            user_uuid: auth.uuid,
+          },
+        });
+
+        await prisma.storage.deleteMany({
+          where: {
+            user_uuid: auth.uuid,
+          },
+        });
+
+        await prisma.userProfile.delete({
+          where: {
+            user_uuid: auth.uuid,
+          },
+        }).catch(() => {});
+
+        await prisma.user.delete({
+          where: {
+            uuid: auth.uuid,
+          },
+        });
     });
 
     return {
       status: 200,
       success: true,
-      message: 'Delete request sent, account will be deleted 30 days',
+      message: 'Account and all associated data have been successfully deleted.',
     };
-  }
+}
+
 }
