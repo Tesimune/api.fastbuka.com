@@ -537,7 +537,7 @@ async decrypt(token: string) {
           where: {
             user_uuid: auth.uuid,
           },
-        });
+        }).catch(() => {});;
 
         await prisma.user.update({
           where: {
@@ -546,31 +546,31 @@ async decrypt(token: string) {
           data: {
             status: 'delete',
           },
-        });
+        }).catch(() => {});;
 
         await prisma.cart.deleteMany({
           where: {
             user_uuid: auth.uuid,
           },
-        });
+        }).catch(() => {});;
 
         await prisma.order.deleteMany({
           where: {
             user_uuid: auth.uuid,
           },
-        });
+        }).catch(() => {});;
 
         await prisma.vendor.deleteMany({
           where: {
             user_uuid: auth.uuid,
           },
-        });
+        }).catch(() => {});;
 
         await prisma.storage.deleteMany({
           where: {
             user_uuid: auth.uuid,
           },
-        });
+        }).catch(() => {});;
 
         await prisma.userProfile.delete({
           where: {
@@ -582,7 +582,7 @@ async decrypt(token: string) {
           where: {
             uuid: auth.uuid,
           },
-        });
+        }).catch(() => {});;
     });
 
     return {
