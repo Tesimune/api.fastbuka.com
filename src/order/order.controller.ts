@@ -41,6 +41,16 @@ export class OrderController {
   }
 
   @Version('1')
+  @Get('vendor/:vendor_uuid')
+  findVendorOrders(
+    @Headers('token') token: string,
+    @Param('vendor_uuid') vendor_uuid: string,
+    @Query('order_status') order_status?: string,
+  ) {
+    return this.orderService.findVendorOrders(token, vendor_uuid, order_status);
+  }
+
+  @Version('1')
   @Get()
   findOne(
     @Headers('token') token: string,

@@ -102,6 +102,55 @@ export class OrderService {
       }
     };
   }
+
+  async findVendorOrders(token: string, vendor_uuid: string, order_status?: string) {
+    const auth = await this.middlewareService.decodeToken(token);
+
+    const vendor = await this.databaseService.vendor.findFirst({
+      where: {
+        uuid: vendor_uuid,
+        user_uuid: auth.uuid
+      }
+    });
+
+    if (!vendor) {
+      throw new HttpException({
+        status: 403,
+        success: false,
+        message: 'Only vendors can access this endpoint',
+      }, 403);
+    }
+
+    const orders = await this.databaseService.order.findMany({
+      where: {
+        vendor_uuid: vendor.uuid,
+        ...(order_status ? { order_status } : {}),
+      },
+      include: {
+        orderItems: {
+          include: {
+            food: true
+          }
+        },
+        user: {
+          select: {
+            email: true,
+            contact: true,
+            username: true
+          }
+        }
+      }
+    });
+
+    return {
+      status: 200,
+      success: true,
+      message: 'Vendor orders retrieved successfully',
+      data: {
+        orders
+      }
+    };
+  }
   
 
   async findOne(token: string, order_uuid: string) {
