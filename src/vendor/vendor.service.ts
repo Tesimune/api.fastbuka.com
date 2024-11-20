@@ -96,7 +96,6 @@ export class VendorService {
     const vendor = await this.databaseService.vendor.findUnique({
       where: { slug },
       include: {
-        categories: true,
         foods: true,
       },
     });
