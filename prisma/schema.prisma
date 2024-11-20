@@ -128,7 +128,6 @@ model Vendor {
   updatedAt    DateTime   @updatedAt
   user         User       @relation(fields: [user_uuid], references: [uuid])
   documents    VendorDocuments[]
-  categories   Category[]
   foods        Food[]
   cart         Cart[]
   orders       Order[]
@@ -152,12 +151,10 @@ model VendorDocuments {
 model Category {
   id          Int      @id @default(autoincrement())
   uuid        String   @unique @default(uuid())
-  vendor_uuid String
   name        String
   image       String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  vendor      Vendor   @relation(fields: [vendor_uuid], references: [uuid])
   foods       Food[]
 }
 

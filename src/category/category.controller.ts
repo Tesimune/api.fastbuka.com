@@ -23,56 +23,50 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Version('1')
-  @Post(':vendor_slug')
+  @Post()
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('image'))
   create(
     @Headers('token') token: string, 
-    @Param('vendor_slug') vendor_slug:string, 
     @Body() createCategoryDto: CreateCategoryDto,
     @UploadedFile('image') image?: Express.Multer.File
   ) {
-    return this.categoryService.create(token, vendor_slug, createCategoryDto, image);
+    return this.categoryService.create(token, createCategoryDto, image);
   }
 
   @Version('1')
-  @Get(':vendor_slug')
-  findAll(
-    @Param('vendor_slug') vendor_slug: string,
-  ) {
-    return this.categoryService.findAll(vendor_slug);
+  @Get()
+  findAll() {
+    return this.categoryService.findAll();
   }
 
   @Version('1')
-  @Get(':vendor_slug/:uuid')
+  @Get(':uuid')
   findOne(
-    @Param('vendor_slug') vendor_slug: string,
     @Param('uuid') uuid: string,
   ) {
-    return this.categoryService.findOne(vendor_slug, uuid);
+    return this.categoryService.findOne(uuid);
   }
 
   @Version('1')
-  @Patch(':vendor_slug/:uuid')
+  @Patch(':uuid')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('image'))
   update(
     @Headers('token') token: string, 
-    @Param('vendor_slug') vendor_slug:string,
     @Param('uuid') uuid: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
     @UploadedFile('image') image: Express.Multer.File
   ) {
-    return this.categoryService.update(token, vendor_slug, uuid, updateCategoryDto, image);
+    return this.categoryService.update(token, uuid, updateCategoryDto, image);
   }
 
   @Version('1')
-  @Delete(':vendor_slug/:uuid')
+  @Delete(':uuid')
   remove(
     @Headers('token') token: string, 
-    @Param('vendor_slug') vendor_slug:string,
     @Param('uuid') uuid: string,
   ) {
-    return this.categoryService.remove(token, vendor_slug, uuid);
+    return this.categoryService.remove(token, uuid);
   }
 }
