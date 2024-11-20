@@ -16,28 +16,13 @@ export class CategoryService {
     private readonly storageService: StorageService
   ) {}
   
-  async create(token, vendor_slug, createCategoryDto: CreateCategoryDto, image: Express.Multer.File) {
+  async create(token, createCategoryDto: CreateCategoryDto, image: Express.Multer.File) {
     const auth = await this.middlewareService.decodeToken(token);
-    const vendor = await this.databaseService.vendor.findFirst({
-      where: {
-        slug: vendor_slug,
-        user_uuid: auth.uuid
-      }
-    });
-    if(!vendor){
-      throw new HttpException({
-        status: 401,
-        success: false,
-        message: 'Unauthorized'
-      }, 401)
-    }
-
     const uuid = randomUUID();
     const bucket = await this.storageService.bucket(token, uuid, image)
 
     const CategoryData = {
       uuid,
-      vendor_uuid: createCategoryDto.vendor_uuid,
       name: createCategoryDto.name,
       image: bucket,
     };
@@ -53,25 +38,9 @@ export class CategoryService {
     }
   }
 
-  async findAll(vendor_slug: string) {
-    const vendor = await this.databaseService.vendor.findFirst({
-      where: {
-        slug: vendor_slug,
-      }
-    });
-    if(!vendor){
-      throw new HttpException({
-        status: 404,
-        success: false,
-        message: 'Unauthorized'
-      }, 404)
-    }
+  async findAll() {
 
-    const categories = await this.databaseService.category.findMany({
-      where: {
-        vendor_uuid: vendor.uuid
-      }
-    });
+    const categories = await this.databaseService.category.findMany();
 
     return {
       status: 200,
@@ -81,24 +50,11 @@ export class CategoryService {
     }
   }
 
-  async findOne(vendor_slug: string, uuid: string) {
-    const vendor = await this.databaseService.vendor.findFirst({
-      where: {
-        slug: vendor_slug,
-      }
-    });
-    if(!vendor){
-      throw new HttpException({
-        status: 401,
-        success: false,
-        message: 'Unauthorized'
-      }, 401)
-    }
+  async findOne(uuid: string) {
 
     const category = await this.databaseService.category.findFirst({
       where: {
         uuid,
-        vendor_uuid: vendor.uuid
       }
     })
 
@@ -120,21 +76,8 @@ export class CategoryService {
     };
   }
 
-  async update(token: string, vendor_slug: string, uuid: string, updateCategoryDto: UpdateCategoryDto, image: Express.Multer.File) {
+  async update(token: string, uuid: string, updateCategoryDto: UpdateCategoryDto, image: Express.Multer.File) {
     const auth = await this.middlewareService.decodeToken(token);
-    const vendor = await this.databaseService.vendor.findFirst({
-      where: {
-        slug: vendor_slug,
-        user_uuid: auth.uuid
-      }
-    });
-    if(!vendor){
-      throw new HttpException({
-        status: 401,
-        success: false,
-        message: 'Unauthorized'
-      }, 401)
-    }
 
     const existingCategory = await this.databaseService.category.findUnique({
       where: { uuid },
@@ -176,24 +119,11 @@ export class CategoryService {
     }
   }
 
-  async remove(token: string, vendor_slug: string, uuid: string) {
+  async remove(token: string, uuid: string) {
     const auth = await this.middlewareService.decodeToken(token);
-    const vendor = await this.databaseService.vendor.findFirst({
-      where: {
-        slug: vendor_slug,
-        user_uuid: auth.uuid
-      }
-    });
-    if(!vendor){
-      throw new HttpException({
-        status: 401,
-        success: false,
-        message: 'Unauthorized'
-      }, 401)
-    }
 
     await this.databaseService.category.delete({
-      where: { uuid, vendor_uuid: vendor.uuid },
+      where: { uuid },
     });
 
     return {

@@ -88,48 +88,48 @@ export class SeederService {
     );
   }
 
-  private async seedVendors(userUuid?) {
-    return await this.databaseService.$transaction(
-      async (prisma) => {
-        for (const vendor of vendors) {
-          const createVendor = await prisma.vendor.upsert({
-            where: {
-              uuid: vendor.uuid,
-            },
-            update: { ...vendor, user_uuid: userUuid },
-            create: { ...vendor, user_uuid: userUuid },
-          });
-          await this.seedCategories(createVendor.uuid);
-          this.logger.log('Category seeding completed!');
-        }
-      },
-      {
-        timeout: 86400000,
-      },
-    );
-  }
+  // private async seedVendors(userUuid?) {
+  //   return await this.databaseService.$transaction(
+  //     async (prisma) => {
+  //       for (const vendor of vendors) {
+  //         const createVendor = await prisma.vendor.upsert({
+  //           where: {
+  //             uuid: vendor.uuid,
+  //           },
+  //           update: { ...vendor, user_uuid: userUuid },
+  //           create: { ...vendor, user_uuid: userUuid },
+  //         });
+  //         await this.seedCategories(createVendor.uuid);
+  //         this.logger.log('Category seeding completed!');
+  //       }
+  //     },
+  //     {
+  //       timeout: 86400000,
+  //     },
+  //   );
+  // }
 
-  private async seedCategories(vendorUuid?) {
-    return await this.databaseService.$transaction(
-      async (prisma) => {
-        for (const category of categories) {
-          await prisma.category.upsert({
-            where: {
-              uuid: category.uuid,
-              name: category.name,
-            },
-            update: { ...category, vendor_uuid: vendorUuid },
-            create: { ...category, vendor_uuid: vendorUuid },
-          });
-          await this.seedFoods(vendorUuid);
-          this.logger.log('Food seeding completed!');
-        }
-      },
-      {
-        timeout: 86400000,
-      },
-    );
-  }
+  // private async seedCategories() {
+  //   return await this.databaseService.$transaction(
+  //     async (prisma) => {
+  //       for (const category of categories) {
+  //         await prisma.category.upsert({
+  //           where: {
+  //             uuid: category.uuid,
+  //             name: category.name,
+  //           },
+  //           update: { ...category, uuid: category.uuid },
+  //           create: { ...category, uuid: category.uuid },
+  //         });
+  //         await this.seedFoods();
+  //         this.logger.log('Food seeding completed!');
+  //       }
+  //     },
+  //     {
+  //       timeout: 86400000,
+  //     },
+  //   );
+  // }
 
   private async seedFoods(vendorUuid?) {
     return await this.databaseService.$transaction(
