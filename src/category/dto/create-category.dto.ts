@@ -6,10 +6,6 @@ import { IsString } from 'class-validator';
 export class CreateCategoryDto {
   @IsString()
   @ApiProperty()
-  vendor_uuid: string;
-
-  @IsString()
-  @ApiProperty()
   name: string;
 
   @Type(() => Object)
