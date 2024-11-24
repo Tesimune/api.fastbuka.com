@@ -61,6 +61,14 @@ export class StorageService {
   private async storage(token: string, use: string, file: Express.Multer.File) {
     const user = await this.middlewareService.decodeToken(token);
 
+    if(!file) {
+      throw new HttpException({
+        status: 422,
+        success: false,
+        message: 'The image or file field is required',
+      }, 422);
+    }
+    
     const slug = this.generateRandomToken(45);
     const fileExtension = file.originalname.split('.').pop().toLowerCase();
     const fileuse = `${slug}.${fileExtension}`;
