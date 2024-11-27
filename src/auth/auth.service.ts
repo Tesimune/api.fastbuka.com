@@ -11,8 +11,15 @@ import * as bcrypt from 'bcryptjs';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { MailerService } from 'src/mailer/mailer.service';
 import { EncryptionService } from 'src/encryption/encryption.service';
-import { 
-  Keypair, 
+import {
+  StrKey,
+  Horizon,
+  Networks,
+  TransactionBuilder,
+ BASE_FEE,
+  Asset,
+  Keypair,
+  Operation,
 } from '@stellar/stellar-sdk';
 import {
   ResetPasswordDto,
@@ -85,6 +92,9 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(user.password, 10);
     const { publicKey, secret } = this.generateRandomWallet();
+
+    await this.accountSponsorship(publicKey, secret);
+    
     
     // Encrypt the secret key before saving
     const encryptedSecret = await this.encryptionService.encryptSecretKey(secret);
@@ -488,6 +498,149 @@ export class AuthService {
       message: 'User logged out successfully.',
     };
   }
+
+
+  /**
+   *
+   * 
+   * Account Sponsorship
+   */
+  private async accountSponsorship(walletAddress: string, secretKey: string) {
+    try {
+        // Connect to mainnet instead of futurenet
+        const server = new Horizon.Server('https://horizon.stellar.org');
+        
+        // Check environment variables
+        const sponsorPubKey = process.env.SPONSOR_PUBLIC_KEY;
+        const sponsorPrivKey = process.env.SPONSOR_PRIVATE_KEY;
+        
+        if (!sponsorPubKey || !sponsorPrivKey) {
+            throw new Error('Sponsor account credentials not properly configured');
+        }
+
+        // Create keypairs
+        const sponsorKeypair = Keypair.fromSecret(sponsorPrivKey);
+        const userKeypair = Keypair.fromSecret(secretKey);
+
+        // Verify the sponsor public key matches the keypair
+        if (sponsorKeypair.publicKey() !== sponsorPubKey) {
+            throw new Error('Sponsor keypair does not match provided public key');
+        }
+
+        // Load the sponsor account
+        let sponsorAccount;
+        try {
+            sponsorAccount = await server.loadAccount(sponsorPubKey);
+        } catch (error) {
+            console.error('Failed to load sponsor account:', error);
+            throw new Error('Sponsor account not found or not funded');
+        }
+
+        // Define NGNC assets
+        const assetNGN = new Asset(
+            "NGNC", 
+            "GASBV6W7GGED66MXEVC7YZHTWWYMSVYEY35USF2HJZBLABLYIFQGXZY6"
+        );
+
+        const assetUSDC = new Asset(
+          "USDC", 
+          "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN"
+      );
+
+        // Check sponsor account balance
+        const sponsorBalance = parseFloat(
+            sponsorAccount.balances.find(b => b.asset_type === 'native')?.balance || '0'
+        );
+        
+        if (sponsorBalance < 2) { // Minimum balance + operation fees
+            throw new Error('Insufficient sponsor account balance');
+        }
+
+        // Build the transaction
+        const transaction = new TransactionBuilder(sponsorAccount, {
+            fee: BASE_FEE,
+            networkPassphrase: Networks.PUBLIC  // Use PUBLIC for mainnet
+        })
+        .addOperation(Operation.beginSponsoringFutureReserves({
+          source: sponsorKeypair.publicKey(),
+          sponsoredId: walletAddress
+      }))
+        .addOperation(Operation.createAccount({
+            destination: walletAddress,
+            startingBalance: "0"  // Increased for mainnet safety
+        }))
+        .addOperation(Operation.endSponsoringFutureReserves({
+          source: walletAddress
+      }))
+        .addOperation(Operation.beginSponsoringFutureReserves({
+            sponsoredId: walletAddress
+        }))
+        .addOperation(Operation.changeTrust({
+            asset: assetNGN,
+            source: walletAddress
+        }))
+        .addOperation(Operation.endSponsoringFutureReserves({
+            source: walletAddress
+        }))
+        .addOperation(Operation.beginSponsoringFutureReserves({
+          sponsoredId: walletAddress
+      }))
+      .addOperation(Operation.changeTrust({
+          asset: assetUSDC,
+          source: walletAddress
+      }))
+      .addOperation(Operation.endSponsoringFutureReserves({
+          source: walletAddress
+      }))
+        .setTimeout(30)  // Reduced timeout for mainnet
+        .build();
+
+        // Sign the transaction
+        transaction.sign(sponsorKeypair, userKeypair);
+
+        // Submit with proper error handling
+        try {
+            const result = await server.submitTransaction(transaction);
+            console.log('Sponsorship transaction successful:', result.hash);
+            
+            // Wait for transaction to be confirmed
+            await server.transactions().transaction(result.hash).call();
+            
+            return {
+                success: true,
+                hash: result.hash,
+                ledger: result.ledger,
+                created: true
+            };
+        } catch (error) {
+            console.error('Transaction submission failed:', error.response?.data?.extras);
+            
+            // Handle specific error cases
+            if (error.response?.data?.extras?.result_codes?.operations) {
+                const opCodes = error.response.data.extras.result_codes.operations;
+                if (opCodes.includes('op_underfunded')) {
+                    throw new Error('Sponsor account underfunded');
+                }
+                if (opCodes.includes('op_already_exists')) {
+                    throw new Error('Account already exists');
+                }
+            }
+            
+            throw new Error(
+                `Failed to submit sponsorship transaction: ${error.response?.data?.extras?.result_codes?.transaction || error.message}`
+            );
+        }
+    } catch (error) {
+        console.error('Account sponsorship failed:', error);
+        throw new HttpException({
+            status: 500,
+            success: false,
+            message: 'Failed to setup account sponsorship',
+            error: error.message
+        }, 500);
+    }
+}
+
 
   // Add this method to get decrypted secret key when needed
   async decrypt(token: string) {
