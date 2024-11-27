@@ -12,12 +12,6 @@ import * as bcrypt from 'bcryptjs';
 import {
   StrKey,
   Horizon,
-  Networks,
-  TransactionBuilder,
- BASE_FEE,
-  Asset,
-  Keypair,
-  Operation,
 } from '@stellar/stellar-sdk';
 import { StorageService } from 'src/storage/storage.service';
 

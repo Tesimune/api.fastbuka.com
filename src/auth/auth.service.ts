@@ -12,7 +12,6 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { MailerService } from 'src/mailer/mailer.service';
 import { EncryptionService } from 'src/encryption/encryption.service';
 import {
-  StrKey,
   Horizon,
   Networks,
   TransactionBuilder,
