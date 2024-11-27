@@ -531,7 +531,6 @@ export class AuthService {
         try {
             sponsorAccount = await server.loadAccount(sponsorPubKey);
         } catch (error) {
-            console.error('Failed to load sponsor account:', error);
             throw new Error('Sponsor account not found or not funded');
         }
 
@@ -600,8 +599,7 @@ export class AuthService {
         // Submit with proper error handling
         try {
             const result = await server.submitTransaction(transaction);
-            console.log('Sponsorship transaction successful:', result.hash);
-            
+          
             // Wait for transaction to be confirmed
             await server.transactions().transaction(result.hash).call();
             
@@ -612,7 +610,6 @@ export class AuthService {
                 created: true
             };
         } catch (error) {
-            console.error('Transaction submission failed:', error.response?.data?.extras);
             
             // Handle specific error cases
             if (error.response?.data?.extras?.result_codes?.operations) {
@@ -630,7 +627,6 @@ export class AuthService {
             );
         }
     } catch (error) {
-        console.error('Account sponsorship failed:', error);
         throw new HttpException({
             status: 500,
             success: false,
