@@ -99,4 +99,19 @@ export class VendorController {
   ) {
     return this.vendorService.remove(token, uuid);
   }
+
+  /**
+   * 
+   * @param token 
+   * @param vendor_uuid 
+   * @returns 
+   */
+  @Version('1')
+  @Patch(':vendor_uuid/approve')
+  approve(
+    @Headers('token') token: string,
+    @Param('vendor_uuid') vendor_uuid: string,
+  ) {
+    return this.vendorService.approve(token, vendor_uuid);
+  }
 }

@@ -24,6 +24,7 @@ import { PaymentModule } from './payment/payment.module';
 import { EncryptionService } from './encryption/encryption.service';
 import { EncryptionModule } from './encryption/encryption.module';
 import { PartnerModule } from './partner/partner.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { PartnerModule } from './partner/partner.module';
       storage: multer.memoryStorage(),
     }),
     PaymentModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService, MiddlewareService, MailerService, StorageService, SeederService, EncryptionService],
