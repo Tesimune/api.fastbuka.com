@@ -281,4 +281,39 @@ export class VendorService {
       message: 'Vendor deletion request sent; account data will be deleted in 30 days',
     };
   }
+
+
+  /**
+   * 
+   * @param token 
+   * @param vendor_uuid 
+   * @returns 
+   */
+  async approve(token: string, vendor_uuid: string) {
+    const auth = await this.MiddlewareService.decodeToken(token);
+    if (auth.role !== 'admin') {
+      throw new HttpException({
+        status: 419,
+        success: false,
+        message: 'Unauthorized',
+      }, 419);
+    }
+
+    const vendor = await this.databaseService.vendor.update({
+      where: { uuid: vendor_uuid },
+      data: { status: 'approved' },
+    });
+
+    await this.databaseService.user.update({
+      where: { uuid: vendor.user_uuid },
+      data: { role: 'vendor' },
+    });
+
+    return {
+      status: 200,
+      success: true,
+      message: 'Vendor approved successfully',
+    };
+  }
+
 }
