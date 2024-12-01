@@ -30,9 +30,19 @@ export class UpdateVendorDto {
   profile?: Express.Multer.File;
 
   @IsOptional()
+  @IsString()
+  @ApiProperty()
+  profileUrl?: string;
+
+  @IsOptional()
   @Type(() => Object)
   @ApiProperty({ type: 'string', format: 'binary', required: true })
   cover?: Express.Multer.File;
+
+  @IsOptional()   
+  @IsString()
+  @ApiProperty()
+  coverUrl?: string;
 
   @IsOptional()
   @IsString()
@@ -118,10 +128,20 @@ export class UpdateVendorDto {
   @IsOptional()
   @IsString()
   @ApiProperty()
+  id_uploadUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty()
   business_number?: string;
 
   @IsOptional()
   @Type(() => Object)
   @ApiProperty({ type: 'string', format: 'binary', required: true })
   business_upload?: Express.Multer.File;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty()
+  business_uploadUrl?: string;
 }

@@ -15,7 +15,7 @@ export class FoodService {
     private readonly storageService: StorageService
   ) {}
 
-  async create(token, vendor_slug: string, createFoodDto: CreateFoodDto, image: Express.Multer.File) {
+  async create(token, vendor_slug: string, createFoodDto: CreateFoodDto, image?: Express.Multer.File) {
     const auth = await this.middlewareService.decodeToken(token);
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
@@ -31,7 +31,15 @@ export class FoodService {
       }, 401)
     }
     const uuid = randomUUID();
-    const bucket = await this.storageService.bucket(token, uuid, image)
+    let bucket: string;
+    if (createFoodDto.imageUrl) {
+      bucket = createFoodDto.imageUrl;
+    } else if (image instanceof File) {
+      bucket = await this.storageService.bucket(token, `food_${uuid}`, image);
+    }else{
+      bucket = null;
+    } 
+    
     const foodData = {
       uuid,
       vendor_uuid: vendor.uuid,
@@ -115,7 +123,7 @@ export class FoodService {
     };
   }
 
-  async update(token: string, vendor_slug: string, uuid: string, updateFoodDto: UpdateFoodDto, image: Express.Multer.File) {
+  async update(token: string, vendor_slug: string, uuid: string, updateFoodDto: UpdateFoodDto, image?: Express.Multer.File) {
     const auth = await this.middlewareService.decodeToken(token);
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
@@ -132,12 +140,13 @@ export class FoodService {
     }
     
     const existingFood = await this.databaseService.food.findUnique({
-      where: { uuid },
+      where: { uuid, vendor_uuid: vendor.uuid },
     });
 
     let bucket: string;
-
-    if (image instanceof File) {
+    if (updateFoodDto.imageUrl) {
+      bucket = updateFoodDto.imageUrl;
+    } else if (image instanceof File) {
       bucket = await this.storageService.bucket(token, `food_${uuid}`, image);
     } else {
       bucket = existingFood?.image || null;

@@ -19,8 +19,13 @@ export class CategoryService {
   async create(token, createCategoryDto: CreateCategoryDto, image: Express.Multer.File) {
     const auth = await this.middlewareService.decodeToken(token);
     const uuid = randomUUID();
-    const bucket = await this.storageService.bucket(token, uuid, image)
-
+    let bucket: string;
+    if(createCategoryDto.imageUrl){
+      bucket = createCategoryDto.imageUrl;
+    }else{
+      bucket = await this.storageService.bucket(token, uuid, image)
+    }
+    
     const CategoryData = {
       uuid,
       name: createCategoryDto.name,
@@ -76,7 +81,7 @@ export class CategoryService {
     };
   }
 
-  async update(token: string, uuid: string, updateCategoryDto: UpdateCategoryDto, image: Express.Multer.File) {
+  async update(token: string, uuid: string, updateCategoryDto: UpdateCategoryDto, image?: Express.Multer.File) {
     const auth = await this.middlewareService.decodeToken(token);
 
     const existingCategory = await this.databaseService.category.findUnique({
@@ -84,8 +89,9 @@ export class CategoryService {
     });
 
     let bucket: string;
-
-    if (image instanceof File) {
+    if(updateCategoryDto.imageUrl){
+      bucket = updateCategoryDto.imageUrl;
+    }else if (image instanceof File) {
       bucket = await this.storageService.bucket(token, `category_${uuid}`, image);
     } else {
       bucket = existingCategory?.image || null;

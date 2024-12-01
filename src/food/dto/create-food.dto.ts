@@ -20,9 +20,14 @@ export class CreateFoodDto {
   @ApiProperty()
   description: string;
 
+  @IsOptional()
   @Type(() => Object)
   @ApiProperty({ type: 'string', format: 'binary', required: true })
-  image: Express.Multer.File;
+  image?: Express.Multer.File;
+
+  @IsOptional()
+  @ApiProperty()
+  imageUrl?: string;
 
   @IsNumber()
   @ApiProperty()

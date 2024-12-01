@@ -131,10 +131,10 @@ export class VendorService {
   async update(
     token: string, uuid: string, 
     updateVendorDto: UpdateVendorDto, 
-    profile: Express.Multer.File, 
-    cover: Express.Multer.File, 
-    id_upload: Express.Multer.File, 
-    business_upload: Express.Multer.File
+    profile?: Express.Multer.File, 
+    cover?: Express.Multer.File, 
+    id_upload?: Express.Multer.File, 
+    business_upload?: Express.Multer.File
   ) {
     const user = await this.MiddlewareService.decodeToken(token);
     const slug = updateVendorDto.name?.replace(/\s+/g, '_');
@@ -169,13 +169,21 @@ export class VendorService {
       ...updateVendorDto,
     };
   
-    if (profile instanceof File) {
-      updateData.profile = await this.storageService.bucket(token, 'vendor_profile', profile);
+    if(updateVendorDto.profileUrl){
+      updateData.profile = updateVendorDto.profileUrl;
+    }else if (profile instanceof File) {
+        updateData.profile = await this.storageService.bucket(token, 'vendor_profile', profile);
+    }else{
+      updateData.profile = vendor?.profile || null;
     }
   
-    if (cover instanceof File) {
+    if (updateVendorDto.coverUrl) {
+      updateData.cover = updateVendorDto.coverUrl;
+    } else if (cover instanceof File) {
       updateData.cover = await this.storageService.bucket(token, 'vendor_cover', cover);
-    }
+    }else{
+      updateData.cover = vendor?.cover || null;
+    } 
   
     const updatedVendor = await this.databaseService.vendor.update({
       where: { uuid },
@@ -201,16 +209,20 @@ export class VendorService {
         business_number: updateVendorDto.business_number,
       };
   
-      if (id_upload instanceof File) {
+      if (updateVendorDto.id_uploadUrl) {
+        documentData.id_upload = updateVendorDto.id_uploadUrl;
+      } else if (id_upload instanceof File) {
         documentData.id_upload = await this.storageService.bucket(token, 'id_upload', id_upload);
       } else {
-        documentData.id_upload = existingDocument?.id_upload;
+        documentData.id_upload = existingDocument?.id_upload || null;
       }
   
-      if (business_upload instanceof File) {
+      if (updateVendorDto.business_uploadUrl) {
+        documentData.business_upload = updateVendorDto.business_uploadUrl;
+      } else if (business_upload instanceof File) {
         documentData.business_upload = await this.storageService.bucket(token, 'business_upload', business_upload);
       } else {
-        documentData.business_upload = existingDocument?.business_upload;
+        documentData.business_upload = existingDocument?.business_upload || null;
       }
   
       if (existingDocument) {

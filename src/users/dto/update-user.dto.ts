@@ -38,8 +38,13 @@ export class UpdateUserDto {
 
   @IsOptional()
   @Type(() => Object)
-  @ApiProperty({ type: 'string', format: 'binary', required: true })
+  @ApiProperty({ type: 'string', format: 'binary', required: false })
   profile?: Express.Multer.File;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty()
+  profileUrl?: string;
 
   @IsOptional()
   @IsString()

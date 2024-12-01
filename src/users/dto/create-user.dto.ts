@@ -34,11 +34,6 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   @ApiProperty()
-  profile?: string;
-
-  @IsOptional()
-  @IsString()
-  @ApiProperty()
   country?: string;
 
   @IsOptional()

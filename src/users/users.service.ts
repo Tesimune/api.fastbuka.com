@@ -381,7 +381,7 @@ export class UsersService {
   async update(
     token: string,
     updateUserDto: UpdateUserDto,
-    profile: Express.Multer.File,
+    profile?: Express.Multer.File,
   ) {
     const auth = await this.middlewareService.decodeToken(token);
 
@@ -417,8 +417,9 @@ export class UsersService {
     });
 
     let profile_url: string;
-
-    if (profile instanceof File) {
+    if(updateUserDto.profileUrl){
+      profile_url = updateUserDto.profileUrl;
+    }else if (profile instanceof File) {
       profile_url = await this.storageService.bucket(
         token,
         'user_profile',
