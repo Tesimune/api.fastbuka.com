@@ -2,7 +2,6 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { randomBytes } from 'crypto';
-import StellarTomlResolver from "@stellar/stellar-sdk";
 
 @Injectable()
 export class PaymentService {
@@ -56,6 +55,10 @@ export class PaymentService {
   }
 
 
+
+  link_webhook(){
+    
+  }
 
 
 

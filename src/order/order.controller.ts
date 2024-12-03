@@ -24,10 +24,9 @@ export class OrderController {
   @Post(':cart_uuid')
   create(
     @Headers('token') token: string,
-    @Param('cart_uuid') cart_uuid: string,
     @Body() createOrderDto: CreateOrderDto
   ) {
-    return this.orderService.create(token, cart_uuid, createOrderDto);
+    return this.orderService.create(token, createOrderDto);
   }
 
   
@@ -47,7 +46,7 @@ export class OrderController {
     @Param('vendor_uuid') vendor_uuid: string,
     @Query('order_status') order_status?: string,
   ) {
-    return this.orderService.findVendorOrders(token, vendor_uuid, order_status);
+    return this.orderService.findVendOrders(token, vendor_uuid, order_status);
   }
 
   @Version('1')

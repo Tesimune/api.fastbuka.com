@@ -4,80 +4,100 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { MiddlewareService } from 'src/middleware/middleware.service';
 
-
 @Injectable()
 export class OrderService {
   constructor(
     private readonly databaseService: DatabaseService,
-    private readonly middlewareService: MiddlewareService
-  ){}
+    private readonly middlewareService: MiddlewareService,
+  ) {}
 
-  async create(token: string, cart_uuid: string, createOrderDto: CreateOrderDto) {
+  async create(token: string, createOrderDto: CreateOrderDto) {
     const auth = await this.middlewareService.decodeToken(token);
-  
-    const cart = await this.databaseService.cart.findUnique({
-      where: { uuid: cart_uuid, user_uuid: auth.uuid },
-      include: {
-        cartItems: true
+    let order = null;
+    let totalAmount = 0;
+    let outOfStockItems = [];
+
+    for (const item of createOrderDto.cartItems) {
+      const food = await this.databaseService.food.findUnique({
+        where: {
+          uuid: item.food_uuid,
+        },
+      });
+
+      if (food.stock < item.quantity) {
+        outOfStockItems.push(food);
+        continue;
       }
-    });
-  
-    if (!cart) {
-      throw new HttpException({
-        status: 404,
-        success: false,
-        message: 'Cart not found'
-      }, 404);
-    }
-  
-    const orderNumber = `${auth.username.slice(0, 2).toUpperCase()}-${cart.vendor_uuid.slice(0, 2).toUpperCase()}-${Math.floor(10000 + Math.random() * 90000)}`;
-  
-    const totalAmount = cart.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  
-    const order = await this.databaseService.order.create({
-      data: {
-        user_uuid: auth.uuid,
-        vendor_uuid: cart.vendor_uuid,
-        order_number: orderNumber,
-        total_amount: totalAmount,
-        delivery_name: createOrderDto.delivery_name,
-        delivery_email: createOrderDto.delivery_email,
-        delivery_contact: createOrderDto.delivery_contact,
-        delivery_address: createOrderDto.delivery_address,
-      },
-      include: {
-        orderItems: true,
-        vendor: true
+
+      totalAmount += food.price * item.quantity;
+      order = await this.databaseService.order.findFirst({
+        where: {
+          vendor_uuid: food.vendor_uuid,
+          user_uuid: auth.uuid,
+          order_status: 'pending',
+        },
+      });
+
+      if (order) {
+        order = await this.databaseService.order.update({
+          where: {
+            uuid: order.uuid,
+          },
+          data: {
+            total_amount: ++totalAmount,
+          },
+        });
+      } else {
+        const orderNumber = `${auth.username.slice(0, 2).toUpperCase()}${food.vendor_uuid.slice(0, 2).toUpperCase()}${Math.floor(10000 + Math.random() * 90000)}`;
+        order = await this.databaseService.order.create({
+          data: {
+            user_uuid: auth.uuid,
+            vendor_uuid: food.uuid,
+            order_number: orderNumber,
+            total_amount: totalAmount,
+            delivery_name: createOrderDto.delivery_name,
+            delivery_email: createOrderDto.delivery_email,
+            delivery_contact: createOrderDto.delivery_contact,
+            delivery_address: createOrderDto.delivery_address,
+          },
+        });
       }
-    });
-  
-    for (const item of cart.cartItems) {
+
       await this.databaseService.orderItem.create({
         data: {
           order_uuid: order.uuid,
-          food_uuid: item.food_uuid,
-          price: item.price,
+          food_uuid: food.uuid,
+          price: food.price,
           quantity: item.quantity,
         },
-        include: {
-          food: true
-        }
       });
     }
-  
+
+    let outOfStockMessage = null;
+    if (outOfStockItems.length > 0) {
+      outOfStockMessage = ',Some items are out of stock';
+    }
+
     return {
       status: 200,
       success: true,
-      message: 'Order created successfully',
+      message: `Order created successfully ${outOfStockItems}`,
       data: {
-        order
-      }
+        order,
+        outOfStockItems,
+      },
     };
   }
 
+  /**
+   * Fetch orders (user)
+   * @param token
+   * @param order_status
+   * @returns
+   */
   async findAll(token: string, order_status?: string) {
     const auth = await this.middlewareService.decodeToken(token);
-  
+
     const orders = await this.databaseService.order.findMany({
       where: {
         user_uuid: auth.uuid,
@@ -86,39 +106,53 @@ export class OrderService {
       include: {
         orderItems: {
           include: {
-            food: true 
-          }
+            food: true,
+          },
         },
-        vendor: true
-      }
+        vendor: true,
+      },
     });
-  
+
     return {
       status: 200,
       success: true,
       message: 'Orders retrieved successfully',
       data: {
-        orders
-      }
+        orders,
+      },
     };
   }
 
-  async findVendorOrders(token: string, vendor_uuid: string, order_status?: string) {
+  /**
+   * Fetch Orders (Vendor)
+   * @param token
+   * @param vendor_uuid
+   * @param order_status
+   * @returns
+   */
+  async findVendOrders(
+    token: string,
+    vendor_uuid: string,
+    order_status?: string,
+  ) {
     const auth = await this.middlewareService.decodeToken(token);
 
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
         uuid: vendor_uuid,
-        user_uuid: auth.uuid
-      }
+        user_uuid: auth.uuid,
+      },
     });
 
     if (!vendor) {
-      throw new HttpException({
-        status: 403,
-        success: false,
-        message: 'Only vendors can access this endpoint',
-      }, 403);
+      throw new HttpException(
+        {
+          status: 403,
+          success: false,
+          message: 'Only vendors can access this endpoint',
+        },
+        403,
+      );
     }
 
     const orders = await this.databaseService.order.findMany({
@@ -129,17 +163,17 @@ export class OrderService {
       include: {
         orderItems: {
           include: {
-            food: true
-          }
+            food: true,
+          },
         },
         user: {
           select: {
             email: true,
             contact: true,
-            username: true
-          }
-        }
-      }
+            username: true,
+          },
+        },
+      },
     });
 
     return {
@@ -147,35 +181,43 @@ export class OrderService {
       success: true,
       message: 'Vendor orders retrieved successfully',
       data: {
-        orders
-      }
+        orders,
+      },
     };
   }
-  
 
+  /**
+   * Show order
+   * @param token
+   * @param order_uuid
+   * @returns
+   */
   async findOne(token: string, order_uuid: string) {
     const auth = await this.middlewareService.decodeToken(token);
-  
+
     const order = await this.databaseService.order.findUnique({
       where: {
         uuid: order_uuid,
-        user_uuid: auth.uuid
+        user_uuid: auth.uuid,
       },
       include: {
         orderItems: {
           include: {
-            food: true 
-          }
+            food: true,
+          },
         },
-        vendor: true
-      }
-    })
-    if(!order){
-      throw new HttpException({
-        status: 404,
-        success: false,
-        message: 'Order not found',
-      }, 404)
+        vendor: true,
+      },
+    });
+    if (!order) {
+      throw new HttpException(
+        {
+          status: 404,
+          success: false,
+          message: 'Order not found',
+        },
+        404,
+      );
     }
 
     return {
@@ -183,8 +225,8 @@ export class OrderService {
       success: true,
       message: 'Order retrieved successfully',
       data: {
-        order
-      }
-    }
+        order,
+      },
+    };
   }
 }
