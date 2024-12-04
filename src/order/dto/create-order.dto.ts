@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsString } from "class-validator";
+import { IsArray, IsEmail, IsString } from "class-validator";
 
 export class CreateOrderDto {
     
@@ -18,4 +18,17 @@ export class CreateOrderDto {
     @IsString()
     @ApiProperty({})
     delivery_address: string;
+
+    @IsArray()
+    @ApiProperty({
+        type: Array,
+        items: {
+            type: 'object',
+            properties: {
+                food_uuid: { type: 'string' },
+                quantity: { type: 'number' },
+            },
+        },
+    })
+    cartItems: Array<{ food_uuid: string; quantity: number }>;
 }

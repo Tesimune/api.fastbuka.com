@@ -36,9 +36,11 @@ model User {
   cart              Cart[]
   orders            Order[]
   vendors           Vendor[]
+  rider             Rider?
   tokens            PersonalAccessToken[]
   storage           Storage[]
   profile           UserProfile?
+  addresses         Address[]
 }
 
 
@@ -53,6 +55,16 @@ model UserProfile {
   city       String?
   address    String?
   User       User    @relation(fields: [user_uuid], references: [uuid])
+}
+
+model Address {
+  id           Int        @id @default(autoincrement())
+  user_uuid    String
+  location     String?
+  longitude    String?
+  latitude     String?
+  address      String?
+  User         User       @relation(fields: [user_uuid], references: [uuid])
 }
 
 model PersonalAccessToken {
@@ -106,6 +118,7 @@ model Vendor {
   uuid         String     @unique @default(uuid())
   slug         String?    @unique
   user_uuid    String
+  balance      Float      @default(0)
   name         String?
   description  String?
   profile      String?
@@ -174,6 +187,7 @@ model Food {
   featured        Float       @default(0)
   ready_made      Boolean     @default(true)
   on_menu         Boolean     @default(true)
+  stock           Float       @default(0)
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   vendor          Vendor      @relation(fields: [vendor_uuid], references: [uuid])
@@ -217,6 +231,7 @@ model Order {
   uuid             String      @unique @default(uuid())
   user_uuid        String
   vendor_uuid      String
+  rider_uuid       String?
   order_number     String?
   total_amount     Float      @default(0)
   discount_amount  Float      @default(0)
@@ -233,6 +248,7 @@ model Order {
   updatedAt        DateTime    @updatedAt
   user             User?       @relation(fields: [user_uuid], references: [uuid])
   vendor           Vendor?     @relation(fields: [vendor_uuid], references: [uuid])
+  rider            Rider?      @relation(fields: [rider_uuid], references: [uuid])
   orderItems       OrderItem[]
 }
 
@@ -248,6 +264,47 @@ model OrderItem {
   updatedAt  DateTime @updatedAt
   order      Order    @relation(fields: [order_uuid], references: [uuid])
   food       Food     @relation(fields: [food_uuid], references: [uuid])
+}
+
+
+// Rider table model
+model Rider {
+  id           Int        @id @default(autoincrement())
+  uuid         String     @unique @default(uuid())
+  user_uuid    String     @unique
+  balance      Float      @default(0)
+  country      String?
+  state        String?
+  city         String?
+  location     String?
+  longitude    String?
+  latitude     String?
+  address      String?
+  ratings      Float      @default(0)
+  featured     Float      @default(0)
+  status       String     @default("pending")
+  is_online    Boolean    @default(true)
+  opening_time String?
+  closing_time String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  user         User       @relation(fields: [user_uuid], references: [uuid])
+  documents    RiderDocuments[]
+  orders       Order[]
+}
+
+// Rider Document table model
+model RiderDocuments {
+  id                Int        @id @default(autoincrement())
+  uuid              String     @unique
+  country           String?
+  id_number         String?
+  id_upload         String?
+  vehicle_number    String?
+  document_upload   String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  documents         Rider      @relation(fields: [uuid], references: [uuid])
 }
 
 model Team {

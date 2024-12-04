@@ -24,10 +24,10 @@ export class VendorController {
   constructor(private readonly vendorService: VendorService) {}
 
   /**
-   * 
-   * @param token 
-   * @param vendor 
-   * @returns 
+   *
+   * @param token
+   * @param vendor
+   * @returns
    */
   @Version('1')
   @Post('/')
@@ -39,10 +39,10 @@ export class VendorController {
   }
 
   /**
-   * 
-   * @param page 
-   * @param pageSize 
-   * @returns 
+   *
+   * @param page
+   * @param pageSize
+   * @returns
    */
   @Version('1')
   @Get()
@@ -51,9 +51,9 @@ export class VendorController {
   }
 
   /**
-   * 
-   * @param slug 
-   * @returns 
+   *
+   * @param slug
+   * @returns
    */
   @Version('1')
   @Get(':slug')
@@ -62,10 +62,10 @@ export class VendorController {
   }
 
   /**
-   * 
-   * @param uuid 
-   * @param VendorUpdateInput 
-   * @returns 
+   *
+   * @param uuid
+   * @param VendorUpdateInput
+   * @returns
    */
   @Version('1')
   @Patch(':uuid')
@@ -83,35 +83,25 @@ export class VendorController {
     @UploadedFile('id_upload') id_upload?: Express.Multer.File,
     @UploadedFile('business_upload') business_upload?: Express.Multer.File,
   ) {
-    return this.vendorService.update(token, uuid, VendorUpdateInput, profile, cover, id_upload, business_upload);
+    return this.vendorService.update(
+      token,
+      uuid,
+      VendorUpdateInput,
+      profile,
+      cover,
+      id_upload,
+      business_upload,
+    );
   }
 
   /**
-   * 
-   * @param uuid 
-   * @returns 
+   *
+   * @param uuid
+   * @returns
    */
   @Version('1')
   @Delete(':uuid')
-  remove(
-    @Headers('token') token: string,
-    @Param('uuid') uuid: string,
-  ) {
+  remove(@Headers('token') token: string, @Param('uuid') uuid: string) {
     return this.vendorService.remove(token, uuid);
-  }
-
-  /**
-   * 
-   * @param token 
-   * @param vendor_uuid 
-   * @returns 
-   */
-  @Version('1')
-  @Patch(':vendor_uuid/approve')
-  approve(
-    @Headers('token') token: string,
-    @Param('vendor_uuid') vendor_uuid: string,
-  ) {
-    return this.vendorService.approve(token, vendor_uuid);
   }
 }
