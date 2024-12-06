@@ -35,7 +35,9 @@ async function bootstrap() {
     .addTag('app')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup('docs', app, document, {
+    jsonDocumentUrl: 'docs/json',
+  });
 
   if (process.env.NODE_ENV === 'local') {
     const seeder = app.get(SeederService);
