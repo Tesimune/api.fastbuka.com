@@ -109,27 +109,27 @@ export class SeederService {
   //   );
   // }
 
-  // private async seedCategories() {
-  //   return await this.databaseService.$transaction(
-  //     async (prisma) => {
-  //       for (const category of categories) {
-  //         await prisma.category.upsert({
-  //           where: {
-  //             uuid: category.uuid,
-  //             name: category.name,
-  //           },
-  //           update: { ...category, uuid: category.uuid },
-  //           create: { ...category, uuid: category.uuid },
-  //         });
-  //         await this.seedFoods();
-  //         this.logger.log('Food seeding completed!');
-  //       }
-  //     },
-  //     {
-  //       timeout: 86400000,
-  //     },
-  //   );
-  // }
+  private async seedCategories() {
+    return await this.databaseService.$transaction(
+      async (prisma) => {
+        for (const category of categories) {
+          await prisma.category.upsert({
+            where: {
+              uuid: category.uuid,
+              name: category.name,
+            },
+            update: { ...category, uuid: category.uuid },
+            create: { ...category, uuid: category.uuid },
+          });
+          await this.seedFoods();
+          this.logger.log('Food seeding completed!');
+        }
+      },
+      {
+        timeout: 86400000,
+      },
+    );
+  }
 
   private async seedFoods(vendorUuid?) {
     return await this.databaseService.$transaction(
