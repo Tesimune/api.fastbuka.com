@@ -97,6 +97,16 @@ export class AppService {
     return 'Welcome to Fast Buka, Application running.';
   }
 
+  /**
+   * 
+   * @param longitude 
+   * @param latitude 
+   * @param page 
+   * @param perPage 
+   * @param sortField 
+   * @param sortOrder 
+   * @returns 
+   */
   async vendors(
     longitude: number,
     latitude: number,
@@ -160,6 +170,16 @@ export class AppService {
     };
   }
 
+  /**
+   * 
+   * @param longitude 
+   * @param latitude 
+   * @param page 
+   * @param perPage 
+   * @param sortField 
+   * @param sortOrder 
+   * @returns 
+   */
   async featured(
     longitude: number,
     latitude: number,
@@ -226,6 +246,16 @@ export class AppService {
     };
   }
 
+  /**
+   * 
+   * @param longitude 
+   * @param latitude 
+   * @param page 
+   * @param perPage 
+   * @param sortField 
+   * @param sortOrder 
+   * @returns 
+   */
   async food(
     longitude: number,
     latitude: number,
@@ -299,6 +329,16 @@ export class AppService {
     };
   }
 
+  /**
+   * 
+   * @param longitude 
+   * @param latitude 
+   * @param page 
+   * @param perPage 
+   * @param sortField 
+   * @param sortOrder 
+   * @returns 
+   */
   async trending(
     longitude: number,
     latitude: number,
@@ -372,6 +412,10 @@ export class AppService {
     };
   }
 
+  /**
+   * 
+   * @returns 
+   */
   async findAll() {
     const categories = await this.databaseService.category.findMany();
     return {
