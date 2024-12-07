@@ -15,10 +15,11 @@ import {
   Horizon,
   Networks,
   TransactionBuilder,
-  BASE_FEE,
+ BASE_FEE,
   Asset,
   Keypair,
   Operation,
+  Account,
 } from '@stellar/stellar-sdk';
 import {
   ResetPasswordDto,
@@ -26,6 +27,9 @@ import {
   VerifyEmailDto,
   DecryptDto,
 } from './dto/update-auth.dto';
+
+
+
 
 @Injectable()
 export class AuthService {
@@ -35,6 +39,9 @@ export class AuthService {
     private readonly mailerService: MailerService,
     private readonly encryptionService: EncryptionService,
   ) {}
+
+  
+
 
   private generateRandomToken(length: number): string {
     return randomBytes(length).toString('hex').slice(0, length);
@@ -87,10 +94,12 @@ export class AuthService {
     const { publicKey, secret } = this.generateRandomWallet();
 
     await this.accountSponsorship(publicKey, secret);
-
+    
+    
     // Encrypt the secret key before saving
-    const encryptedSecret =
-      await this.encryptionService.encryptSecretKey(secret);
+    const encryptedSecret = await this.encryptionService.encryptSecretKey(secret);
+
+    
 
     const newUser = await this.databaseService.$transaction(async (prisma) => {
       const createdUser = await prisma.user.create({
@@ -482,7 +491,7 @@ export class AuthService {
     await this.databaseService.personalAccessToken.delete({
       where: { token },
     });
-
+    
     return {
       status: 200,
       success: true,
@@ -490,217 +499,174 @@ export class AuthService {
     };
   }
 
+  
+
   /**
    *
-   *
+   * 
    * Account Sponsorship
    */
   private async accountSponsorship(walletAddress: string, secretKey: string) {
     try {
-      // Connect to mainnet instead of futurenet
-      const server = new Horizon.Server('https://horizon.stellar.org');
+        const server = new Horizon.Server('https://horizon-testnet.stellar.org');
+        
+        const sponsorPubKey = process.env.SPONSOR_PUBLIC_KEY;
+        const sponsorPrivKey = process.env.SPONSOR_PRIVATE_KEY;
+        
+        console.log('Initializing account creation...');
+        console.log('Destination address:', walletAddress);
 
-      // Check environment variables
-      const sponsorPubKey = process.env.SPONSOR_PUBLIC_KEY;
-      const sponsorPrivKey = process.env.SPONSOR_PRIVATE_KEY;
+        if (!sponsorPubKey || !sponsorPrivKey) {
+            throw new Error('Sponsor credentials missing');
+        }
 
-      if (!sponsorPubKey || !sponsorPrivKey) {
-        throw new Error('Sponsor account credentials not properly configured');
-      }
+        // Create sponsor keypair
+        const sponsorKeypair = Keypair.fromSecret(sponsorPrivKey);
+        console.log('Sponsor keypair verified');
 
-      // Create keypairs
-      const sponsorKeypair = Keypair.fromSecret(sponsorPrivKey);
-      const userKeypair = Keypair.fromSecret(secretKey);
+        // Load sponsor account
+        console.log('Loading sponsor account...');
+        const sponsorAccount = await server.loadAccount(sponsorPubKey);
+        const userKeypair = Keypair.fromSecret(secretKey);
 
-      // Verify the sponsor public key matches the keypair
-      if (sponsorKeypair.publicKey() !== sponsorPubKey) {
-        throw new Error('Sponsor keypair does not match provided public key');
-      }
-
-      // Load the sponsor account
-      let sponsorAccount;
-      try {
-        sponsorAccount = await server.loadAccount(sponsorPubKey);
-      } catch (error) {
-        throw new Error('Sponsor account not found or not funded');
-      }
-
-      // Define NGNC assets
-      const assetNGN = new Asset(
-        'NGNC',
-        'GASBV6W7GGED66MXEVC7YZHTWWYMSVYEY35USF2HJZBLABLYIFQGXZY6',
+        // Define NGNC assets
+        const assetNGN = new Asset(
+          "NGNC", 
+          "GASBV6W7GGED66MXEVC7YZHTWWYMSVYEY35USF2HJZBLABLYIFQGXZY6"
       );
 
       const assetUSDC = new Asset(
-        'USDC',
-        'GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN',
-      );
+        "USDC", 
+        "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN"
+    );
 
-      // Check sponsor account balance
-      const sponsorBalance = parseFloat(
-        sponsorAccount.balances.find((b) => b.asset_type === 'native')
-          ?.balance || '0',
-      );
-
-      if (sponsorBalance < 2) {
-        // Minimum balance + operation fees
-        throw new Error('Insufficient sponsor account balance');
-      }
-
-      // Build the transaction
-      const transaction = new TransactionBuilder(sponsorAccount, {
-        fee: BASE_FEE,
-        networkPassphrase: Networks.PUBLIC, // Use PUBLIC for mainnet
-      })
-        .addOperation(
-          Operation.beginSponsoringFutureReserves({
-            source: sponsorKeypair.publicKey(),
-            sponsoredId: walletAddress,
-          }),
-        )
-        .addOperation(
-          Operation.createAccount({
+        // Check balance
+        const nativeBalance = sponsorAccount.balances.find(b => b.asset_type === 'native');
+        const sponsorBalance = parseFloat(nativeBalance?.balance || '0');
+        
+        console.log('Sponsor balance:', sponsorBalance, 'XLM');
+        
+        if (sponsorBalance < 3) {
+            throw new Error(`Insufficient sponsor balance: ${sponsorBalance} XLM`);
+        }
+        // Create transaction with minimum required XLM
+        console.log('Building transaction...');
+        const transaction = new TransactionBuilder(sponsorAccount, {
+            fee: BASE_FEE,
+            networkPassphrase: Networks.TESTNET
+        })
+        .addOperation(Operation.beginSponsoringFutureReserves({
+          sponsoredId: walletAddress
+      }))
+        .addOperation(Operation.createAccount({
             destination: walletAddress,
-            startingBalance: '0', // Increased for mainnet safety
-          }),
-        )
-        .addOperation(
-          Operation.endSponsoringFutureReserves({
-            source: walletAddress,
-          }),
-        )
-        .addOperation(
-          Operation.beginSponsoringFutureReserves({
-            sponsoredId: walletAddress,
-          }),
-        )
-        .addOperation(
-          Operation.changeTrust({
-            asset: assetNGN,
-            source: walletAddress,
-          }),
-        )
-        .addOperation(
-          Operation.endSponsoringFutureReserves({
-            source: walletAddress,
-          }),
-        )
-        .addOperation(
-          Operation.beginSponsoringFutureReserves({
-            sponsoredId: walletAddress,
-          }),
-        )
-        .addOperation(
-          Operation.changeTrust({
-            asset: assetUSDC,
-            source: walletAddress,
-          }),
-        )
-        .addOperation(
-          Operation.endSponsoringFutureReserves({
-            source: walletAddress,
-          }),
-        )
-        .setTimeout(30) // Reduced timeout for mainnet
+            startingBalance: "0"  // Minimum balance for operation
+        }))
+      //   .addOperation(Operation.changeTrust({
+      //     asset: assetNGN,
+      //     source: walletAddress
+      // }))
+        .addOperation(Operation.changeTrust({
+          asset: assetUSDC,
+          source: walletAddress
+      }))
+        .addOperation(Operation.endSponsoringFutureReserves({
+            source: walletAddress
+        }))
+        .setTimeout(30)
         .build();
 
-      // Sign the transaction
-      transaction.sign(sponsorKeypair, userKeypair);
+        console.log('Signing transaction...');
+        transaction.sign(sponsorKeypair, userKeypair);
 
-      // Submit with proper error handling
-      try {
-        const result = await server.submitTransaction(transaction);
+        try {
+            console.log('Submitting transaction...');
+            const result = await server.submitTransaction(transaction);
+            console.log('Transaction successful:', result.hash);
 
-        // Wait for transaction to be confirmed
-        await server.transactions().transaction(result.hash).call();
+            // Wait a moment to ensure account creation
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            
+            return {
+                success: true,
+                hash: result.hash,
+                created: true,
+                balance: "2.5"
+            };
+        } catch (error) {
+            console.error('Full error response:', JSON.stringify(error.response?.data, null, 2));
+            
+            const resultCodes = error.response?.data?.extras?.result_codes;
+            console.error('Transaction submission failed:', {
+                transaction: resultCodes?.transaction,
+                operations: resultCodes?.operations,
+                error: error.message,
+                sponsorBalance
+            });
 
-        return {
-          success: true,
-          hash: result.hash,
-          ledger: result.ledger,
-          created: true,
-        };
-      } catch (error) {
-        // Handle specific error cases
-        if (error.response?.data?.extras?.result_codes?.operations) {
-          const opCodes = error.response.data.extras.result_codes.operations;
-          if (opCodes.includes('op_underfunded')) {
-            throw new Error('Sponsor account underfunded');
-          }
-          if (opCodes.includes('op_already_exists')) {
-            throw new Error('Account already exists');
-          }
+            throw new Error(`Transaction failed: ${resultCodes?.transaction || error.message}`);
         }
-
-        throw new Error(
-          `Failed to submit sponsorship transaction: ${error.response?.data?.extras?.result_codes?.transaction || error.message}`,
-        );
-      }
     } catch (error) {
-      throw new HttpException(
-        {
-          status: 500,
-          success: false,
-          message: 'Failed to setup account sponsorship',
-          error: error.message,
-        },
-        500,
-      );
+        console.error('Account creation failed:', error);
+        throw new HttpException({
+            status: 500,
+            success: false,
+            message: 'Failed to create account',
+            error: error.message
+        }, 500);
     }
-  }
-
+}
   // Add this method to get decrypted secret key when needed
   async decrypt(token: string) {
     try {
       // Get auth data using the same pattern as profile method
       const auth = await this.middlewareService.decodeToken(token);
-
+      
       if (!auth || !auth.uuid) {
         throw new UnauthorizedException({
           status: 401,
           success: false,
-          message: 'Invalid token',
+          message: 'Invalid token'
         });
       }
 
       // Get user data using the same pattern as profile method
       const user = await this.databaseService.user.findUnique({
         where: { uuid: auth.uuid },
-        select: { secretKey: true },
+        select: { secretKey: true }
       });
 
       if (!user || !user.secretKey) {
         throw new UnauthorizedException({
           status: 404,
           success: false,
-          message: 'Secret key not found',
+          message: 'Secret key not found'
         });
       }
 
       // Decrypt the secret key
-      const decryptedKey = await this.encryptionService.decryptSecretKey(
-        user.secretKey,
-      );
+      const decryptedKey = await this.encryptionService.decryptSecretKey(user.secretKey);
 
       return {
         status: 200,
         success: true,
         message: 'Secret key decrypted successfully',
         data: {
-          secretKey: decryptedKey,
-        },
+          secretKey: decryptedKey
+        }
       };
+
     } catch (error) {
       console.error('Decrypt error:', error);
-
+      
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-
+      
       throw new UnauthorizedException({
         status: 401,
         success: false,
-        message: error.message || 'Decryption failed',
+        message: error.message || 'Decryption failed'
       });
     }
   }
