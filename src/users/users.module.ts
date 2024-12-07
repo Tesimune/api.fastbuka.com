@@ -9,6 +9,11 @@ import { EncryptionService } from 'src/encryption/encryption.service';
 @Module({
   imports: [DatabaseModule],
   controllers: [UsersController],
-  providers: [UsersService, MiddlewareService, StorageService, EncryptionService],
+  providers: [
+    UsersService,
+    MiddlewareService,
+    StorageService,
+    EncryptionService,
+  ],
 })
 export class UsersModule {}

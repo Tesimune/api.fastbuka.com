@@ -10,9 +10,11 @@ export class MiddlewareService {
       throw new UnauthorizedException('Invalid token');
     }
 
-    const userToken = await this.databaseService.personalAccessToken.findUnique({
-      where: { token },
-    });
+    const userToken = await this.databaseService.personalAccessToken.findUnique(
+      {
+        where: { token },
+      },
+    );
 
     if (!userToken) {
       throw new UnauthorizedException({

@@ -13,7 +13,6 @@ export class CreateCategoryDto {
   @ApiProperty({ type: 'string', format: 'binary', required: false })
   image?: Express.Multer.File;
 
-  
   @IsOptional()
   @IsString()
   @ApiProperty()

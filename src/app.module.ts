@@ -50,7 +50,19 @@ import { AdminModule } from './admin/admin.module';
     AdminModule,
   ],
   controllers: [AppController],
-  providers: [AppService, MiddlewareService, MailerService, StorageService, SeederService, EncryptionService],
-  exports: [MiddlewareService, MailerService, StorageService, EncryptionService],
+  providers: [
+    AppService,
+    MiddlewareService,
+    MailerService,
+    StorageService,
+    SeederService,
+    EncryptionService,
+  ],
+  exports: [
+    MiddlewareService,
+    MailerService,
+    StorageService,
+    EncryptionService,
+  ],
 })
 export class AppModule {}

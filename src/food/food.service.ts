@@ -12,23 +12,31 @@ export class FoodService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly middlewareService: MiddlewareService,
-    private readonly storageService: StorageService
+    private readonly storageService: StorageService,
   ) {}
 
-  async create(token, vendor_slug: string, createFoodDto: CreateFoodDto, image?: Express.Multer.File) {
+  async create(
+    token,
+    vendor_slug: string,
+    createFoodDto: CreateFoodDto,
+    image?: Express.Multer.File,
+  ) {
     const auth = await this.middlewareService.decodeToken(token);
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
         uuid: vendor_slug,
-        user_uuid: auth.uuid
-      }
+        user_uuid: auth.uuid,
+      },
     });
-    if(!vendor){
-      throw new HttpException({
-        status: 401,
-        success: false,
-        message: 'Unauthorized'
-      }, 401)
+    if (!vendor) {
+      throw new HttpException(
+        {
+          status: 401,
+          success: false,
+          message: 'Unauthorized',
+        },
+        401,
+      );
     }
     const uuid = randomUUID();
     let bucket: string;
@@ -36,10 +44,10 @@ export class FoodService {
       bucket = createFoodDto.imageUrl;
     } else if (image instanceof File) {
       bucket = await this.storageService.bucket(token, `food_${uuid}`, image);
-    }else{
+    } else {
       bucket = null;
-    } 
-    
+    }
+
     const foodData = {
       uuid,
       vendor_uuid: vendor.uuid,
@@ -64,20 +72,23 @@ export class FoodService {
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
         uuid: vendor_slug,
-      }
+      },
     });
-    if(!vendor){
-      throw new HttpException({
-        status: 404,
-        success: false,
-        message: 'Vendor Does not exist'
-      }, 404)
+    if (!vendor) {
+      throw new HttpException(
+        {
+          status: 404,
+          success: false,
+          message: 'Vendor Does not exist',
+        },
+        404,
+      );
     }
 
     const foods = this.databaseService.food.findMany({
       where: {
         vendor_uuid: vendor.uuid,
-      }
+      },
     });
     return {
       status: 200,
@@ -93,25 +104,31 @@ export class FoodService {
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
         uuid: vendor_slug,
-      }
+      },
     });
-    if(!vendor){
-      throw new HttpException({
-        status: 404,
-        success: false,
-        message: 'Vendor Does not exist'
-      }, 404)
+    if (!vendor) {
+      throw new HttpException(
+        {
+          status: 404,
+          success: false,
+          message: 'Vendor Does not exist',
+        },
+        404,
+      );
     }
 
     const food = await this.databaseService.food.findUnique({
       where: { uuid, vendor_uuid: vendor.uuid },
     });
-    if(!food){
-      throw new HttpException({
-        status: 404,
-        success: false,
-        message: 'food not found, or deleted'
-      }, 404)
+    if (!food) {
+      throw new HttpException(
+        {
+          status: 404,
+          success: false,
+          message: 'food not found, or deleted',
+        },
+        404,
+      );
     }
     return {
       status: 200,
@@ -123,22 +140,31 @@ export class FoodService {
     };
   }
 
-  async update(token: string, vendor_slug: string, uuid: string, updateFoodDto: UpdateFoodDto, image?: Express.Multer.File) {
+  async update(
+    token: string,
+    vendor_slug: string,
+    uuid: string,
+    updateFoodDto: UpdateFoodDto,
+    image?: Express.Multer.File,
+  ) {
     const auth = await this.middlewareService.decodeToken(token);
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
         uuid: vendor_slug,
-        user_uuid: auth.uuid
-      }
+        user_uuid: auth.uuid,
+      },
     });
-    if(!vendor){
-      throw new HttpException({
-        status: 401,
-        success: false,
-        message: 'Unauthorized'
-      }, 401)
+    if (!vendor) {
+      throw new HttpException(
+        {
+          status: 401,
+          success: false,
+          message: 'Unauthorized',
+        },
+        401,
+      );
     }
-    
+
     const existingFood = await this.databaseService.food.findUnique({
       where: { uuid, vendor_uuid: vendor.uuid },
     });
@@ -175,15 +201,18 @@ export class FoodService {
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
         uuid: vendor_slug,
-        user_uuid: auth.uuid
-      }
+        user_uuid: auth.uuid,
+      },
     });
-    if(!vendor){
-      throw new HttpException({
-        status: 401,
-        success: false,
-        message: 'Unauthorized'
-      }, 401)
+    if (!vendor) {
+      throw new HttpException(
+        {
+          status: 401,
+          success: false,
+          message: 'Unauthorized',
+        },
+        401,
+      );
     }
 
     this.databaseService.food.delete({

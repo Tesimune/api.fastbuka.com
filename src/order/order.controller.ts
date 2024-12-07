@@ -24,12 +24,11 @@ export class OrderController {
   @Post(':cart_uuid')
   create(
     @Headers('token') token: string,
-    @Body() createOrderDto: CreateOrderDto
+    @Body() createOrderDto: CreateOrderDto,
   ) {
     return this.orderService.create(token, createOrderDto);
   }
 
-  
   @Version('1')
   @Get()
   findAll(

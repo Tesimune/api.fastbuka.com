@@ -143,7 +143,12 @@ export class AdminService {
    * @param limit
    * @returns
    */
-  async users(token: string, user_uuid?: string, page: number = 1, limit: number = 20) {
+  async users(
+    token: string,
+    user_uuid?: string,
+    page: number = 1,
+    limit: number = 20,
+  ) {
     const auth = await this.middlewareService.decodeToken(token);
     if (auth.role !== 'admin') {
       throw new HttpException(
@@ -220,7 +225,13 @@ export class AdminService {
    * @param limit
    * @returns
    */
-  async vendors(token: string, vendor_uuid?: string, status?: string, page: number = 1, limit: number = 20) {
+  async vendors(
+    token: string,
+    vendor_uuid?: string,
+    status?: string,
+    page: number = 1,
+    limit: number = 20,
+  ) {
     const auth = await this.middlewareService.decodeToken(token);
     if (auth.role !== 'admin') {
       throw new HttpException(
@@ -314,21 +325,23 @@ export class AdminService {
     }
   }
 
-  
   /**
    * Approve vendor
-   * @param token 
-   * @param vendor_uuid 
-   * @returns 
+   * @param token
+   * @param vendor_uuid
+   * @returns
    */
   async approveVendor(token: string, vendor_uuid: string) {
     const auth = await this.middlewareService.decodeToken(token);
     if (auth.role !== 'admin') {
-      throw new HttpException({
-        status: 419,
-        success: false,
-        message: 'Unauthorized',
-      }, 419);
+      throw new HttpException(
+        {
+          status: 419,
+          success: false,
+          message: 'Unauthorized',
+        },
+        419,
+      );
     }
 
     const vendor = await this.databaseService.vendor.update({
@@ -341,8 +354,8 @@ export class AdminService {
       success: true,
       message: 'Vendor approved successfully',
       data: {
-        vendor
-      }
+        vendor,
+      },
     };
   }
 
@@ -355,7 +368,13 @@ export class AdminService {
    * @param limit
    * @returns
    */
-  async riders(token: string, rider_uuid?: string, status?: string, page: number = 1, limit: number = 20) {
+  async riders(
+    token: string,
+    rider_uuid?: string,
+    status?: string,
+    page: number = 1,
+    limit: number = 20,
+  ) {
     const auth = await this.middlewareService.decodeToken(token);
     if (auth.role !== 'admin') {
       throw new HttpException(
@@ -449,21 +468,23 @@ export class AdminService {
     }
   }
 
-
-   /**
+  /**
    * Approve rider
-   * @param token 
-   * @param vendor_uuid 
-   * @returns 
+   * @param token
+   * @param vendor_uuid
+   * @returns
    */
   async approveRider(token: string, rider_uuid: string) {
     const auth = await this.middlewareService.decodeToken(token);
     if (auth.role !== 'admin') {
-      throw new HttpException({
-        status: 419,
-        success: false,
-        message: 'Unauthorized',
-      }, 419);
+      throw new HttpException(
+        {
+          status: 419,
+          success: false,
+          message: 'Unauthorized',
+        },
+        419,
+      );
     }
 
     const rider = await this.databaseService.rider.update({
@@ -476,20 +497,25 @@ export class AdminService {
       success: true,
       message: 'Rider approved successfully',
       data: {
-        rider
-      }
+        rider,
+      },
     };
   }
 
   /**
    * Get Transactions/Transaction
-   * @param token 
-   * @param transaction_id 
+   * @param token
+   * @param transaction_id
    * @param page
    * @param limit
-   * @returns 
+   * @returns
    */
-  async transactions(token: string, transaction_id?: string, page: number = 1, limit: number = 20) {
+  async transactions(
+    token: string,
+    transaction_id?: string,
+    page: number = 1,
+    limit: number = 20,
+  ) {
     const auth = await this.middlewareService.decodeToken(token);
     if (auth.role !== 'admin') {
       throw new HttpException(

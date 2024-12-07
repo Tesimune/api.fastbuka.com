@@ -1,4 +1,8 @@
-import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { MiddlewareService } from 'src/middleware/middleware.service';
 import { CreateVendorDto } from './dto/create-vendor.dto';
@@ -129,21 +133,22 @@ export class VendorService {
    * @returns Updated Vendor
    */
   async update(
-    token: string, uuid: string, 
-    updateVendorDto: UpdateVendorDto, 
-    profile?: Express.Multer.File, 
-    cover?: Express.Multer.File, 
-    id_upload?: Express.Multer.File, 
-    business_upload?: Express.Multer.File
+    token: string,
+    uuid: string,
+    updateVendorDto: UpdateVendorDto,
+    profile?: Express.Multer.File,
+    cover?: Express.Multer.File,
+    id_upload?: Express.Multer.File,
+    business_upload?: Express.Multer.File,
   ) {
     const user = await this.MiddlewareService.decodeToken(token);
     const slug = updateVendorDto.name?.replace(/\s+/g, '_');
-  
+
     // Find the vendor
     const vendor = await this.databaseService.vendor.findUnique({
       where: { uuid },
     });
-  
+
     if (!vendor) {
       throw new HttpException(
         {
@@ -163,33 +168,41 @@ export class VendorService {
         403,
       );
     }
-  
+
     const updateData: any = {
       slug,
       ...updateVendorDto,
     };
-  
-    if(updateVendorDto.profileUrl){
+
+    if (updateVendorDto.profileUrl) {
       updateData.profile = updateVendorDto.profileUrl;
-    }else if (profile instanceof File) {
-        updateData.profile = await this.storageService.bucket(token, 'vendor_profile', profile);
-    }else{
+    } else if (profile instanceof File) {
+      updateData.profile = await this.storageService.bucket(
+        token,
+        'vendor_profile',
+        profile,
+      );
+    } else {
       updateData.profile = vendor?.profile || null;
     }
-  
+
     if (updateVendorDto.coverUrl) {
       updateData.cover = updateVendorDto.coverUrl;
     } else if (cover instanceof File) {
-      updateData.cover = await this.storageService.bucket(token, 'vendor_cover', cover);
-    }else{
+      updateData.cover = await this.storageService.bucket(
+        token,
+        'vendor_cover',
+        cover,
+      );
+    } else {
       updateData.cover = vendor?.cover || null;
-    } 
-  
+    }
+
     const updatedVendor = await this.databaseService.vendor.update({
       where: { uuid },
       data: updateData,
     });
-  
+
     // Create or update related VendorDocuments
     if (
       updateVendorDto.id_number ||
@@ -198,33 +211,43 @@ export class VendorService {
       updateVendorDto.business_upload ||
       updateVendorDto.country
     ) {
-      const existingDocument = await this.databaseService.vendorDocuments.findUnique({
-        where: { uuid: vendor.uuid },
-      });
-  
+      const existingDocument =
+        await this.databaseService.vendorDocuments.findUnique({
+          where: { uuid: vendor.uuid },
+        });
+
       const documentData: any = {
         uuid: vendor.uuid,
         country: updateVendorDto.country,
         id_number: updateVendorDto.id_number,
         business_number: updateVendorDto.business_number,
       };
-  
+
       if (updateVendorDto.id_uploadUrl) {
         documentData.id_upload = updateVendorDto.id_uploadUrl;
       } else if (id_upload instanceof File) {
-        documentData.id_upload = await this.storageService.bucket(token, 'id_upload', id_upload);
+        documentData.id_upload = await this.storageService.bucket(
+          token,
+          'id_upload',
+          id_upload,
+        );
       } else {
         documentData.id_upload = existingDocument?.id_upload || null;
       }
-  
+
       if (updateVendorDto.business_uploadUrl) {
         documentData.business_upload = updateVendorDto.business_uploadUrl;
       } else if (business_upload instanceof File) {
-        documentData.business_upload = await this.storageService.bucket(token, 'business_upload', business_upload);
+        documentData.business_upload = await this.storageService.bucket(
+          token,
+          'business_upload',
+          business_upload,
+        );
       } else {
-        documentData.business_upload = existingDocument?.business_upload || null;
+        documentData.business_upload =
+          existingDocument?.business_upload || null;
       }
-  
+
       if (existingDocument) {
         await this.databaseService.vendorDocuments.update({
           where: { uuid: vendor.uuid },
@@ -236,7 +259,7 @@ export class VendorService {
         });
       }
     }
-  
+
     return {
       status: 200,
       success: true,
@@ -246,7 +269,6 @@ export class VendorService {
       },
     };
   }
-  
 
   /**
    * Soft delete a vendor by marking status as deleted
@@ -290,8 +312,8 @@ export class VendorService {
     return {
       status: 200,
       success: true,
-      message: 'Vendor deletion request sent; account data will be deleted in 30 days',
+      message:
+        'Vendor deletion request sent; account data will be deleted in 30 days',
     };
   }
-
 }
