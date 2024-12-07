@@ -9,10 +9,7 @@ import { EncryptionService } from 'src/encryption/encryption.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResetPasswordDto } from 'src/auth/dto/update-auth.dto';
 import * as bcrypt from 'bcryptjs';
-import {
-  StrKey,
-  Horizon,
-} from '@stellar/stellar-sdk';
+import { StrKey, Horizon } from '@stellar/stellar-sdk';
 import { StorageService } from 'src/storage/storage.service';
 
 @Injectable()
@@ -219,8 +216,6 @@ export class UsersService {
   //   }
   // }
 
-
-
   /**
    * Main wallet function that combines all steps
    */
@@ -230,7 +225,6 @@ export class UsersService {
       const profileResponse = await this.profile(token);
       const walletAddress = profileResponse.data.user.walletAddress;
       const secretKey = profileResponse.data.user.secretKey;
-        
 
       if (!walletAddress || !secretKey) {
         throw new HttpException(
@@ -417,9 +411,9 @@ export class UsersService {
     });
 
     let profile_url: string;
-    if(updateUserDto.profileUrl){
+    if (updateUserDto.profileUrl) {
       profile_url = updateUserDto.profileUrl;
-    }else if (profile instanceof File) {
+    } else if (profile instanceof File) {
       profile_url = await this.storageService.bucket(
         token,
         'user_profile',

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, ValidationPipe, Version } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  ValidationPipe,
+  Version,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiTags } from '@nestjs/swagger';
 import { query } from 'express';
@@ -22,45 +30,65 @@ export class AppController {
   @Version('1')
   @Get('vendors')
   @ApiTags('app')
-  vendors(
-    @Query(ValidationPipe) query: QueryParamsDto
-  ): Promise<{}> {
+  vendors(@Query(ValidationPipe) query: QueryParamsDto): Promise<{}> {
     const page = +query.page ? +query.page : 1;
     const perPage = query.perPage ? query.perPage : 20;
-    return this.appService.vendors(+query.longitude, +query.latitude, +page, +perPage, query.sortField, query.sortOrder);
+    return this.appService.vendors(
+      +query.longitude,
+      +query.latitude,
+      +page,
+      +perPage,
+      query.sortField,
+      query.sortOrder,
+    );
   }
 
   @Version('1')
   @Get('featured')
   @ApiTags('app')
-  featured(
-    @Query(ValidationPipe) query: QueryParamsDto
-  ): Promise<{}> {
+  featured(@Query(ValidationPipe) query: QueryParamsDto): Promise<{}> {
     const page = +query.page ? +query.page : 1;
     const perPage = query.perPage ? query.perPage : 20;
-    return this.appService.featured(+query.longitude, +query.latitude, +page, +perPage, query.sortField, query.sortOrder);
+    return this.appService.featured(
+      +query.longitude,
+      +query.latitude,
+      +page,
+      +perPage,
+      query.sortField,
+      query.sortOrder,
+    );
   }
 
   @Version('1')
   @Get('food')
   @ApiTags('app')
-  food(
-    @Query(ValidationPipe) query: QueryParamsDto
-  ): Promise<{}> {
+  food(@Query(ValidationPipe) query: QueryParamsDto): Promise<{}> {
     const page = +query.page ? +query.page : 1;
     const perPage = query.perPage ? query.perPage : 20;
-    return this.appService.food(+query.longitude, +query.latitude, +page, +perPage, query.sortField, query.sortOrder);
+    return this.appService.food(
+      +query.longitude,
+      +query.latitude,
+      +page,
+      +perPage,
+      query.sortField,
+      query.sortOrder,
+    );
   }
 
   @Version('1')
   @Get('trending')
   @ApiTags('app')
-  trending(
-    @Query(ValidationPipe) query: QueryParamsDto
-  ): Promise<{}> {
+  trending(@Query(ValidationPipe) query: QueryParamsDto): Promise<{}> {
     const page = +query.page ? +query.page : 1;
     const perPage = query.perPage ? query.perPage : 20;
-    return this.appService.trending(+query.longitude, +query.latitude, +page, +perPage, query.sortField, query.sortOrder);
+    return this.appService.trending(
+      +query.longitude,
+      +query.latitude,
+      +page,
+      +perPage,
+      query.sortField,
+      query.sortOrder,
+    );
   }
 
   @Version('1')
@@ -73,23 +101,29 @@ export class AppController {
   @Version('1')
   @Get('home')
   @ApiTags('app')
-  home(
-    @Query(ValidationPipe) query: QueryParamsDto
-  ): Promise<{}> {
+  home(@Query(ValidationPipe) query: QueryParamsDto): Promise<{}> {
     const page = +query.page ? +query.page : 1;
     const perPage = query.perPage ? query.perPage : 20;
-    return this.appService.home(+page, +perPage, query.sortField, query.sortOrder);
+    return this.appService.home(
+      +page,
+      +perPage,
+      query.sortField,
+      query.sortOrder,
+    );
   }
 
   @Version('1')
   @Get('menu')
   @ApiTags('app')
-  menu(
-    @Query(ValidationPipe) query: QueryParamsDto
-  ): Promise<{}> {
+  menu(@Query(ValidationPipe) query: QueryParamsDto): Promise<{}> {
     const page = +query.page ? +query.page : 1;
     const perPage = query.perPage ? query.perPage : 20;
-    return this.appService.menu(+page, +perPage, query.sortField, query.sortOrder);
+    return this.appService.menu(
+      +page,
+      +perPage,
+      query.sortField,
+      query.sortOrder,
+    );
   }
 
   @Version('1')
@@ -116,7 +150,13 @@ export class AppController {
   @Version('1')
   @Post('contact')
   @ApiTags('app')
-  form(@Body() name: string, email: string, subject: string, phone: string, message: string): Promise<{}> {
+  form(
+    @Body() name: string,
+    email: string,
+    subject: string,
+    phone: string,
+    message: string,
+  ): Promise<{}> {
     return this.appService.form(name, email, subject, phone, message);
   }
 }

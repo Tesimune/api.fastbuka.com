@@ -70,5 +70,4 @@ export const users = [
     contact: '0987654321',
     role: 'user',
   },
-
 ];

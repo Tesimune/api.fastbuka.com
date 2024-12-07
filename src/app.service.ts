@@ -98,14 +98,14 @@ export class AppService {
   }
 
   /**
-   * 
-   * @param longitude 
-   * @param latitude 
-   * @param page 
-   * @param perPage 
-   * @param sortField 
-   * @param sortOrder 
-   * @returns 
+   *
+   * @param longitude
+   * @param latitude
+   * @param page
+   * @param perPage
+   * @param sortField
+   * @param sortOrder
+   * @returns
    */
   async vendors(
     longitude: number,
@@ -171,14 +171,14 @@ export class AppService {
   }
 
   /**
-   * 
-   * @param longitude 
-   * @param latitude 
-   * @param page 
-   * @param perPage 
-   * @param sortField 
-   * @param sortOrder 
-   * @returns 
+   *
+   * @param longitude
+   * @param latitude
+   * @param page
+   * @param perPage
+   * @param sortField
+   * @param sortOrder
+   * @returns
    */
   async featured(
     longitude: number,
@@ -247,14 +247,14 @@ export class AppService {
   }
 
   /**
-   * 
-   * @param longitude 
-   * @param latitude 
-   * @param page 
-   * @param perPage 
-   * @param sortField 
-   * @param sortOrder 
-   * @returns 
+   *
+   * @param longitude
+   * @param latitude
+   * @param page
+   * @param perPage
+   * @param sortField
+   * @param sortOrder
+   * @returns
    */
   async food(
     longitude: number,
@@ -330,14 +330,14 @@ export class AppService {
   }
 
   /**
-   * 
-   * @param longitude 
-   * @param latitude 
-   * @param page 
-   * @param perPage 
-   * @param sortField 
-   * @param sortOrder 
-   * @returns 
+   *
+   * @param longitude
+   * @param latitude
+   * @param page
+   * @param perPage
+   * @param sortField
+   * @param sortOrder
+   * @returns
    */
   async trending(
     longitude: number,
@@ -413,8 +413,8 @@ export class AppService {
   }
 
   /**
-   * 
-   * @returns 
+   *
+   * @returns
    */
   async findAll() {
     const categories = await this.databaseService.category.findMany();
@@ -422,8 +422,8 @@ export class AppService {
       status: 200,
       success: true,
       message: 'Found',
-      data: {categories}
-    }
+      data: { categories },
+    };
   }
 
   /**

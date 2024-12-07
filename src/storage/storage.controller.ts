@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Patch, Param, Delete, UseInterceptors, UploadedFile, Headers, Body, ValidationPipe, Version } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+  UploadedFile,
+  Headers,
+  Body,
+  ValidationPipe,
+  Version,
+} from '@nestjs/common';
 import { StorageService } from './storage.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateStorageDto } from './dto/create-storage.dto';
@@ -16,11 +29,10 @@ export class StorageController {
   create(
     @Headers('token') token: string,
     @Body(ValidationPipe) body: CreateStorageDto,
-    @UploadedFile('file') file: Express.Multer.File
+    @UploadedFile('file') file: Express.Multer.File,
   ) {
     return this.storageService.create(token, body.use, file);
   }
-
 
   @Version('1')
   @Patch()
@@ -29,7 +41,7 @@ export class StorageController {
   update(
     @Headers('token') token: string,
     @Body(ValidationPipe) body: CreateStorageDto,
-    @UploadedFile('file') file: Express.Multer.File
+    @UploadedFile('file') file: Express.Multer.File,
   ) {
     return this.storageService.update(token, body.use, file);
   }
