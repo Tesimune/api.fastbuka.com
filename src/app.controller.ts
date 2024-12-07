@@ -19,6 +19,56 @@ export class AppController {
   health(): string {
     return this.appService.health();
   }
+  @Version('1')
+  @Get('vendors')
+  @ApiTags('app')
+  vendors(
+    @Query(ValidationPipe) query: QueryParamsDto
+  ): Promise<{}> {
+    const page = +query.page ? +query.page : 1;
+    const perPage = query.perPage ? query.perPage : 20;
+    return this.appService.vendors(+query.longitude, +query.latitude, +page, +perPage, query.sortField, query.sortOrder);
+  }
+
+  @Version('1')
+  @Get('featured')
+  @ApiTags('app')
+  featured(
+    @Query(ValidationPipe) query: QueryParamsDto
+  ): Promise<{}> {
+    const page = +query.page ? +query.page : 1;
+    const perPage = query.perPage ? query.perPage : 20;
+    return this.appService.featured(+query.longitude, +query.latitude, +page, +perPage, query.sortField, query.sortOrder);
+  }
+
+  @Version('1')
+  @Get('food')
+  @ApiTags('app')
+  food(
+    @Query(ValidationPipe) query: QueryParamsDto
+  ): Promise<{}> {
+    const page = +query.page ? +query.page : 1;
+    const perPage = query.perPage ? query.perPage : 20;
+    return this.appService.food(+query.longitude, +query.latitude, +page, +perPage, query.sortField, query.sortOrder);
+  }
+
+  @Version('1')
+  @Get('trending')
+  @ApiTags('app')
+  trending(
+    @Query(ValidationPipe) query: QueryParamsDto
+  ): Promise<{}> {
+    const page = +query.page ? +query.page : 1;
+    const perPage = query.perPage ? query.perPage : 20;
+    return this.appService.trending(+query.longitude, +query.latitude, +page, +perPage, query.sortField, query.sortOrder);
+  }
+
+  @Version('1')
+  @Get('categories')
+  @ApiTags('app')
+  categories(): Promise<{}> {
+    return this.appService.findAll();
+  }
 
   @Version('1')
   @Get('home')

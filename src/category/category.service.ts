@@ -18,6 +18,13 @@ export class CategoryService {
   
   async create(token, createCategoryDto: CreateCategoryDto, image: Express.Multer.File) {
     const auth = await this.middlewareService.decodeToken(token);
+    if (auth.role !== 'admin') {
+      throw new HttpException({
+        status: 403,
+        success: false,
+        message: 'Unauthorized access'
+      }, 403);
+    }
     const uuid = randomUUID();
     let bucket: string;
     if(createCategoryDto.imageUrl){
@@ -44,9 +51,7 @@ export class CategoryService {
   }
 
   async findAll() {
-
     const categories = await this.databaseService.category.findMany();
-
     return {
       status: 200,
       success: true,
@@ -56,7 +61,6 @@ export class CategoryService {
   }
 
   async findOne(uuid: string) {
-
     const category = await this.databaseService.category.findFirst({
       where: {
         uuid,
@@ -83,7 +87,13 @@ export class CategoryService {
 
   async update(token: string, uuid: string, updateCategoryDto: UpdateCategoryDto, image?: Express.Multer.File) {
     const auth = await this.middlewareService.decodeToken(token);
-
+    if (auth.role !== 'admin') {
+      throw new HttpException({
+        status: 403,
+        success: false,
+        message: 'Unauthorized access'
+      }, 403);
+    }
     const existingCategory = await this.databaseService.category.findUnique({
       where: { uuid },
     });
@@ -127,7 +137,13 @@ export class CategoryService {
 
   async remove(token: string, uuid: string) {
     const auth = await this.middlewareService.decodeToken(token);
-
+    if (auth.role !== 'admin') {
+      throw new HttpException({
+        status: 403,
+        success: false,
+        message: 'Unauthorized access'
+      }, 403);
+    }
     await this.databaseService.category.delete({
       where: { uuid },
     });
