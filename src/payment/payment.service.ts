@@ -22,18 +22,18 @@ export class PaymentService {
           customer: {
             email: 'noreply@fastbuka.com',
             name: 'FastBuka Developers',
-            phonenumber: '09012345678'
+            phonenumber: '09012345678',
           },
           customizations: {
-            title: 'FastBuka'
-          }
+            title: 'FastBuka',
+          },
         },
         {
           headers: {
             Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
-            'Content-Type': 'application/json'
-          }
-        }
+            'Content-Type': 'application/json',
+          },
+        },
       );
       return response;
       return {
@@ -41,26 +41,23 @@ export class PaymentService {
         success: true,
         message: 'Please load the hosted link',
         data: {
-          link: response.data.data.link
-        }
+          link: response.data.data.link,
+        },
       };
     } catch (err) {
       return err;
-      throw new HttpException({
-        status: 500,
-        success: false,
-        message: err.response.data.message
-      }, 500)
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: err.response.data.message,
+        },
+        500,
+      );
     }
   }
 
-
-
-  link_webhook(){
-    
-  }
-
-
+  link_webhook() {}
 
   findAll() {
     return `This action returns all payment`;

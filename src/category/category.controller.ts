@@ -27,9 +27,9 @@ export class CategoryController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('image'))
   create(
-    @Headers('token') token: string, 
+    @Headers('token') token: string,
     @Body() createCategoryDto: CreateCategoryDto,
-    @UploadedFile('image') image?: Express.Multer.File
+    @UploadedFile('image') image?: Express.Multer.File,
   ) {
     return this.categoryService.create(token, createCategoryDto, image);
   }
@@ -42,9 +42,7 @@ export class CategoryController {
 
   @Version('1')
   @Get(':uuid')
-  findOne(
-    @Param('uuid') uuid: string,
-  ) {
+  findOne(@Param('uuid') uuid: string) {
     return this.categoryService.findOne(uuid);
   }
 
@@ -53,20 +51,17 @@ export class CategoryController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('image'))
   update(
-    @Headers('token') token: string, 
+    @Headers('token') token: string,
     @Param('uuid') uuid: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
-    @UploadedFile('image') image: Express.Multer.File
+    @UploadedFile('image') image: Express.Multer.File,
   ) {
     return this.categoryService.update(token, uuid, updateCategoryDto, image);
   }
 
   @Version('1')
   @Delete(':uuid')
-  remove(
-    @Headers('token') token: string, 
-    @Param('uuid') uuid: string,
-  ) {
+  remove(@Headers('token') token: string, @Param('uuid') uuid: string) {
     return this.categoryService.remove(token, uuid);
   }
 }

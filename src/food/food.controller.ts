@@ -31,16 +31,14 @@ export class FoodController {
     @Headers('token') token: string,
     @Param('vendor_slug') vendor_slug: string,
     @Body() createFoodDto: CreateFoodDto,
-    @UploadedFile('image') image?: Express.Multer.File
+    @UploadedFile('image') image?: Express.Multer.File,
   ) {
     return this.foodService.create(token, vendor_slug, createFoodDto, image);
   }
 
   @Version('1')
   @Get(':vendor_slug')
-  findAll(
-    @Param('vendor_slug') vendor_slug: string,
-  ) {
+  findAll(@Param('vendor_slug') vendor_slug: string) {
     return this.foodService.findAll(vendor_slug);
   }
 
@@ -59,12 +57,18 @@ export class FoodController {
   @UseInterceptors(FileInterceptor('image'))
   update(
     @Headers('token') token: string,
-    @Param('vendor_slug') vendor_slug: string, 
-    @Param('uuid') uuid: string, 
+    @Param('vendor_slug') vendor_slug: string,
+    @Param('uuid') uuid: string,
     @Body() updateFoodDto: UpdateFoodDto,
-    @UploadedFile('image') image: Express.Multer.File
+    @UploadedFile('image') image: Express.Multer.File,
   ) {
-    return this.foodService.update(token, uuid, vendor_slug, updateFoodDto, image);
+    return this.foodService.update(
+      token,
+      uuid,
+      vendor_slug,
+      updateFoodDto,
+      image,
+    );
   }
 
   @Version('1')

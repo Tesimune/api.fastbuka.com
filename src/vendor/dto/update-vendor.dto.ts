@@ -39,7 +39,7 @@ export class UpdateVendorDto {
   @ApiProperty({ type: 'string', format: 'binary', required: true })
   cover?: Express.Multer.File;
 
-  @IsOptional()   
+  @IsOptional()
   @IsString()
   @ApiProperty()
   coverUrl?: string;

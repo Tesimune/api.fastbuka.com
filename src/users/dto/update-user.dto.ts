@@ -67,7 +67,6 @@ export class UpdateUserDto {
   address?: string;
 }
 
-
 export class PasswordDto {
   @IsString()
   @ApiProperty({

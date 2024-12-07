@@ -36,12 +36,10 @@ export class CartController {
   ) {
     return this.cartService.decrease(token, food_uuid);
   }
-  
+
   @Version('1')
   @Get()
-  findAll(
-    @Headers('token') token: string,
-  ) {
+  findAll(@Headers('token') token: string) {
     return this.cartService.findAll(token);
   }
 
@@ -53,8 +51,6 @@ export class CartController {
   ) {
     return this.cartService.findOne(token, vendor_uuid);
   }
-
-
 
   @Version('1')
   @Delete(':vendor_uuid')

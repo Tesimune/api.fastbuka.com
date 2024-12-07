@@ -15,7 +15,7 @@ import {
   Horizon,
   Networks,
   TransactionBuilder,
- BASE_FEE,
+  BASE_FEE,
   Asset,
   Keypair,
   Operation,
@@ -28,9 +28,6 @@ import {
   DecryptDto,
 } from './dto/update-auth.dto';
 
-
-
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -39,9 +36,6 @@ export class AuthService {
     private readonly mailerService: MailerService,
     private readonly encryptionService: EncryptionService,
   ) {}
-
-  
-
 
   private generateRandomToken(length: number): string {
     return randomBytes(length).toString('hex').slice(0, length);
@@ -94,12 +88,10 @@ export class AuthService {
     const { publicKey, secret } = this.generateRandomWallet();
 
     await this.accountSponsorship(publicKey, secret);
-    
-    
-    // Encrypt the secret key before saving
-    const encryptedSecret = await this.encryptionService.encryptSecretKey(secret);
 
-    
+    // Encrypt the secret key before saving
+    const encryptedSecret =
+      await this.encryptionService.encryptSecretKey(secret);
 
     const newUser = await this.databaseService.$transaction(async (prisma) => {
       const createdUser = await prisma.user.create({
@@ -491,7 +483,7 @@ export class AuthService {
     await this.databaseService.personalAccessToken.delete({
       where: { token },
     });
-    
+
     return {
       status: 200,
       success: true,
@@ -499,11 +491,9 @@ export class AuthService {
     };
   }
 
-  
-
   /**
    *
-   * 
+   *
    * Account Sponsorship
    */
   private async accountSponsorship(walletAddress: string, secretKey: string) {
@@ -606,6 +596,11 @@ export class AuthService {
 
             throw new Error(`Transaction failed: ${resultCodes?.transaction || error.message}`);
         }
+
+        throw new Error(
+          `Failed to submit sponsorship transaction: ${error.response?.data?.extras?.result_codes?.transaction || error.message}`,
+        );
+      }
     } catch (error) {
         console.error('Account creation failed:', error);
         throw new HttpException({
@@ -621,52 +616,53 @@ export class AuthService {
     try {
       // Get auth data using the same pattern as profile method
       const auth = await this.middlewareService.decodeToken(token);
-      
+
       if (!auth || !auth.uuid) {
         throw new UnauthorizedException({
           status: 401,
           success: false,
-          message: 'Invalid token'
+          message: 'Invalid token',
         });
       }
 
       // Get user data using the same pattern as profile method
       const user = await this.databaseService.user.findUnique({
         where: { uuid: auth.uuid },
-        select: { secretKey: true }
+        select: { secretKey: true },
       });
 
       if (!user || !user.secretKey) {
         throw new UnauthorizedException({
           status: 404,
           success: false,
-          message: 'Secret key not found'
+          message: 'Secret key not found',
         });
       }
 
       // Decrypt the secret key
-      const decryptedKey = await this.encryptionService.decryptSecretKey(user.secretKey);
+      const decryptedKey = await this.encryptionService.decryptSecretKey(
+        user.secretKey,
+      );
 
       return {
         status: 200,
         success: true,
         message: 'Secret key decrypted successfully',
         data: {
-          secretKey: decryptedKey
-        }
+          secretKey: decryptedKey,
+        },
       };
-
     } catch (error) {
       console.error('Decrypt error:', error);
-      
+
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      
+
       throw new UnauthorizedException({
         status: 401,
         success: false,
-        message: error.message || 'Decryption failed'
+        message: error.message || 'Decryption failed',
       });
     }
   }

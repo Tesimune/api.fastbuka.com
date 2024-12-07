@@ -1,7 +1,23 @@
-import { IsOptional, IsEnum, IsInt, IsPositive } from 'class-validator';
+import {
+  IsOptional,
+  IsEnum,
+  IsInt,
+  IsPositive,
+  IsNumber,
+} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class QueryParamsDto {
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsNumber()
+  longitude?: number | null;
+
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsNumber()
+  latitude?: number | null;
+
   @ApiPropertyOptional({ type: Number })
   @IsOptional()
   @IsInt()
@@ -14,10 +30,33 @@ export class QueryParamsDto {
   @IsPositive()
   perPage?: number | null;
 
-  @ApiPropertyOptional({ enum: ['price', 'category', 'ratings', 'featured', 'createdAt', 'updatedAt'] })
+  @ApiPropertyOptional({
+    enum: [
+      'price',
+      'category',
+      'ratings',
+      'featured',
+      'createdAt',
+      'updatedAt',
+    ],
+  })
   @IsOptional()
-  @IsEnum(['price', 'category', 'ratings', 'featured', 'createdAt', 'updatedAt'])
-  sortField?: 'price' | 'category' | 'ratings' | 'featured' | 'createdAt' | 'updatedAt' | null;
+  @IsEnum([
+    'price',
+    'category',
+    'ratings',
+    'featured',
+    'createdAt',
+    'updatedAt',
+  ])
+  sortField?:
+    | 'price'
+    | 'category'
+    | 'ratings'
+    | 'featured'
+    | 'createdAt'
+    | 'updatedAt'
+    | null;
 
   @ApiPropertyOptional({ enum: ['asc', 'desc'] })
   @IsOptional()
