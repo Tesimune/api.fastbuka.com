@@ -1,7 +1,17 @@
-import { IsOptional, IsEnum, IsInt, IsPositive } from 'class-validator';
+import { IsOptional, IsEnum, IsInt, IsPositive, IsNumber } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class QueryParamsDto {
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsNumber()
+  longitude?: number | null;
+
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsNumber()
+  latitude?: number | null;
+
   @ApiPropertyOptional({ type: Number })
   @IsOptional()
   @IsInt()
