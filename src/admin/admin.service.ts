@@ -34,6 +34,20 @@ export class AdminService {
         })
       ).length;
 
+    const vendors = async (status: string) =>
+      (
+        await this.databaseService.vendor.findMany({
+          where: { status: status },
+        })
+      ).length;
+
+    const riders = async (status: string) =>
+      (
+        await this.databaseService.rider.findMany({
+          where: { status: status },
+        })
+      ).length;
+
     const revenue = (
       await this.databaseService.order.findMany({
         where: { payment_status: 'completed' },
@@ -52,13 +66,9 @@ export class AdminService {
       });
 
     const cards = [
-      // {
-      //   title: 'Revenue',
-      //   value: revenue,
-      // },
       {
-        title: 'Revenue',
-        value: totalYearlyRevenue,
+        title: 'Admins',
+        value: users('admin'),
       },
       {
         title: 'Users',
@@ -66,19 +76,23 @@ export class AdminService {
       },
       {
         title: 'Riders',
-        value: users('rider'),
+        value: riders('approved'),
       },
       {
         title: 'Vendors',
-        value: users('vendor'),
-      },
-      {
-        title: 'Admins',
-        value: users('admin'),
+        value: vendors('approved'),
       },
       {
         title: 'Orders',
         value: (await orders('pending')).length,
+      },
+      // {
+      //   title: 'Revenue',
+      //   value: revenue,
+      // },
+      {
+        title: 'Revenue',
+        value: totalYearlyRevenue,
       },
     ];
 
