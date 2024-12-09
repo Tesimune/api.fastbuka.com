@@ -19,14 +19,6 @@ export class UpdateUserDto {
   })
   email: string;
 
-  @IsString()
-  @MinLength(8)
-  @ApiProperty({
-    example: '@password1',
-    description: 'Your password, eight character long, symbol and number',
-  })
-  password: string;
-
   @IsOptional()
   @IsString()
   @ApiProperty()

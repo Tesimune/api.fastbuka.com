@@ -6,6 +6,7 @@ import {
   Param,
   Query,
   Version,
+  Body,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -30,6 +31,16 @@ export class AdminController {
     @Query('limit') limit: number = 20,
   ) {
     return this.adminService.users(token, user_uuid, page, limit);
+  }
+
+  @Version('1')
+  @Patch('user/status/:user_uuid')
+  user(
+    @Headers('token') token: string,
+    @Param('user_uid') user_uuid: string,
+    @Body() status: string,
+  ){
+    return this.adminService.userStatus(token, user_uuid, status)
   }
 
   @Version('1')
