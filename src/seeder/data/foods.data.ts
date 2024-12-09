@@ -1,7 +1,6 @@
 export const foods = [
   {
     uuid: 'b21e9624-7g9c-4453-b409-1f10833ee5a3',
-    category_uuid: 'b21e9624-769c-4453-be09-1f10833ee5ae',
     name: 'Pancake With Sliced Strawberry',
     description: 'A delicious cherry and strawberry pancake',
     image:
@@ -13,7 +12,6 @@ export const foods = [
   },
   {
     uuid: 'b21e9624-769c-44j3-b409-1f10833ee5a3',
-    category_uuid: 'b21e9654-769c-4453-be09-1f10833ee5a5',
     name: 'Fried Fish and Jollof Rice',
     description:
       'African Fried Fish and Jollof Rice with vegetables and fruits',
@@ -25,7 +23,6 @@ export const foods = [
   },
   {
     uuid: 'b21e9654-769c-4453-be09-1f30833ee5ae',
-    category_uuid: 'b21e9654-769c-4453-be09-1f10833ee5a5',
     name: 'Pancake',
     description: 'Fresh pancake',
     image: 'https://unsplash.com/photos/cooked-food-4ldX6oy0gk4',
@@ -36,7 +33,6 @@ export const foods = [
   },
   {
     uuid: 'b21e9654-769c-4453-be09-1f30833ee5ae',
-    category_uuid: 'b21e9654-769c-4453-be09-1f10873ee5ae',
     name: 'Beans Cake',
     description: 'African Beans cake',
     image:
@@ -48,7 +44,6 @@ export const foods = [
   },
   {
     uuid: 'b21e9654-769c-3453-be09-1f10833ee5ae',
-    category_uuid: 'b21e9654-769c-4453-be09-1f10833fe5ae',
     name: 'Vegetable Soup and Fufu',
     description: 'African vegetable soup with goat meat and fufu',
     image:
@@ -60,7 +55,6 @@ export const foods = [
   },
   {
     uuid: 'b21e9654-769c-4453-be09-1f30833ee5ae',
-    category_uuid: 'b21e9654-769c-4453-be09-1f10833fe5ae',
     name: 'Beans, Egg and Bread',
     description: 'Beans, Corn, green pepper, Egg and Bread diet',
     image:
@@ -72,7 +66,6 @@ export const foods = [
   },
   {
     uuid: 'b21e9654-769c-4453-be09-1f30833ee5ae',
-    category_uuid: 'b21e9624-769c-4453-be09-1f10833ee5ae',
     name: 'Chinese Rice',
     description: 'Rice with vegetables',
     image: 'https://unsplash.com/photos/a-plate-of-food-7pX2KbM9CBk',
@@ -83,7 +76,6 @@ export const foods = [
   },
   {
     uuid: 'b21e9654-769c-4453-be09-1f30833ee5ae',
-    category_uuid: 'b21e9624-769c-4453-be09-1f10833ee5ae',
     name: 'Jollof Rice',
     description:
       'From Chourtiers Kitchen to you, enjoy mouthwatering African Jollof Rice',
@@ -96,7 +88,6 @@ export const foods = [
   },
   {
     uuid: 'b21e9654-769c-3453-be09-1f10833ee5ae',
-    category_uuid: 'fab21e9624-769c-4453-be09-1f10833ee5aet_food',
     name: 'Tomato Pizza',
     description: 'Pizza like no other',
     image: 'https://unsplash.com/photos/pepperoni-pizza-jkC1ul95ujQ',
@@ -107,7 +98,6 @@ export const foods = [
   },
   {
     uuid: 'b21e9654-769c-4453-be09-1f30833ee5ae',
-    category_uuid: 'b21e9624-769c-4453-be09-1f10833ee5ae',
     name: 'Latte and Bread',
     description: 'Breakfast for when you are on the go',
     image:
