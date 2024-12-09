@@ -55,6 +55,7 @@ export class SeederService {
               password: hashedPassword,
               walletAddress: publicKey,
               secretKey: hashedSecret,
+              status: 'activated',
             },
             create: {
               email: user.email,
@@ -63,6 +64,7 @@ export class SeederService {
               password: hashedPassword,
               walletAddress: publicKey,
               secretKey: hashedSecret,
+              status: 'activated',
             },
           });
 

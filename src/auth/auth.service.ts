@@ -284,7 +284,7 @@ export class AuthService {
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid email or password');
-    } else if (user.status !== 'actived') {
+    } else if (user.status !== 'activated') {
       const code = Math.floor(1000 + Math.random() * 9000).toString();
 
       await this.databaseService.passwordResetTokens.create({

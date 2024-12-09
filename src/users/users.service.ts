@@ -537,7 +537,7 @@ export class UsersService {
         uuid: user.user_uuid,
       },
       data: {
-        status: 'actived',
+        status: 'activated',
         password: hashedPassword,
       },
     });
@@ -579,7 +579,7 @@ export class UsersService {
           uuid: auth.uuid,
         },
         data: {
-          status: 'delete',
+          status: 'deleted',
         },
       })
       .catch(() => {});
