@@ -244,7 +244,7 @@ export class AdminService {
       }
     })
 
-    if(user){
+    if(!user){
       throw new HttpException({
         status: 404,
         success: false,
