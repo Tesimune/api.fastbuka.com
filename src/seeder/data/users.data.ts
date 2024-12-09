@@ -69,4 +69,11 @@ export const users = [
     contact: '1234509876',
     role: 'admin',
   },
+  {
+    name: 'Fastbuka Dev',
+    email: 'fastbuka@fastbuka.com',
+    password: '@password1',
+    contact: '1234509876',
+    role: 'admin',
+  },
 ];

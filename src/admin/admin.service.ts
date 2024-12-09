@@ -254,7 +254,7 @@ export class AdminService {
 
     return {
       status: 200,
-      succes: true,
+      success: true,
       message: 'Status updated'
     }
   }
