@@ -9,105 +9,6 @@ export class AdminService {
     private readonly middlewareService: MiddlewareService,
   ) {}
 
-  /**
-   *  Admin Dashboard
-   * @param token
-   * @returns
-   */
-  async dashboard(token?: string, year?: number) {
-    const auth = await this.middlewareService.decodeToken(token);
-    if (auth.role !== 'admin') {
-      throw new HttpException(
-        {
-          status: 419,
-          success: false,
-          message: 'Unauthorized',
-        },
-        419,
-      );
-    }
-
-    const users = async (role: string) =>
-      (
-        await this.databaseService.user.findMany({
-          where: { role: role },
-        })
-      ).length;
-
-    const vendors = async (status: string) =>
-      (
-        await this.databaseService.vendor.findMany({
-          where: { status: status },
-        })
-      ).length;
-
-    const riders = async (status: string) =>
-      (
-        await this.databaseService.rider.findMany({
-          where: { status: status },
-        })
-      ).length;
-
-    const revenue = (
-      await this.databaseService.order.findMany({
-        where: { payment_status: 'completed' },
-      })
-    ).reduce((acc, curr) => acc + curr.paid_amount, 0);
-
-    const monthlyRevenue = await this.getMonthlyRevenueForYear();
-    const totalYearlyRevenue = monthlyRevenue.reduce(
-      (acc, curr) => acc + curr.revenue,
-      0,
-    );
-
-    const orders = async (status: string) =>
-      await this.databaseService.order.findMany({
-        where: { order_status: status },
-      });
-
-    const cards = [
-      {
-        title: 'Admins',
-        value: users('admin'),
-      },
-      {
-        title: 'Users',
-        value: users('user'),
-      },
-      {
-        title: 'Riders',
-        value: riders('approved'),
-      },
-      {
-        title: 'Vendors',
-        value: vendors('approved'),
-      },
-      {
-        title: 'Orders',
-        value: (await orders('pending')).length,
-      },
-      // {
-      //   title: 'Revenue',
-      //   value: revenue,
-      // },
-      {
-        title: 'Revenue',
-        value: totalYearlyRevenue,
-      },
-    ];
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Found',
-      data: {
-        cards,
-        monthlyRevenue: await this.getMonthlyRevenueForYear(year),
-        // orders: await orders('pending'),
-      },
-    };
-  }
-
   private async getMonthlyRevenueForYear(year?: number) {
     const currentYear = year ? year : new Date().getFullYear();
     const monthlyRevenue = Array(12).fill(0);
@@ -129,7 +30,7 @@ export class AdminService {
     for (let month = 0; month < 12; month++) {
       const monthlyOrders = await this.databaseService.order.findMany({
         where: {
-          payment_status: 'paid',
+          payment_status: 'completed',
           createdAt: {
             gte: new Date(currentYear, month, 1),
             lt: new Date(currentYear, month + 1, 1),
@@ -149,6 +50,90 @@ export class AdminService {
 
     return monthlyRevenueWithNames;
   }
+
+  /**
+   *  Admin Dashboard
+   * @param token
+   * @returns
+   */
+  async dashboard(token?: string, year?: number) {
+    const auth = await this.middlewareService.decodeToken(token);
+    if (auth.role !== 'admin') {
+      throw new HttpException(
+        {
+          status: 419,
+          success: false,
+          message: 'Unauthorized',
+        },
+        419,
+      );
+    }
+
+    const users = async (role: string) =>
+      await this.databaseService.user.findMany({
+        where: { role: role },
+      });
+
+    const vendors = async (status: string) =>
+      await this.databaseService.vendor.findMany({
+        where: { status: status },
+      });
+
+    const riders = async (status: string) =>
+      await this.databaseService.rider.findMany({
+        where: { status: status },
+      });
+
+    const orders = async (status: string) =>
+      await this.databaseService.order.findMany({
+        where: { order_status: status },
+      });
+
+    const monthlyRevenue = await this.getMonthlyRevenueForYear();
+    const totalYearlyRevenue = monthlyRevenue.reduce(
+      (acc, curr) => acc + curr.revenue,
+      0,
+    );
+
+    const cards = [
+      {
+        title: 'Admins',
+        value: (await users('admin')).length,
+      },
+      {
+        title: 'Users',
+        value: (await users('user')).length,
+      },
+      {
+        title: 'Riders',
+        value: (await riders('approved')).length,
+      },
+      {
+        title: 'Vendors',
+        value: (await vendors('approved')).length,
+      },
+      {
+        title: 'Orders',
+        value: (await orders('pending')).length,
+      },
+      {
+        title: 'Revenue',
+        value: totalYearlyRevenue,
+      },
+    ];
+
+    return {
+      status: 200,
+      success: true,
+      message: 'Found',
+      data: {
+        cards,
+        monthlyRevenue: await this.getMonthlyRevenueForYear(year),
+      },
+    };
+  }
+
+ 
   /**
    * Get Users/User
    * @param token
@@ -227,6 +212,50 @@ export class AdminService {
           totalPages: Math.ceil(totalUsers / limit),
         },
       };
+    }
+  }
+
+  /**
+   * 
+   * @param token 
+   * @param user_uuid 
+   * @param status 
+   * @returns 
+   */
+  async userStatus(token: string, user_uuid: string, status: string){
+    const auth = await this.middlewareService.decodeToken(token);
+    if (auth.role !== 'admin') {
+      throw new HttpException(
+        {
+          status: 419,
+          success: false,
+          message: 'Unauthorized',
+        },
+        419,
+      );
+    }
+
+    const user = this.databaseService.user.update({
+      where: {
+        uuid: user_uuid
+      },
+      data: {
+        status
+      }
+    })
+
+    if(user){
+      throw new HttpException({
+        status: 404,
+        success: false,
+        message: 'User not found'
+      }, 404)
+    }
+
+    return {
+      status: 200,
+      succes: true,
+      message: 'Status updated'
     }
   }
 

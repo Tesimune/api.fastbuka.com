@@ -404,6 +404,31 @@ export class UsersService {
           email_verified: false,
         },
       });
+    }else if((updateUserDto.contact !== auth.contact)) {
+      const account = await this.databaseService.user.findUnique({
+        where: { contact: updateUserDto.contact },
+      });
+
+      if (account) {
+        throw new HttpException(
+          {
+            status: 401,
+            success: false,
+            message: 'Phone number is already in use',
+          },
+          401,
+        );
+      }
+
+      await this.databaseService.user.update({
+        where: {
+          uuid: auth.uuid,
+        },
+        data: {
+          contact: updateUserDto.contact,
+          contact_verified: false,
+        },
+      });
     }
 
     const existingProfile = await this.databaseService.userProfile.findUnique({
@@ -429,7 +454,12 @@ export class UsersService {
       },
       data: {
         profile: profile_url,
-        ...(updateUserDto as any),
+        first_name: updateUserDto.first_name,
+        last_name: updateUserDto.last_name,
+        country: updateUserDto.country,
+        state: updateUserDto.state,
+        city: updateUserDto.city,
+        address: updateUserDto.address,
       },
     });
 
