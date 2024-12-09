@@ -176,7 +176,7 @@ export class AdminService {
           success: true,
           message: 'User',
           data: {
-            user,
+            user: user,
           },
         };
       } else {
@@ -244,7 +244,7 @@ export class AdminService {
       }
     })
 
-    if(user){
+    if(!user){
       throw new HttpException({
         status: 404,
         success: false,
@@ -317,7 +317,7 @@ export class AdminService {
         success: true,
         message: 'vendor',
         data: {
-          vendor,
+          vendor: vendor,
         },
       };
     } else {
@@ -397,7 +397,7 @@ export class AdminService {
       success: true,
       message: 'Vendor approved successfully',
       data: {
-        vendor,
+        vendor: vendor,
       },
     };
   }
@@ -460,7 +460,7 @@ export class AdminService {
         success: true,
         message: 'rider',
         data: {
-          rider,
+          rider: rider,
         },
       };
     } else {
@@ -540,7 +540,7 @@ export class AdminService {
       success: true,
       message: 'Rider approved successfully',
       data: {
-        rider,
+        rider: rider,
       },
     };
   }
