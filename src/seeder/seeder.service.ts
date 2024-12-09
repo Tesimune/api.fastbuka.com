@@ -3,9 +3,11 @@ import { DatabaseService } from 'src/database/database.service';
 import * as bcrypt from 'bcryptjs';
 import { Keypair } from '@stellar/stellar-sdk';
 import { users } from './data/users.data';
-import { vendors } from './data/vendor.data';
+import { vendors } from './data/vendors.data';
+import { riders } from './data/riders.data';
 import { categories } from './data/categories.data';
 import { foods } from './data/foods.data';
+import { orders } from './data/orders.data';
 
 @Injectable()
 export class SeederService {
@@ -24,7 +26,11 @@ export class SeederService {
   async seed() {
     try {
       await this.seedUsers();
-      this.logger.log('User seeding completed!');
+      await this.seedRiders();
+      await this.seedVendors();
+      await this.seedCategories();
+      await this.seedFoods();
+      await this.seedOrders();
       this.logger.log('Database seeding completed!');
     } catch (error) {
       this.logger.error('Error seeding database:', error);
@@ -38,7 +44,7 @@ export class SeederService {
           const hashedPassword = await bcrypt.hash(user.password, 10);
           const { publicKey, secret } = this.generateRandomWallet();
           const hashedSecret = await bcrypt.hash(secret, 10);
-          const username = user.email.split('@')[0];
+          let username = user.email.split('@')[0];
 
           const createdUser = await prisma.user.upsert({
             where: { email: user.email },
@@ -49,6 +55,7 @@ export class SeederService {
               password: hashedPassword,
               walletAddress: publicKey,
               secretKey: hashedSecret,
+              status: 'activated',
             },
             create: {
               email: user.email,
@@ -57,6 +64,7 @@ export class SeederService {
               password: hashedPassword,
               walletAddress: publicKey,
               secretKey: hashedSecret,
+              status: 'activated',
             },
           });
 
@@ -75,12 +83,8 @@ export class SeederService {
               last_name: lastName,
             },
           });
-
-          if (createdUser.role == 'vendor') {
-            // await this.seedVendors(createdUser.uuid);
-            this.logger.log('Vendor seeding completed!');
-          }
         }
+        this.logger.log('User seeding completed!');
       },
       {
         timeout: 86400000,
@@ -88,26 +92,56 @@ export class SeederService {
     );
   }
 
-  // private async seedVendors(userUuid?) {
-  //   return await this.databaseService.$transaction(
-  //     async (prisma) => {
-  //       for (const vendor of vendors) {
-  //         const createVendor = await prisma.vendor.upsert({
-  //           where: {
-  //             uuid: vendor.uuid,
-  //           },
-  //           update: { ...vendor, user_uuid: userUuid },
-  //           create: { ...vendor, user_uuid: userUuid },
-  //         });
-  //         await this.seedCategories(createVendor.uuid);
-  //         this.logger.log('Category seeding completed!');
-  //       }
-  //     },
-  //     {
-  //       timeout: 86400000,
-  //     },
-  //   );
-  // }
+  private async seedRiders() {
+    const user = await this.databaseService.user.findFirst({
+      where: {
+        email: 'rider@fastbuka.com',
+      },
+    });
+    return await this.databaseService.$transaction(
+      async (prisma) => {
+        for (const rider of riders) {
+          await prisma.rider.upsert({
+            where: {
+              uuid: rider.uuid,
+            },
+            update: { ...rider, user_uuid: user.uuid },
+            create: { ...rider, user_uuid: user.uuid },
+          });
+        }
+        this.logger.log('Riders seeding completed!');
+      },
+      {
+        timeout: 86400000,
+      },
+    );
+  }
+
+  private async seedVendors() {
+    const user = await this.databaseService.user.findFirst({
+      where: {
+        email: 'vendor@fastbuka.com',
+      },
+    });
+
+    return await this.databaseService.$transaction(
+      async (prisma) => {
+        for (const vendor of vendors) {
+          await prisma.vendor.upsert({
+            where: {
+              uuid: vendor.uuid,
+            },
+            update: { ...vendor, user_uuid: user.uuid },
+            create: { ...vendor, user_uuid: user.uuid },
+          });
+        }
+        this.logger.log('Vendors seeding completed!');
+      },
+      {
+        timeout: 86400000,
+      },
+    );
+  }
 
   private async seedCategories() {
     return await this.databaseService.$transaction(
@@ -121,9 +155,8 @@ export class SeederService {
             update: { ...category, uuid: category.uuid },
             create: { ...category, uuid: category.uuid },
           });
-          await this.seedFoods();
-          this.logger.log('Food seeding completed!');
         }
+        this.logger.log('Categories seeding completed!');
       },
       {
         timeout: 86400000,
@@ -131,7 +164,8 @@ export class SeederService {
     );
   }
 
-  private async seedFoods(vendorUuid?) {
+  private async seedFoods() {
+    const vendor = await this.databaseService.vendor.findFirst();
     return await this.databaseService.$transaction(
       async (prisma) => {
         for (const food of foods) {
@@ -139,14 +173,81 @@ export class SeederService {
             where: {
               uuid: food.uuid,
             },
-            update: { ...food, vendor_uuid: vendorUuid },
-            create: { ...food, vendor_uuid: vendorUuid },
+            update: { ...food, vendor_uuid: vendor.uuid },
+            create: { ...food, vendor_uuid: vendor.uuid },
           });
         }
+        this.logger.log('Foods seeding completed!');
       },
       {
         timeout: 86400000,
       },
     );
+  }
+
+  private async seedOrders() {
+    const user = await this.databaseService.user.findFirst({
+      where: {
+        email: 'user@fastbuka.com',
+      },
+      include: {
+        profile: true,
+      },
+    });
+    let newOrder = null;
+    let totalAmount = 0;
+    return await this.databaseService.$transaction(async (prisma) => {
+      for (const order of orders) {
+        const food = await this.databaseService.food.findUnique({
+          where: {
+            uuid: order.food_uuid,
+          },
+        });
+
+        totalAmount += food.price * order.quantity;
+        newOrder = await this.databaseService.order.findFirst({
+          where: {
+            vendor_uuid: food.vendor_uuid,
+            user_uuid: user.uuid,
+            order_status: 'pending',
+          },
+        });
+
+        if (newOrder) {
+          newOrder = await this.databaseService.order.update({
+            where: {
+              uuid: newOrder.uuid,
+            },
+            data: {
+              total_amount: ++totalAmount,
+            },
+          });
+        } else {
+          const orderNumber = `${user.username.slice(0, 2).toUpperCase()}${food.vendor_uuid.slice(0, 2).toUpperCase()}${Math.floor(10000 + Math.random() * 90000)}`;
+          newOrder = await this.databaseService.order.create({
+            data: {
+              user_uuid: user.uuid,
+              vendor_uuid: food.vendor_uuid,
+              order_number: orderNumber,
+              total_amount: totalAmount,
+              delivery_name: user.profile.first_name,
+              delivery_email: user.email,
+              delivery_contact: user.contact,
+              delivery_address: user.profile.address,
+            },
+          });
+        }
+
+        await this.databaseService.orderItem.create({
+          data: {
+            order_uuid: newOrder.uuid,
+            food_uuid: food.uuid,
+            price: food.price,
+            quantity: order.quantity,
+          },
+        });
+      }
+      this.logger.log('Orders seeding completed!');
+    });
   }
 }
