@@ -35,9 +35,9 @@ export class AdminController {
 
   @Version('1')
   @Patch('user/status/:user_uuid')
-  user(
+  userStatus(
     @Headers('token') token: string,
-    @Param('user_uid') user_uuid: string,
+    @Param('user_uuid') user_uuid: string,
     @Body() status: string,
   ){
     return this.adminService.userStatus(token, user_uuid, status)
