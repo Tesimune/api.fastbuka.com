@@ -240,7 +240,7 @@ export class AdminService {
         uuid: user_uuid
       },
       data: {
-        status
+        status: status
       }
     })
 
