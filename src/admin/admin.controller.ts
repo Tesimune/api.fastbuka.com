@@ -38,9 +38,9 @@ export class AdminController {
   userStatus(
     @Headers('token') token: string,
     @Param('user_uuid') user_uuid: string,
-    @Body() status: string,
+    @Body('status') status: string,
   ){
-    return this.adminService.userStatus(token, user_uuid, status)
+    return this.adminService.userStatus(token, user_uuid, status);
   }
 
   @Version('1')
