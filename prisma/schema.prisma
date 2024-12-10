@@ -179,9 +179,9 @@ model Food {
   featured        Float       @default(0)
   ready_made      Boolean     @default(true)
   on_menu         Boolean     @default(true)
+  stock           Float       @default(0)
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-  stock           Float       @default(0)
   cartItems       CartItem[]
   category        Category?   @relation(fields: [category_uuid], references: [uuid])
   vendor          Vendor      @relation(fields: [vendor_uuid], references: [uuid])

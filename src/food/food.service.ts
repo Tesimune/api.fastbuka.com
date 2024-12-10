@@ -49,10 +49,16 @@ export class FoodService {
     }
 
     const foodData = {
-      uuid,
+      uuid: uuid,
       vendor_uuid: vendor.uuid,
+      category_uuid: createFoodDto.category_uuid,
+      description: createFoodDto.description,
       image: bucket,
-      ...createFoodDto,
+      name: createFoodDto.name,
+      price: createFoodDto.price,
+      discount: createFoodDto.discount,
+      processing_time: createFoodDto.processing_time,
+      ready_made: createFoodDto.ready_made,
     };
     const food = this.databaseService.food.create({
       data: foodData as any,
@@ -63,7 +69,7 @@ export class FoodService {
       success: true,
       message: 'Food created successfully',
       data: {
-        food,
+        food: food,
       },
     };
   }
