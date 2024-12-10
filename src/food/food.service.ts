@@ -24,7 +24,7 @@ export class FoodService {
     const auth = await this.middlewareService.decodeToken(token);
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
-        uuid: vendor_slug,
+        slug: vendor_slug,
         user_uuid: auth.uuid,
       },
     });
@@ -71,7 +71,7 @@ export class FoodService {
   async findAll(vendor_slug: string) {
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
-        uuid: vendor_slug,
+        slug: vendor_slug,
       },
     });
     if (!vendor) {
@@ -103,7 +103,7 @@ export class FoodService {
   async findOne(vendor_slug: string, uuid: string) {
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
-        uuid: vendor_slug,
+        slug: vendor_slug,
       },
     });
     if (!vendor) {
@@ -150,7 +150,7 @@ export class FoodService {
     const auth = await this.middlewareService.decodeToken(token);
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
-        uuid: vendor_slug,
+        slug: vendor_slug,
         user_uuid: auth.uuid,
       },
     });
@@ -200,7 +200,7 @@ export class FoodService {
     const auth = await this.middlewareService.decodeToken(token);
     const vendor = await this.databaseService.vendor.findFirst({
       where: {
-        uuid: vendor_slug,
+        slug: vendor_slug,
         user_uuid: auth.uuid,
       },
     });
