@@ -10,6 +10,7 @@ import {
   Headers,
   UseInterceptors,
   UploadedFile,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FoodService } from './food.service';
 import { CreateFoodDto } from './dto/create-food.dto';
@@ -30,7 +31,7 @@ export class FoodController {
   create(
     @Headers('token') token: string,
     @Param('vendor_slug') vendor_slug: string,
-    @Body() createFoodDto: CreateFoodDto,
+    @Body(ValidationPipe) createFoodDto: CreateFoodDto,
     @UploadedFile('image') image?: Express.Multer.File,
   ) {
     return this.foodService.create(token, vendor_slug, createFoodDto, image);
@@ -59,7 +60,7 @@ export class FoodController {
     @Headers('token') token: string,
     @Param('vendor_slug') vendor_slug: string,
     @Param('uuid') uuid: string,
-    @Body() updateFoodDto: UpdateFoodDto,
+    @Body(ValidationPipe) updateFoodDto: UpdateFoodDto,
     @UploadedFile('image') image: Express.Multer.File,
   ) {
     return this.foodService.update(

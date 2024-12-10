@@ -39,10 +39,10 @@ async function bootstrap() {
     jsonDocumentUrl: 'docs/json',
   });
 
-  if (process.env.NODE_ENV === 'local') {
-    const seeder = app.get(SeederService);
-    await seeder.seed();
-  }
+  // if (process.env.NODE_ENV === 'local') {
+  //   const seeder = app.get(SeederService);
+  //   await seeder.seed();
+  // }
 
   await app.listen(process.env.PORT ?? 3000);
 }

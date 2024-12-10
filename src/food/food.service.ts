@@ -48,20 +48,18 @@ export class FoodService {
       bucket = null;
     }
 
-    const foodData = {
-      uuid: uuid,
-      vendor_uuid: vendor.uuid,
-      category_uuid: createFoodDto.category_uuid,
-      description: createFoodDto.description,
-      image: bucket,
-      name: createFoodDto.name,
-      price: createFoodDto.price,
-      discount: createFoodDto.discount,
-      processing_time: createFoodDto.processing_time,
-      ready_made: createFoodDto.ready_made,
-    };
-    const food = this.databaseService.food.create({
-      data: foodData as any,
+    const food = await this.databaseService.food.create({
+      data: {
+        vendor_uuid: vendor.uuid,
+        category_uuid: createFoodDto.category_uuid,
+        name: createFoodDto.name,
+        description: createFoodDto.description,
+        image: bucket,
+        price: createFoodDto.price,
+        discount: createFoodDto.discount,
+        processing_time: createFoodDto.processing_time,
+        ready_made: createFoodDto.ready_made,
+      },
     });
 
     return {
@@ -91,7 +89,7 @@ export class FoodService {
       );
     }
 
-    const foods = this.databaseService.food.findMany({
+    const foods = await this.databaseService.food.findMany({
       where: {
         vendor_uuid: vendor.uuid,
       },
@@ -184,20 +182,27 @@ export class FoodService {
       bucket = existingFood?.image || null;
     }
 
-    const foodData = {
-      image: bucket,
-      ...updateFoodDto,
-    };
-    const food = this.databaseService.food.update({
+    const food = await this.databaseService.food.update({
       where: { uuid },
-      data: foodData as any,
+      data: {
+        uuid: uuid,
+        vendor_uuid: vendor.uuid,
+        category_uuid: updateFoodDto.category_uuid,
+        description: updateFoodDto.description,
+        image: bucket,
+        name: updateFoodDto.name,
+        price: updateFoodDto.price,
+        discount: updateFoodDto.discount,
+        processing_time: updateFoodDto.processing_time,
+        ready_made: updateFoodDto.ready_made,
+      },
     });
     return {
       status: 200,
       success: true,
       message: 'Food updated successfully',
       data: {
-        food,
+        food: food,
       },
     };
   }
