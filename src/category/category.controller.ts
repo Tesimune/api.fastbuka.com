@@ -10,6 +10,7 @@ import {
   Headers,
   UseInterceptors,
   UploadedFile,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -28,7 +29,7 @@ export class CategoryController {
   @UseInterceptors(FileInterceptor('image'))
   create(
     @Headers('token') token: string,
-    @Body() createCategoryDto: CreateCategoryDto,
+    @Body(ValidationPipe) createCategoryDto: CreateCategoryDto,
     @UploadedFile('image') image?: Express.Multer.File,
   ) {
     return this.categoryService.create(token, createCategoryDto, image);
@@ -53,7 +54,7 @@ export class CategoryController {
   update(
     @Headers('token') token: string,
     @Param('uuid') uuid: string,
-    @Body() updateCategoryDto: UpdateCategoryDto,
+    @Body(ValidationPipe) updateCategoryDto: UpdateCategoryDto,
     @UploadedFile('image') image: Express.Multer.File,
   ) {
     return this.categoryService.update(token, uuid, updateCategoryDto, image);

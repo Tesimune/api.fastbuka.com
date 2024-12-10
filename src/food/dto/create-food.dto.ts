@@ -4,10 +4,6 @@ import { Type } from 'class-transformer';
 
 @ApiTags('food')
 export class CreateFoodDto {
-  @IsString()
-  @ApiProperty()
-  vendor_uuid: string;
-
   @IsOptional()
   @ApiProperty()
   category_uuid?: string;
@@ -31,12 +27,12 @@ export class CreateFoodDto {
 
   @IsNumber()
   @ApiProperty()
-  price: string;
+  price: number;
 
   @IsOptional()
   @IsNumber()
   @ApiProperty()
-  discount?: string;
+  discount?: number;
 
   @IsString()
   @ApiProperty()
@@ -44,5 +40,5 @@ export class CreateFoodDto {
 
   @IsBoolean()
   @ApiProperty()
-  ready_made: string;
+  ready_made: boolean;
 }
