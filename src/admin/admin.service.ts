@@ -215,10 +215,10 @@ export class AdminService {
   }
 
   /**
-   * 
-   * @param token 
-   * @param user_uuid 
-   * @returns 
+   *
+   * @param token
+   * @param user_uuid
+   * @returns
    */
   async role(token: string, user_uuid: string) {
     const auth = await this.middlewareService.decodeToken(token);
@@ -234,7 +234,7 @@ export class AdminService {
     }
 
     const user = await this.databaseService.user.findUnique({
-      where: { uuid: user_uuid}
+      where: { uuid: user_uuid },
     });
 
     const newRole = user.role === 'user' ? 'admin' : 'user';
@@ -252,9 +252,9 @@ export class AdminService {
       success: true,
       message: 'User role updated',
       data: {
-        user: user
-      }
-    }
+        user: user,
+      },
+    };
   }
 
   /**

@@ -404,7 +404,7 @@ export class UsersService {
           email_verified: false,
         },
       });
-    }else if((updateUserDto.contact !== auth.contact)) {
+    } else if (updateUserDto.contact !== auth.contact) {
       const account = await this.databaseService.user.findUnique({
         where: { contact: updateUserDto.contact },
       });

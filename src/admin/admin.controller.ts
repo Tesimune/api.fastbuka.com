@@ -35,10 +35,7 @@ export class AdminController {
 
   @Version('1')
   @Patch('role/:user_uuid')
-  role(
-    @Headers('token') token: string,
-    @Param('user_uuid') user_uuid: string,
-  ) {
+  role(@Headers('token') token: string, @Param('user_uuid') user_uuid: string) {
     return this.adminService.role(token, user_uuid);
   }
 
@@ -48,7 +45,7 @@ export class AdminController {
     @Headers('token') token: string,
     @Param('user_uuid') user_uuid: string,
     @Body('status') status: string,
-  ){
+  ) {
     return this.adminService.userStatus(token, user_uuid, status);
   }
 
