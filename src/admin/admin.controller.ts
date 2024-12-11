@@ -34,6 +34,15 @@ export class AdminController {
   }
 
   @Version('1')
+  @Patch('role/:user_uuid')
+  role(
+    @Headers('token') token: string,
+    @Param('user_uuid') user_uuid: string,
+  ) {
+    return this.adminService.role(token, user_uuid);
+  }
+
+  @Version('1')
   @Patch('user/status/:user_uuid')
   userStatus(
     @Headers('token') token: string,
