@@ -133,7 +133,6 @@ export class AdminService {
     };
   }
 
- 
   /**
    * Get Users/User
    * @param token
@@ -219,10 +218,53 @@ export class AdminService {
    * 
    * @param token 
    * @param user_uuid 
-   * @param status 
    * @returns 
    */
-  async userStatus(token: string, user_uuid: string, status: string){
+  async role(token: string, user_uuid: string) {
+    const auth = await this.middlewareService.decodeToken(token);
+    if (auth.role !== 'admin') {
+      throw new HttpException(
+        {
+          status: 419,
+          success: false,
+          message: 'Unauthorized',
+        },
+        419,
+      );
+    }
+
+    const user = await this.databaseService.user.findUnique({
+      where: { uuid: user_uuid}
+    });
+
+    const newRole = user.role === 'user' ? 'admin' : 'user';
+    await this.databaseService.user.update({
+      where: {
+        uuid: user_uuid,
+      },
+      data: {
+        role: newRole,
+      },
+    });
+
+    return {
+      status: 200,
+      success: true,
+      message: 'User role updated',
+      data: {
+        user: user
+      }
+    }
+  }
+
+  /**
+   *
+   * @param token
+   * @param user_uuid
+   * @param status
+   * @returns
+   */
+  async userStatus(token: string, user_uuid: string, status: string) {
     const auth = await this.middlewareService.decodeToken(token);
     if (auth.role !== 'admin') {
       throw new HttpException(
@@ -237,26 +279,29 @@ export class AdminService {
 
     const user = this.databaseService.user.update({
       where: {
-        uuid: user_uuid
+        uuid: user_uuid,
       },
       data: {
-        status: status
-      }
-    })
+        status: status,
+      },
+    });
 
-    if(!user){
-      throw new HttpException({
-        status: 404,
-        success: false,
-        message: 'User not found'
-      }, 404)
+    if (!user) {
+      throw new HttpException(
+        {
+          status: 404,
+          success: false,
+          message: 'User not found',
+        },
+        404,
+      );
     }
 
     return {
       status: 200,
       success: true,
-      message: 'Status updated'
-    }
+      message: 'Status updated',
+    };
   }
 
   /**
