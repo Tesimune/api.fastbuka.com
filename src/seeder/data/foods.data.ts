@@ -15,7 +15,8 @@ export const foods = [
     name: 'Fried Fish and Jollof Rice',
     description:
       'African Fried Fish and Jollof Rice with vegetables and fruits',
-    image: 'https://unsplash.com/photos/https://images.unsplash.com/photo-1665332195309-9d75071138f0?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Da-plate-of-food-PqG32DYCTM8',
+    image:
+      'https://unsplash.com/photos/https://images.unsplash.com/photo-1665332195309-9d75071138f0?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Da-plate-of-food-PqG32DYCTM8',
     price: 1500,
     discount: 0,
     processing_time: '20 mins',
@@ -25,7 +26,8 @@ export const foods = [
     uuid: 'b21e9654-769c-4453-be09-1f30833ee5ae',
     name: 'Pancake',
     description: 'Fresh pancake',
-    image: 'https://unsplash.com/photos/cooked-food-4ldXhttps://images.unsplash.com/photo-1561994028-cc03b9f2b6ca?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D6oy0gk4',
+    image:
+      'https://unsplash.com/photos/cooked-food-4ldXhttps://images.unsplash.com/photo-1561994028-cc03b9f2b6ca?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D6oy0gk4',
     price: 12.99,
     discount: 0,
     processing_time: '10 mins',
