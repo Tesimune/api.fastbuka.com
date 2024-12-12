@@ -97,28 +97,37 @@ export class AdminService {
 
     const cards = [
       {
-        title: 'Admins',
-        value: (await users('admin')).length,
+        title: 'Revenue',
+        value: totalYearlyRevenue,
       },
       {
-        title: 'Users',
+        title: 'Total Users',
         value: (await users('user')).length,
       },
       {
-        title: 'Riders',
-        value: (await riders('approved')).length,
+        title: 'Total Admins',
+        value: (await users('admin')).length,
       },
       {
-        title: 'Vendors',
+        title: 'Total Vendors',
         value: (await vendors('approved')).length,
       },
       {
-        title: 'Orders',
+        title: 'Total Riders',
+        value: (await riders('approved')).length,
+      },
+
+      {
+        title: 'Total Orders',
         value: (await orders('pending')).length,
       },
       {
-        title: 'Revenue',
-        value: totalYearlyRevenue,
+        title: 'Average Delivery',
+        value: (await orders('completed')).length,
+      },
+      {
+        title: 'Canceled Orders',
+        value: (await orders('canceled')).length,
       },
     ];
 
