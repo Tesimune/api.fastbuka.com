@@ -24,44 +24,56 @@ export class VendorService {
    * @returns Created Vendor
    */
   async create(token: string, vendor: CreateVendorDto) {
-    const user = await this.MiddlewareService.decodeToken(token);
-    const slug = vendor.name.replace(/\s+/g, '_');
+    try {
+      const user = await this.MiddlewareService.decodeToken(token);
+      const slug = vendor.name.replace(/\s+/g, '_');
 
-    const account = await this.databaseService.vendor.findUnique({
-      where: { slug },
-    });
-
-    if (account) {
-      throw new UnauthorizedException({
-        status: 401,
-        success: false,
-        message: 'Vendor name is taken',
+      const account = await this.databaseService.vendor.findUnique({
+        where: { slug },
       });
+
+      if (account) {
+        throw new UnauthorizedException({
+          status: 401,
+          success: false,
+          message: 'Vendor name is taken',
+        });
+      }
+
+      const createdVendor = await this.databaseService.vendor.create({
+        data: {
+          user_uuid: user.uuid,
+          slug,
+          ...vendor,
+        },
+      });
+
+      // Create a default VendorDocument record
+      await this.databaseService.vendorDocuments.create({
+        data: {
+          uuid: createdVendor.uuid,
+        },
+      });
+
+      return {
+        status: 200,
+        success: true,
+        message: 'Vendor created successfully',
+        data: {
+          createdVendor,
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
     }
-
-    const createdVendor = await this.databaseService.vendor.create({
-      data: {
-        user_uuid: user.uuid,
-        slug,
-        ...vendor,
-      },
-    });
-
-    // Create a default VendorDocument record
-    await this.databaseService.vendorDocuments.create({
-      data: {
-        uuid: createdVendor.uuid,
-      },
-    });
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Vendor created successfully',
-      data: {
-        createdVendor,
-      },
-    };
   }
 
   /**
@@ -70,25 +82,37 @@ export class VendorService {
    * @returns List of user vendors
    */
   async findAll(token: string) {
-    const user = await this.MiddlewareService.decodeToken(token);
+    try {
+      const user = await this.MiddlewareService.decodeToken(token);
 
-    const vendors = await this.databaseService.vendor.findMany({
-      where: {
-        user_uuid: user.uuid,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+      const vendors = await this.databaseService.vendor.findMany({
+        where: {
+          user_uuid: user.uuid,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
 
-    return {
-      status: 200,
-      success: true,
-      message: 'Vendors retrieved successfully',
-      data: {
-        vendors,
-      },
-    };
+      return {
+        status: 200,
+        success: true,
+        message: 'Vendors retrieved successfully',
+        data: {
+          vendors,
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
+    }
   }
 
   /**
@@ -97,32 +121,44 @@ export class VendorService {
    * @returns Vendor details
    */
   async findOne(slug: string) {
-    const vendor = await this.databaseService.vendor.findUnique({
-      where: { slug },
-      include: {
-        foods: true,
-      },
-    });
+    try {
+      const vendor = await this.databaseService.vendor.findUnique({
+        where: { slug },
+        include: {
+          foods: true,
+        },
+      });
 
-    if (!vendor) {
+      if (!vendor) {
+        throw new HttpException(
+          {
+            status: 404,
+            success: false,
+            message: `Vendor with slug "${slug}" not found`,
+          },
+          404,
+        );
+      }
+
+      return {
+        status: 200,
+        success: true,
+        message: 'Vendor retrieved successfully',
+        data: {
+          vendor,
+        },
+      };
+    } catch (error) {
       throw new HttpException(
         {
-          status: 404,
+          status: 500,
           success: false,
-          message: `Vendor with slug "${slug}" not found`,
+          message: 'Internal server',
+          error,
         },
-        404,
+        500,
       );
     }
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Vendor retrieved successfully',
-      data: {
-        vendor,
-      },
-    };
   }
 
   /**
@@ -141,133 +177,145 @@ export class VendorService {
     id_upload?: Express.Multer.File,
     business_upload?: Express.Multer.File,
   ) {
-    const user = await this.MiddlewareService.decodeToken(token);
-    const slug = updateVendorDto.name?.replace(/\s+/g, '_');
+    try {
+      const user = await this.MiddlewareService.decodeToken(token);
+      const slug = updateVendorDto.name?.replace(/\s+/g, '_');
 
-    // Find the vendor
-    const vendor = await this.databaseService.vendor.findUnique({
-      where: { uuid },
-    });
+      // Find the vendor
+      const vendor = await this.databaseService.vendor.findUnique({
+        where: { uuid },
+      });
 
-    if (!vendor) {
-      throw new HttpException(
-        {
-          status: 404,
-          success: false,
-          message: 'Vendor not found',
-        },
-        404,
-      );
-    } else if (user.uuid !== vendor.user_uuid) {
-      throw new HttpException(
-        {
-          status: 403,
-          success: false,
-          message: 'You are not authorized to update this vendor',
-        },
-        403,
-      );
-    }
+      if (!vendor) {
+        throw new HttpException(
+          {
+            status: 404,
+            success: false,
+            message: 'Vendor not found',
+          },
+          404,
+        );
+      } else if (user.uuid !== vendor.user_uuid) {
+        throw new HttpException(
+          {
+            status: 403,
+            success: false,
+            message: 'You are not authorized to update this vendor',
+          },
+          403,
+        );
+      }
 
-    const updateData: any = {
-      slug,
-      ...updateVendorDto,
-    };
-
-    if (updateVendorDto.profileUrl) {
-      updateData.profile = updateVendorDto.profileUrl;
-    } else if (profile instanceof File) {
-      updateData.profile = await this.storageService.bucket(
-        token,
-        'vendor_profile',
-        profile,
-      );
-    } else {
-      updateData.profile = vendor?.profile || null;
-    }
-
-    if (updateVendorDto.coverUrl) {
-      updateData.cover = updateVendorDto.coverUrl;
-    } else if (cover instanceof File) {
-      updateData.cover = await this.storageService.bucket(
-        token,
-        'vendor_cover',
-        cover,
-      );
-    } else {
-      updateData.cover = vendor?.cover || null;
-    }
-
-    const updatedVendor = await this.databaseService.vendor.update({
-      where: { uuid },
-      data: updateData,
-    });
-
-    // Create or update related VendorDocuments
-    if (
-      updateVendorDto.id_number ||
-      updateVendorDto.id_upload ||
-      updateVendorDto.business_number ||
-      updateVendorDto.business_upload ||
-      updateVendorDto.country
-    ) {
-      const existingDocument =
-        await this.databaseService.vendorDocuments.findUnique({
-          where: { uuid: vendor.uuid },
-        });
-
-      const documentData: any = {
-        uuid: vendor.uuid,
-        country: updateVendorDto.country,
-        id_number: updateVendorDto.id_number,
-        business_number: updateVendorDto.business_number,
+      const updateData: any = {
+        slug,
+        ...updateVendorDto,
       };
 
-      if (updateVendorDto.id_uploadUrl) {
-        documentData.id_upload = updateVendorDto.id_uploadUrl;
-      } else if (id_upload instanceof File) {
-        documentData.id_upload = await this.storageService.bucket(
+      if (updateVendorDto.profileUrl) {
+        updateData.profile = updateVendorDto.profileUrl;
+      } else if (profile instanceof File) {
+        updateData.profile = await this.storageService.bucket(
           token,
-          'id_upload',
-          id_upload,
+          'vendor_profile',
+          profile,
         );
       } else {
-        documentData.id_upload = existingDocument?.id_upload || null;
+        updateData.profile = vendor?.profile || null;
       }
 
-      if (updateVendorDto.business_uploadUrl) {
-        documentData.business_upload = updateVendorDto.business_uploadUrl;
-      } else if (business_upload instanceof File) {
-        documentData.business_upload = await this.storageService.bucket(
+      if (updateVendorDto.coverUrl) {
+        updateData.cover = updateVendorDto.coverUrl;
+      } else if (cover instanceof File) {
+        updateData.cover = await this.storageService.bucket(
           token,
-          'business_upload',
-          business_upload,
+          'vendor_cover',
+          cover,
         );
       } else {
-        documentData.business_upload =
-          existingDocument?.business_upload || null;
+        updateData.cover = vendor?.cover || null;
       }
 
-      if (existingDocument) {
-        await this.databaseService.vendorDocuments.update({
-          where: { uuid: vendor.uuid },
-          data: documentData,
-        });
-      } else {
-        await this.databaseService.vendorDocuments.create({
-          data: documentData,
-        });
+      const updatedVendor = await this.databaseService.vendor.update({
+        where: { uuid },
+        data: updateData,
+      });
+
+      // Create or update related VendorDocuments
+      if (
+        updateVendorDto.id_number ||
+        updateVendorDto.id_upload ||
+        updateVendorDto.business_number ||
+        updateVendorDto.business_upload ||
+        updateVendorDto.country
+      ) {
+        const existingDocument =
+          await this.databaseService.vendorDocuments.findUnique({
+            where: { uuid: vendor.uuid },
+          });
+
+        const documentData: any = {
+          uuid: vendor.uuid,
+          country: updateVendorDto.country,
+          id_number: updateVendorDto.id_number,
+          business_number: updateVendorDto.business_number,
+        };
+
+        if (updateVendorDto.id_uploadUrl) {
+          documentData.id_upload = updateVendorDto.id_uploadUrl;
+        } else if (id_upload instanceof File) {
+          documentData.id_upload = await this.storageService.bucket(
+            token,
+            'id_upload',
+            id_upload,
+          );
+        } else {
+          documentData.id_upload = existingDocument?.id_upload || null;
+        }
+
+        if (updateVendorDto.business_uploadUrl) {
+          documentData.business_upload = updateVendorDto.business_uploadUrl;
+        } else if (business_upload instanceof File) {
+          documentData.business_upload = await this.storageService.bucket(
+            token,
+            'business_upload',
+            business_upload,
+          );
+        } else {
+          documentData.business_upload =
+            existingDocument?.business_upload || null;
+        }
+
+        if (existingDocument) {
+          await this.databaseService.vendorDocuments.update({
+            where: { uuid: vendor.uuid },
+            data: documentData,
+          });
+        } else {
+          await this.databaseService.vendorDocuments.create({
+            data: documentData,
+          });
+        }
       }
+
+      return {
+        status: 200,
+        success: true,
+        message: 'Vendor updated successfully',
+        data: {
+          vendor: updatedVendor,
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
     }
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Vendor updated successfully',
-      data: {
-        vendor: updatedVendor,
-      },
-    };
   }
 
   /**
@@ -277,43 +325,55 @@ export class VendorService {
    * @returns Deletion status message
    */
   async remove(token: string, uuid: string) {
-    const user = await this.MiddlewareService.decodeToken(token);
-    const vendor = await this.databaseService.vendor.findUnique({
-      where: { uuid },
-    });
+    try {
+      const user = await this.MiddlewareService.decodeToken(token);
+      const vendor = await this.databaseService.vendor.findUnique({
+        where: { uuid },
+      });
 
-    if (!vendor) {
+      if (!vendor) {
+        throw new HttpException(
+          {
+            status: 404,
+            success: false,
+            message: 'Vendor not found',
+          },
+          404,
+        );
+      } else if (user.uuid !== vendor.user_uuid) {
+        throw new HttpException(
+          {
+            status: 403,
+            success: false,
+            message: 'You are not authorized to delete this vendor',
+          },
+          403,
+        );
+      }
+
+      await this.databaseService.vendor.update({
+        where: { uuid },
+        data: {
+          status: 'deleted',
+        },
+      });
+
+      return {
+        status: 200,
+        success: true,
+        message:
+          'Vendor deletion request sent; account data will be deleted in 30 days',
+      };
+    } catch (error) {
       throw new HttpException(
         {
-          status: 404,
+          status: 500,
           success: false,
-          message: 'Vendor not found',
+          message: 'Internal server',
+          error,
         },
-        404,
-      );
-    } else if (user.uuid !== vendor.user_uuid) {
-      throw new HttpException(
-        {
-          status: 403,
-          success: false,
-          message: 'You are not authorized to delete this vendor',
-        },
-        403,
+        500,
       );
     }
-
-    await this.databaseService.vendor.update({
-      where: { uuid },
-      data: {
-        status: 'deleted',
-      },
-    });
-
-    return {
-      status: 200,
-      success: true,
-      message:
-        'Vendor deletion request sent; account data will be deleted in 30 days',
-    };
   }
 }

@@ -73,7 +73,7 @@ export class UsersController {
   @UseInterceptors(FileInterceptor('profile'))
   update(
     @Headers('token') token: string,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body(ValidationPipe) updateUserDto: UpdateUserDto,
     @UploadedFile('profile') profile?: Express.Multer.File,
   ) {
     return this.usersService.update(token, updateUserDto, profile);
@@ -82,7 +82,7 @@ export class UsersController {
   @Version('1')
   @Patch('deactivate')
   @ApiOperation({ summary: 'Deactivate account' })
-  deactivate(@Headers('token') token: string, @Body() password: string) {
+  deactivate(@Headers('token') token: string, @Body(ValidationPipe) password: string) {
     return this.usersService.deactivate(token, password);
   }
 
@@ -96,7 +96,7 @@ export class UsersController {
   @Version('1')
   @Delete('account')
   @ApiOperation({ summary: 'Delete acount' })
-  remove(@Headers('token') token: string, @Body() body: PasswordDto) {
+  remove(@Headers('token') token: string, @Body(ValidationPipe) body: PasswordDto) {
     return this.usersService.remove(token, body.password);
   }
 }

@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  ValidationPipe,
   Version,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -18,7 +19,7 @@ export class TeamController {
 
   @Version('1')
   @Post()
-  create(@Body() createTeamDto: CreateTeamDTO) {
+  create(@Body(ValidationPipe) createTeamDto: CreateTeamDTO) {
     return this.teamService.create(createTeamDto);
   }
 
