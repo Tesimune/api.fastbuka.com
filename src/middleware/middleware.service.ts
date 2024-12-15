@@ -7,25 +7,27 @@ export class MiddlewareService {
 
   public async decodeToken(token: string) {
     if (!token) {
-      throw new UnauthorizedException('Invalid token');
+      throw new UnauthorizedException('Bearer token is required');
     }
 
-    const userToken = await this.databaseService.personalAccessToken.findUnique(
+  const bearer = token.split(' ')[1];
+
+    const tokenBearer = await this.databaseService.personalAccessToken.findUnique(
       {
-        where: { token },
+        where: { token: bearer },
       },
     );
 
-    if (!userToken) {
+    if (!tokenBearer) {
       throw new UnauthorizedException({
         statusCode: 401,
         success: false,
-        message: 'Invalid or expired token',
+        message: 'Unauthenticated',
       });
     }
 
     const user = await this.databaseService.user.findUnique({
-      where: { uuid: userToken.user_uuid },
+      where: { uuid: tokenBearer.user_uuid },
     });
 
     if (!user) {

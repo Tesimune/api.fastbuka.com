@@ -8,7 +8,7 @@ import {
   ValidationPipe,
   Version,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import {
@@ -81,11 +81,12 @@ export class AuthController {
   }
 
   @Version('1')
+  @ApiBearerAuth()
   @Post('update_password')
   @ApiOperation({ summary: 'Update password' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   updatePassword(
-    @Headers('token') token: string,
+    @Headers('Authorization') token: string,
     @Body() body: UpdatePasswordDto,
   ) {
     return this.authService.updatePassword(body, token);
@@ -115,6 +116,7 @@ export class AuthController {
 
   @Version('1')
   @Get('decrypt')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Decrypt secret key using authorization token' })
   @ApiResponse({
     status: 200,
@@ -132,7 +134,7 @@ export class AuthController {
     status: 404,
     description: 'Secret key not found',
   })
-  decrypt(@Headers('token') token: string) {
+  decrypt(@Headers('Authorization') token: string) {
     return this.authService.decrypt(token);
   }
   /**
@@ -142,9 +144,10 @@ export class AuthController {
    */
   @Version('1')
   @Delete('logout')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Auth logout' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  logout(@Headers('token') token: string) {
+  logout(@Headers('Authorization') token: string) {
     return this.authService.logout(token);
   }
 }

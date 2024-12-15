@@ -31,20 +31,23 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Version('1')
+  @ApiBearerAuth()
   @Get('profile')
   @ApiOperation({ summary: 'Fetch profile' })
-  profile(@Headers('token') token: string) {
+  profile(@Headers('Authorization') token: string) {
     return this.usersService.profile(token);
   }
 
   @Version('1')
+  @ApiBearerAuth()
   @Get('wallet')
   @ApiOperation({ summary: 'Fetch wallet' })
-  wallet(@Headers('token') token: string) {
+  wallet(@Headers('Authorization') token: string) {
     return this.usersService.wallet(token);
   }
 
   @Version('1')
+  @ApiBearerAuth()
   @Get('decrypt')
   @ApiOperation({ summary: 'Decrypt secret key using authorization token' })
   @ApiResponse({
@@ -63,16 +66,17 @@ export class UsersController {
     status: 404,
     description: 'Secret key not found',
   })
-  decrypt(@Headers('token') token: string) {
+  decrypt(@Headers('Authorization') token: string) {
     return this.usersService.decrypt(token);
   }
   @Version('1')
+  @ApiBearerAuth()
   @Patch('profile')
   @ApiOperation({ summary: 'Update Profile' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('profile'))
   update(
-    @Headers('token') token: string,
+    @Headers('Authorization') token: string,
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
     @UploadedFile('profile') profile?: Express.Multer.File,
   ) {
@@ -80,9 +84,10 @@ export class UsersController {
   }
 
   @Version('1')
+  @ApiBearerAuth()
   @Patch('deactivate')
   @ApiOperation({ summary: 'Deactivate account' })
-  deactivate(@Headers('token') token: string, @Body(ValidationPipe) password: string) {
+  deactivate(@Headers('Authorization') token: string, @Body(ValidationPipe) password: string) {
     return this.usersService.deactivate(token, password);
   }
 
@@ -94,9 +99,10 @@ export class UsersController {
   }
 
   @Version('1')
+  @ApiBearerAuth()
   @Delete('account')
   @ApiOperation({ summary: 'Delete acount' })
-  remove(@Headers('token') token: string, @Body(ValidationPipe) body: PasswordDto) {
+  remove(@Headers('Authorization') token: string, @Body(ValidationPipe) body: PasswordDto) {
     return this.usersService.remove(token, body.password);
   }
 }

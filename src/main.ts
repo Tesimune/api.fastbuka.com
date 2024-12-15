@@ -32,17 +32,19 @@ async function bootstrap() {
     .setTitle('Fast Buka')
     .setDescription('Fast Buka API Documentation')
     .setVersion('1.0')
+    .addBearerAuth()
     .addTag('app')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document, {
     jsonDocumentUrl: 'docs/json',
   });
 
-  // if (process.env.NODE_ENV === 'local') {
-  //   const seeder = app.get(SeederService);
-  //   await seeder.seed();
-  // }
+  if (process.env.NODE_ENV === 'local') {
+    const seeder = app.get(SeederService);
+    await seeder.seed();
+  }
 
   await app.listen(process.env.PORT ?? 3000);
 }
