@@ -63,15 +63,14 @@ export class VendorService {
           createdVendor,
         },
       };
-    } catch (error) {
+   } catch (error) {
       throw new HttpException(
         {
-          status: 500,
+          status: error.status ?? 500,
           success: false,
-          message: 'Internal server',
-          error,
+          message: error.message ?? 'Internal server',
         },
-        500,
+        error.status ?? 500,
       );
     }
   }
@@ -102,15 +101,14 @@ export class VendorService {
           vendors,
         },
       };
-    } catch (error) {
+   } catch (error) {
       throw new HttpException(
         {
-          status: 500,
+          status: error.status ?? 500,
           success: false,
-          message: 'Internal server',
-          error,
+          message: error.message ?? 'Internal server',
         },
-        500,
+        error.status ?? 500,
       );
     }
   }
@@ -148,15 +146,14 @@ export class VendorService {
           vendor,
         },
       };
-    } catch (error) {
+   } catch (error) {
       throw new HttpException(
         {
-          status: 500,
+          status: error.status ?? 500,
           success: false,
-          message: 'Internal server',
-          error,
+          message: error.message ?? 'Internal server',
         },
-        500,
+        error.status ?? 500,
       );
     }
   }
@@ -305,15 +302,14 @@ export class VendorService {
           vendor: updatedVendor,
         },
       };
-    } catch (error) {
+   } catch (error) {
       throw new HttpException(
         {
-          status: 500,
+          status: error.status ?? 500,
           success: false,
-          message: 'Internal server',
-          error,
+          message: error.message ?? 'Internal server',
         },
-        500,
+        error.status ?? 500,
       );
     }
   }
@@ -364,15 +360,14 @@ export class VendorService {
         message:
           'Vendor deletion request sent; account data will be deleted in 30 days',
       };
-    } catch (error) {
+   } catch (error) {
       throw new HttpException(
         {
-          status: 500,
+          status: error.status ?? 500,
           success: false,
-          message: 'Internal server',
-          error,
+          message: error.message ?? 'Internal server',
         },
-        500,
+        error.status ?? 500,
       );
     }
   }

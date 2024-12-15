@@ -22,12 +22,11 @@ export class ContactService {
     } catch (error) {
       throw new HttpException(
         {
-          status: 500,
+          status: error.status ?? 500,
           success: false,
-          message: 'Internal server',
-          error,
+          message: error.message ?? 'Internal server',
         },
-        500,
+        error.status ?? 500,
       );
     }
   }
@@ -46,12 +45,11 @@ export class ContactService {
     } catch (error) {
       throw new HttpException(
         {
-          status: 500,
+          status: error.status ?? 500,
           success: false,
-          message: 'Internal server',
-          error,
+          message: error.message ?? 'Internal server',
         },
-        500,
+        error.status ?? 500,
       );
     }
   }

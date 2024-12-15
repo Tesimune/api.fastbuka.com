@@ -15,7 +15,7 @@ import {
 import { StorageService } from './storage.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateStorageDto } from './dto/create-storage.dto';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('storage')
 @Controller('storage')
@@ -23,11 +23,12 @@ export class StorageController {
   constructor(private readonly storageService: StorageService) {}
 
   @Version('1')
+  @ApiBearerAuth()
   @Post()
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
   create(
-    @Headers('token') token: string,
+    @Headers('Authorization') token: string,
     @Body(ValidationPipe) body: CreateStorageDto,
     @UploadedFile('file') file: Express.Multer.File,
   ) {
@@ -35,11 +36,12 @@ export class StorageController {
   }
 
   @Version('1')
+  @ApiBearerAuth()
   @Patch()
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
   update(
-    @Headers('token') token: string,
+    @Headers('Authorization') token: string,
     @Body(ValidationPipe) body: CreateStorageDto,
     @UploadedFile('file') file: Express.Multer.File,
   ) {

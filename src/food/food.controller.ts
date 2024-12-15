@@ -17,7 +17,7 @@ import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('food')
 @Controller('food')
@@ -25,11 +25,12 @@ export class FoodController {
   constructor(private readonly foodService: FoodService) {}
 
   @Version('1')
+  @ApiBearerAuth()
   @Post(':vendor_slug')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('image'))
   create(
-    @Headers('token') token: string,
+    @Headers('Authorization') token: string,
     @Param('vendor_slug') vendor_slug: string,
     @Body(ValidationPipe) createFoodDto: CreateFoodDto,
     @UploadedFile('image') image?: Express.Multer.File,
@@ -53,11 +54,12 @@ export class FoodController {
   }
 
   @Version('1')
+  @ApiBearerAuth()
   @Patch(':vendor_slug/:uuid')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('image'))
   update(
-    @Headers('token') token: string,
+    @Headers('Authorization') token: string,
     @Param('vendor_slug') vendor_slug: string,
     @Param('uuid') uuid: string,
     @Body(ValidationPipe) updateFoodDto: UpdateFoodDto,
@@ -73,9 +75,10 @@ export class FoodController {
   }
 
   @Version('1')
+  @ApiBearerAuth()
   @Delete(':vendor_slug/:uuid')
   remove(
-    @Headers('token') token: string,
+    @Headers('Authorization') token: string,
     @Param('vendor_slug') vendor_slug: string,
     @Param('uuid') uuid: string,
   ) {

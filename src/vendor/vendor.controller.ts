@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { VendorService } from './vendor.service';
 import { CreateVendorDto } from './dto/create-vendor.dto';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { UpdateVendorDto } from './dto/update-vendor.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -30,9 +30,10 @@ export class VendorController {
    * @returns
    */
   @Version('1')
+  @ApiBearerAuth()
   @Post('/')
   create(
-    @Headers('token') token: string,
+    @Headers('Authorization') token: string,
     @Body(ValidationPipe) vendor: CreateVendorDto,
   ) {
     return this.vendorService.create(token, vendor);
@@ -45,8 +46,9 @@ export class VendorController {
    * @returns
    */
   @Version('1')
+  @ApiBearerAuth()
   @Get()
-  findAll(@Headers('token') token: string) {
+  findAll(@Headers('Authorization') token: string) {
     return this.vendorService.findAll(token);
   }
 
@@ -68,6 +70,7 @@ export class VendorController {
    * @returns
    */
   @Version('1')
+  @ApiBearerAuth()
   @Patch(':uuid')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('profile'))
@@ -75,7 +78,7 @@ export class VendorController {
   @UseInterceptors(FileInterceptor('id_upload'))
   @UseInterceptors(FileInterceptor('business_upload'))
   update(
-    @Headers('token') token: string,
+    @Headers('Authorization') token: string,
     @Param('uuid') uuid: string,
     @Body(ValidationPipe) VendorUpdateInput: UpdateVendorDto,
     @UploadedFile('profile') profile?: Express.Multer.File,
@@ -100,8 +103,9 @@ export class VendorController {
    * @returns
    */
   @Version('1')
+  @ApiBearerAuth()
   @Delete(':uuid')
-  remove(@Headers('token') token: string, @Param('uuid') uuid: string) {
+  remove(@Headers('Authorization') token: string, @Param('uuid') uuid: string) {
     return this.vendorService.remove(token, uuid);
   }
 }
