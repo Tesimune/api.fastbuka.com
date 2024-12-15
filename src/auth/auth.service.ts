@@ -56,89 +56,103 @@ export class AuthService {
    * @returns
    */
   async register(user: CreateAuthDto) {
-    const account = await this.databaseService.user.findUnique({
-      where: { email: user.email },
-    });
-
-    if (account) {
-      throw new UnauthorizedException({
-        status: 401,
-        success: false,
-        message: 'Email address is already in use',
+    try {
+      const account = await this.databaseService.user.findUnique({
+        where: { email: user.email },
       });
-    }
 
-    const baseUsername = user.email.split('@')[0];
-    let username = baseUsername;
+      if (account) {
+        throw new UnauthorizedException({
+          status: 401,
+          success: false,
+          message: 'Email address is already in use',
+        });
+      }
 
-    let usernameExists = await this.databaseService.user.findUnique({
-      where: { username: username },
-    });
+      const baseUsername = user.email.split('@')[0];
+      let username = baseUsername;
 
-    let counter = 1;
-    while (usernameExists) {
-      username = `${baseUsername}${counter}`;
-      usernameExists = await this.databaseService.user.findUnique({
+      let usernameExists = await this.databaseService.user.findUnique({
         where: { username: username },
       });
-      counter++;
-    }
 
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-    const { publicKey, secret } = this.generateRandomWallet();
+      let counter = 1;
+      while (usernameExists) {
+        username = `${baseUsername}${counter}`;
+        usernameExists = await this.databaseService.user.findUnique({
+          where: { username: username },
+        });
+        counter++;
+      }
 
-    await this.accountSponsorship(publicKey, secret);
+      const hashedPassword = await bcrypt.hash(user.password, 10);
+      const { publicKey, secret } = this.generateRandomWallet();
 
-    // Encrypt the secret key before saving
-    const encryptedSecret =
-      await this.encryptionService.encryptSecretKey(secret);
+      await this.accountSponsorship(publicKey, secret);
 
-    const newUser = await this.databaseService.$transaction(async (prisma) => {
-      const createdUser = await prisma.user.create({
-        data: {
-          email: user.email,
-          username: username,
-          password: hashedPassword,
-          contact: user.contact,
-          walletAddress: publicKey,
-          secretKey: encryptedSecret,
+      // Encrypt the secret key before saving
+      const encryptedSecret =
+        await this.encryptionService.encryptSecretKey(secret);
+
+      const newUser = await this.databaseService.$transaction(
+        async (prisma) => {
+          const createdUser = await prisma.user.create({
+            data: {
+              email: user.email,
+              username: username,
+              password: hashedPassword,
+              contact: user.contact,
+              walletAddress: publicKey,
+              secretKey: encryptedSecret,
+            },
+          });
+
+          const createProfile = await prisma.userProfile.create({
+            data: {
+              user_uuid: createdUser.uuid,
+              first_name: user.name.split(' ')[0] || user.name,
+              last_name: user.name.split(' ')[1] || user.name,
+            },
+          });
+
+          const code = Math.floor(1000 + Math.random() * 9000).toString();
+          await prisma.emailVerificationTokens.create({
+            data: {
+              user_uuid: createdUser.uuid,
+              email: createdUser.email,
+              token: code,
+            },
+          });
+
+          const mailer = {
+            email: user.email,
+            subject: 'Email verification',
+            message: `<p>Hey ${createProfile.first_name} welcome to fastbuka, <br><br> Your vefication code is: ${code} <br><br>This code will expire in 10 minutes.<p>`,
+          };
+          await this.mailerService.mailer(mailer);
+
+          return createdUser;
         },
-      });
-
-      const createProfile = await prisma.userProfile.create({
+      );
+      return {
+        status: 200,
+        success: true,
+        message: 'Registration Successful, please Proceed to Login.',
         data: {
-          user_uuid: createdUser.uuid,
-          first_name: user.name.split(' ')[0] || user.name,
-          last_name: user.name.split(' ')[1] || user.name,
+          user: newUser,
         },
-      });
-
-      const code = Math.floor(1000 + Math.random() * 9000).toString();
-      await prisma.emailVerificationTokens.create({
-        data: {
-          user_uuid: createdUser.uuid,
-          email: createdUser.email,
-          token: code,
-        },
-      });
-
-      const mailer = {
-        email: user.email,
-        subject: 'Email verification',
-        message: `<p>Hey ${createProfile.first_name} welcome to fastbuka, <br><br> Your vefication code is: ${code} <br><br>This code will expire in 10 minutes.<p>`,
       };
-      await this.mailerService.mailer(mailer);
-
-      return createdUser;
-    });
-    return {
-      status: 200,
-      success: true,
-      message: 'Registration Successful, please Proceed to Login.',
-      data: {
-        user: newUser,
-      },
-    };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
+    }
   }
 
   /**
@@ -149,51 +163,67 @@ export class AuthService {
    * @returns
    */
   async verifyEmail(body: VerifyEmailDto) {
-    const token = await this.databaseService.emailVerificationTokens.findFirst({
-      where: {
-        user_uuid: body.uuid,
-        email: body.email,
-        token: body.code,
-      },
-    });
+    try {
+      const token =
+        await this.databaseService.emailVerificationTokens.findFirst({
+          where: {
+            user_uuid: body.uuid,
+            email: body.email,
+            token: body.code,
+          },
+        });
 
-    if (!token) {
+      if (!token) {
+        throw new HttpException(
+          {
+            status: 419,
+            success: false,
+            message: 'Invalid verification code.',
+          },
+          419,
+        );
+      }
+
+      const timeout = 10 * 60 * 1000;
+      if (
+        new Date().getTime() - new Date(token.createdAt).getTime() >
+        timeout
+      ) {
+        throw new HttpException(
+          {
+            status: 419,
+            success: false,
+            message: 'Verification token has expired.',
+          },
+          419,
+        );
+      }
+
+      await this.databaseService.user.update({
+        where: { uuid: body.uuid },
+        data: { email_verified: true },
+      });
+
+      await this.databaseService.emailVerificationTokens.delete({
+        where: { id: token.id },
+      });
+
+      return {
+        status: 200,
+        success: true,
+        message: 'Email successfully verified.',
+      };
+    } catch (error) {
       throw new HttpException(
         {
-          status: 419,
+          status: 500,
           success: false,
-          message: 'Invalid verification code.',
+          message: 'Internal server',
+          error,
         },
-        419,
+        500,
       );
     }
-
-    const timeout = 10 * 60 * 1000;
-    if (new Date().getTime() - new Date(token.createdAt).getTime() > timeout) {
-      throw new HttpException(
-        {
-          status: 419,
-          success: false,
-          message: 'Verification token has expired.',
-        },
-        419,
-      );
-    }
-
-    await this.databaseService.user.update({
-      where: { uuid: body.uuid },
-      data: { email_verified: true },
-    });
-
-    await this.databaseService.emailVerificationTokens.delete({
-      where: { id: token.id },
-    });
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Email successfully verified.',
-    };
   }
 
   /**
@@ -243,12 +273,15 @@ export class AuthService {
         message: `Verification code sent successfully to ${email}.`,
       };
     } catch (error) {
-      return {
-        status: 500,
-        success: false,
-        message: 'An error occurred while sending the verification code.',
-        error: error.message,
-      };
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
     }
   }
 
@@ -259,26 +292,153 @@ export class AuthService {
    * @returns
    */
   async login(email: string, password: string) {
-    if (!email) {
-      throw new UnprocessableEntityException('Email is required.');
+    try {
+      if (!email) {
+        throw new UnprocessableEntityException('Email is required.');
+      }
+
+      if (!password) {
+        throw new UnprocessableEntityException('Password is required.');
+      }
+
+      const user = await this.databaseService.user.findUnique({
+        where: { email },
+        include: {
+          profile: true,
+        },
+      });
+
+      if (!user || !(await bcrypt.compare(password, user.password))) {
+        throw new UnauthorizedException('Invalid email or password');
+      } else if (user.status !== 'activated') {
+        const code = Math.floor(1000 + Math.random() * 9000).toString();
+
+        await this.databaseService.passwordResetTokens.create({
+          data: {
+            user_uuid: user.uuid,
+            email: user.email,
+            token: code,
+          },
+        });
+
+        const mailer = {
+          email: user.email,
+          subject: 'Activation Verification',
+          message: `<p>Hey ${user.profile.first_name}, <br><br> Please use vefication code is: ${code} to activate your account.<br><br>This code will expire in 10 minutes.<p>`,
+        };
+        await this.mailerService.mailer(mailer);
+
+        throw new HttpException(
+          {
+            status: 419,
+            success: false,
+            message: `Your account is currently ${user.status}. An email has been sent to you for reactivation.`,
+            data: {
+              user,
+            },
+          },
+          419,
+        );
+      }
+
+      const token = this.generateRandomToken(45);
+      await this.databaseService.personalAccessToken.create({
+        data: {
+          user_uuid: user.uuid,
+          token,
+        },
+      });
+
+      return {
+        status: 200,
+        success: true,
+        message: 'Login successful',
+        data: {
+          token,
+          user,
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
     }
+  }
 
-    if (!password) {
-      throw new UnprocessableEntityException('Password is required.');
+  /**
+   *
+   * @param body
+   * @param token
+   * @returns
+   */
+  async updatePassword(body: UpdatePasswordDto, token: string) {
+    try {
+      const user = await this.middlewareService.decodeToken(token);
+      if (!user || !(await bcrypt.compare(body.old_password, user.password))) {
+        throw new UnauthorizedException('Password is incorrect');
+      }
+      const hashedPassword = await bcrypt.hash(body.new_password, 10);
+
+      await this.databaseService.user.update({
+        where: {
+          uuid: user.uuid,
+        },
+        data: {
+          password: hashedPassword,
+        },
+      });
+
+      return {
+        status: 200,
+        success: true,
+        message: 'Password updated',
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
     }
+  }
 
-    const user = await this.databaseService.user.findUnique({
-      where: { email },
-      include: {
-        profile: true,
-      },
-    });
+  /**
+   *
+   * @param email
+   */
+  async forgotPassword(email: string) {
+    try {
+      const user = await this.databaseService.user.findUnique({
+        where: {
+          email: email,
+        },
+        include: {
+          profile: true,
+        },
+      });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Invalid email or password');
-    } else if (user.status !== 'activated') {
+      if (!user) {
+        throw new HttpException(
+          {
+            status: 404,
+            success: false,
+            message: 'User not found',
+          },
+          404,
+        );
+      }
+
       const code = Math.floor(1000 + Math.random() * 9000).toString();
-
       await this.databaseService.passwordResetTokens.create({
         data: {
           user_uuid: user.uuid,
@@ -289,122 +449,31 @@ export class AuthService {
 
       const mailer = {
         email: user.email,
-        subject: 'Activation Verification',
-        message: `<p>Hey ${user.profile.first_name}, <br><br> Please use vefication code is: ${code} to activate your account.<br><br>This code will expire in 10 minutes.<p>`,
+        subject: 'Forgot password verification',
+        message: `<p>Hey ${user.profile.first_name}, <br><br> Your reset password vefication code is: ${code} <br><br>This code will expire in 10 minutes.<p>`,
       };
       await this.mailerService.mailer(mailer);
 
+      return {
+        status: 200,
+        success: true,
+        message: 'Verification code sent',
+        data: {
+          uuid: user.uuid,
+          email: user.email,
+        },
+      };
+    } catch (error) {
       throw new HttpException(
         {
-          status: 419,
+          status: 500,
           success: false,
-          message: `Your account is currently ${user.status}. An email has been sent to you for reactivation.`,
-          data: {
-            user,
-          },
+          message: 'Internal server',
+          error,
         },
-        419,
+        500,
       );
     }
-
-    const token = this.generateRandomToken(45);
-    await this.databaseService.personalAccessToken.create({
-      data: {
-        user_uuid: user.uuid,
-        token,
-      },
-    });
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Login successful',
-      data: {
-        token,
-        user,
-      },
-    };
-  }
-
-  /**
-   *
-   * @param body
-   * @param token
-   * @returns
-   */
-  async updatePassword(body: UpdatePasswordDto, token: string) {
-    const user = await this.middlewareService.decodeToken(token);
-    if (!user || !(await bcrypt.compare(body.old_password, user.password))) {
-      throw new UnauthorizedException('Password is incorrect');
-    }
-    const hashedPassword = await bcrypt.hash(body.new_password, 10);
-
-    await this.databaseService.user.update({
-      where: {
-        uuid: user.uuid,
-      },
-      data: {
-        password: hashedPassword,
-      },
-    });
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Password updated',
-    };
-  }
-
-  /**
-   *
-   * @param email
-   */
-  async forgotPassword(email: string) {
-    const user = await this.databaseService.user.findUnique({
-      where: {
-        email: email,
-      },
-      include: {
-        profile: true,
-      },
-    });
-
-    if (!user) {
-      throw new HttpException(
-        {
-          status: 404,
-          success: false,
-          message: 'User not found',
-        },
-        404,
-      );
-    }
-
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
-    await this.databaseService.passwordResetTokens.create({
-      data: {
-        user_uuid: user.uuid,
-        email: user.email,
-        token: code,
-      },
-    });
-
-    const mailer = {
-      email: user.email,
-      subject: 'Forgot password verification',
-      message: `<p>Hey ${user.profile.first_name}, <br><br> Your reset password vefication code is: ${code} <br><br>This code will expire in 10 minutes.<p>`,
-    };
-    await this.mailerService.mailer(mailer);
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Verification code sent',
-      data: {
-        uuid: user.uuid,
-        email: user.email,
-      },
-    };
   }
 
   /**
@@ -413,57 +482,72 @@ export class AuthService {
    * @returns
    */
   async resetPassword(body: ResetPasswordDto) {
-    const token = await this.databaseService.passwordResetTokens.findFirst({
-      where: {
-        user_uuid: body.uuid,
-        email: body.email,
-        token: body.code,
-      },
-    });
+    try {
+      const token = await this.databaseService.passwordResetTokens.findFirst({
+        where: {
+          user_uuid: body.uuid,
+          email: body.email,
+          token: body.code,
+        },
+      });
 
-    if (!token) {
+      if (!token) {
+        throw new HttpException(
+          {
+            status: 419,
+            success: false,
+            message: `Invalid verification code ${body.code}.`,
+          },
+          419,
+        );
+      }
+
+      const timeout = 10 * 60 * 1000;
+      if (
+        new Date().getTime() - new Date(token.createdAt).getTime() >
+        timeout
+      ) {
+        throw new HttpException(
+          {
+            status: 419,
+            success: false,
+            message: 'Verification token has expired.',
+          },
+          419,
+        );
+      }
+
+      const hashedPassword = await bcrypt.hash(body.new_password, 10);
+
+      await this.databaseService.user.update({
+        where: {
+          uuid: body.uuid,
+        },
+        data: {
+          password: hashedPassword,
+        },
+      });
+
+      await this.databaseService.passwordResetTokens.delete({
+        where: { id: token.id },
+      });
+
+      return {
+        status: 200,
+        success: true,
+        message: 'Password successfully.',
+      };
+    } catch (error) {
       throw new HttpException(
         {
-          status: 419,
+          status: 500,
           success: false,
-          message: `Invalid verification code ${body.code}.`,
+          message: 'Internal server',
+          error,
         },
-        419,
+        500,
       );
     }
-
-    const timeout = 10 * 60 * 1000;
-    if (new Date().getTime() - new Date(token.createdAt).getTime() > timeout) {
-      throw new HttpException(
-        {
-          status: 419,
-          success: false,
-          message: 'Verification token has expired.',
-        },
-        419,
-      );
-    }
-
-    const hashedPassword = await bcrypt.hash(body.new_password, 10);
-
-    await this.databaseService.user.update({
-      where: {
-        uuid: body.uuid,
-      },
-      data: {
-        password: hashedPassword,
-      },
-    });
-
-    await this.databaseService.passwordResetTokens.delete({
-      where: { id: token.id },
-    });
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Password successfully.',
-    };
   }
 
   /**
@@ -472,23 +556,35 @@ export class AuthService {
    * @returns
    */
   async logout(token: string) {
-    const user = await this.middlewareService.decodeToken(token);
-    if (!user) {
-      throw new UnauthorizedException({
-        status: 412,
-        success: false,
-        message: 'User not found',
+    try {
+      const user = await this.middlewareService.decodeToken(token);
+      if (!user) {
+        throw new UnauthorizedException({
+          status: 412,
+          success: false,
+          message: 'User not found',
+        });
+      }
+      await this.databaseService.personalAccessToken.delete({
+        where: { token },
       });
-    }
-    await this.databaseService.personalAccessToken.delete({
-      where: { token },
-    });
 
-    return {
-      status: 200,
-      success: true,
-      message: 'User logged out successfully.',
-    };
+      return {
+        status: 200,
+        success: true,
+        message: 'User logged out successfully.',
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
+    }
   }
 
   /**
@@ -612,13 +708,12 @@ export class AuthService {
         );
       }
     } catch (error) {
-      console.error('Account creation failed:', error);
       throw new HttpException(
         {
           status: 500,
           success: false,
-          message: 'Failed to create account',
-          error: error.message,
+          message: 'Internal server',
+          error,
         },
         500,
       );

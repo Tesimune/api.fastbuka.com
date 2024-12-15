@@ -115,59 +115,71 @@ export class AppService {
     sortField: string = 'updatedAt',
     sortOrder: 'asc' | 'desc' = 'desc',
   ): Promise<object> {
-    const validSortFields = ['ratings', 'featured', 'createdAt', 'updatedAt'];
-    if (!validSortFields.includes(sortField)) {
-      sortField = 'updatedAt';
-    }
+    try {
+      const validSortFields = ['ratings', 'featured', 'createdAt', 'updatedAt'];
+      if (!validSortFields.includes(sortField)) {
+        sortField = 'updatedAt';
+      }
 
-    const allVendors = await this.databaseService.vendor.findMany({
-      where: {
-        status: 'approved',
-        is_online: true,
-      },
-    });
-
-    let sortedVendors = allVendors;
-    if (longitude && latitude) {
-      sortedVendors = this.filterAndSortByDistanceVendor(
-        allVendors,
-        longitude,
-        latitude,
-      );
-    } else {
-      sortedVendors.sort((a, b) => {
-        if (sortOrder === 'asc') {
-          return a[sortField] > b[sortField] ? 1 : -1;
-        }
-        return a[sortField] < b[sortField] ? 1 : -1;
-      });
-    }
-
-    const totalCount = sortedVendors.length;
-    const totalPages = Math.ceil(totalCount / perPage);
-    const start = (page - 1) * perPage;
-    const end = start + perPage;
-    const paginatedVendors = sortedVendors.slice(start, end);
-
-    const nextPage = page < totalPages ? page + 1 : null;
-    const previousPage = page > 1 ? page - 1 : null;
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Successfully retrieved vendors',
-      data: {
-        vendors: paginatedVendors,
-        pagination: {
-          totalCount,
-          totalPages,
-          nextPage,
-          previousPage,
-          page,
-          perPage,
+      const allVendors = await this.databaseService.vendor.findMany({
+        where: {
+          status: 'approved',
+          is_online: true,
         },
-      },
-    };
+      });
+
+      let sortedVendors = allVendors;
+      if (longitude && latitude) {
+        sortedVendors = this.filterAndSortByDistanceVendor(
+          allVendors,
+          longitude,
+          latitude,
+        );
+      } else {
+        sortedVendors.sort((a, b) => {
+          if (sortOrder === 'asc') {
+            return a[sortField] > b[sortField] ? 1 : -1;
+          }
+          return a[sortField] < b[sortField] ? 1 : -1;
+        });
+      }
+
+      const totalCount = sortedVendors.length;
+      const totalPages = Math.ceil(totalCount / perPage);
+      const start = (page - 1) * perPage;
+      const end = start + perPage;
+      const paginatedVendors = sortedVendors.slice(start, end);
+
+      const nextPage = page < totalPages ? page + 1 : null;
+      const previousPage = page > 1 ? page - 1 : null;
+
+      return {
+        status: 200,
+        success: true,
+        message: 'Successfully retrieved vendors',
+        data: {
+          vendors: paginatedVendors,
+          pagination: {
+            totalCount,
+            totalPages,
+            nextPage,
+            previousPage,
+            page,
+            perPage,
+          },
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
+    }
   }
 
   /**
@@ -188,62 +200,74 @@ export class AppService {
     sortField: string = 'updatedAt',
     sortOrder: 'asc' | 'desc' = 'desc',
   ): Promise<object> {
-    const validSortFields = ['ratings', 'featured', 'createdAt', 'updatedAt'];
-    if (!validSortFields.includes(sortField)) {
-      sortField = 'updatedAt';
-    }
+    try {
+      const validSortFields = ['ratings', 'featured', 'createdAt', 'updatedAt'];
+      if (!validSortFields.includes(sortField)) {
+        sortField = 'updatedAt';
+      }
 
-    const allVendors = await this.databaseService.vendor.findMany({
-      where: {
-        status: 'approved',
-        is_online: true,
-      },
-      orderBy: {
-        featured: 'desc',
-      },
-    });
-
-    let sortedVendors = allVendors;
-    if (longitude && latitude) {
-      sortedVendors = this.filterAndSortByDistanceVendor(
-        allVendors,
-        longitude,
-        latitude,
-      );
-    } else {
-      sortedVendors.sort((a, b) => {
-        if (sortOrder === 'asc') {
-          return a[sortField] > b[sortField] ? 1 : -1;
-        }
-        return a[sortField] < b[sortField] ? 1 : -1;
-      });
-    }
-
-    const totalCount = sortedVendors.length;
-    const totalPages = Math.ceil(totalCount / perPage);
-    const start = (page - 1) * perPage;
-    const end = start + perPage;
-    const paginatedVendors = sortedVendors.slice(start, end);
-
-    const nextPage = page < totalPages ? page + 1 : null;
-    const previousPage = page > 1 ? page - 1 : null;
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Successfully retrieved vendors',
-      data: {
-        vendors: paginatedVendors,
-        pagination: {
-          totalCount,
-          totalPages,
-          nextPage,
-          previousPage,
-          page,
-          perPage,
+      const allVendors = await this.databaseService.vendor.findMany({
+        where: {
+          status: 'approved',
+          is_online: true,
         },
-      },
-    };
+        orderBy: {
+          featured: 'desc',
+        },
+      });
+
+      let sortedVendors = allVendors;
+      if (longitude && latitude) {
+        sortedVendors = this.filterAndSortByDistanceVendor(
+          allVendors,
+          longitude,
+          latitude,
+        );
+      } else {
+        sortedVendors.sort((a, b) => {
+          if (sortOrder === 'asc') {
+            return a[sortField] > b[sortField] ? 1 : -1;
+          }
+          return a[sortField] < b[sortField] ? 1 : -1;
+        });
+      }
+
+      const totalCount = sortedVendors.length;
+      const totalPages = Math.ceil(totalCount / perPage);
+      const start = (page - 1) * perPage;
+      const end = start + perPage;
+      const paginatedVendors = sortedVendors.slice(start, end);
+
+      const nextPage = page < totalPages ? page + 1 : null;
+      const previousPage = page > 1 ? page - 1 : null;
+
+      return {
+        status: 200,
+        success: true,
+        message: 'Successfully retrieved vendors',
+        data: {
+          vendors: paginatedVendors,
+          pagination: {
+            totalCount,
+            totalPages,
+            nextPage,
+            previousPage,
+            page,
+            perPage,
+          },
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
+    }
   }
 
   /**
@@ -264,69 +288,81 @@ export class AppService {
     sortField: string = 'updatedAt',
     sortOrder: 'asc' | 'desc' = 'desc',
   ): Promise<object> {
-    const validSortFields = [
-      'price',
-      'category',
-      'ratings',
-      'featured',
-      'createdAt',
-      'updatedAt',
-    ];
-    if (!validSortFields.includes(sortField)) {
-      sortField = 'updatedAt';
-    }
+    try {
+      const validSortFields = [
+        'price',
+        'category',
+        'ratings',
+        'featured',
+        'createdAt',
+        'updatedAt',
+      ];
+      if (!validSortFields.includes(sortField)) {
+        sortField = 'updatedAt';
+      }
 
-    const allFood = await this.databaseService.food.findMany({
-      where: {
-        on_menu: true,
-      },
-      include: {
-        category: true,
-        vendor: true,
-      },
-    });
-
-    let sortedFood = allFood;
-    if (longitude && latitude) {
-      sortedFood = this.filterAndSortByDistanceFood(
-        allFood,
-        longitude,
-        latitude,
-      );
-    } else {
-      sortedFood.sort((a, b) => {
-        if (sortOrder === 'asc') {
-          return a[sortField] > b[sortField] ? 1 : -1;
-        }
-        return a[sortField] < b[sortField] ? 1 : -1;
-      });
-    }
-
-    const totalCount = sortedFood.length;
-    const totalPages = Math.ceil(totalCount / perPage);
-    const start = (page - 1) * perPage;
-    const end = start + perPage;
-    const paginatedFood = sortedFood.slice(start, end);
-
-    const nextPage = page < totalPages ? page + 1 : null;
-    const previousPage = page > 1 ? page - 1 : null;
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Successfully',
-      data: {
-        food: paginatedFood,
-        pagination: {
-          totalCount,
-          totalPages,
-          nextPage,
-          previousPage,
-          page,
-          perPage,
+      const allFood = await this.databaseService.food.findMany({
+        where: {
+          on_menu: true,
         },
-      },
-    };
+        include: {
+          category: true,
+          vendor: true,
+        },
+      });
+
+      let sortedFood = allFood;
+      if (longitude && latitude) {
+        sortedFood = this.filterAndSortByDistanceFood(
+          allFood,
+          longitude,
+          latitude,
+        );
+      } else {
+        sortedFood.sort((a, b) => {
+          if (sortOrder === 'asc') {
+            return a[sortField] > b[sortField] ? 1 : -1;
+          }
+          return a[sortField] < b[sortField] ? 1 : -1;
+        });
+      }
+
+      const totalCount = sortedFood.length;
+      const totalPages = Math.ceil(totalCount / perPage);
+      const start = (page - 1) * perPage;
+      const end = start + perPage;
+      const paginatedFood = sortedFood.slice(start, end);
+
+      const nextPage = page < totalPages ? page + 1 : null;
+      const previousPage = page > 1 ? page - 1 : null;
+
+      return {
+        status: 200,
+        success: true,
+        message: 'Successfully',
+        data: {
+          food: paginatedFood,
+          pagination: {
+            totalCount,
+            totalPages,
+            nextPage,
+            previousPage,
+            page,
+            perPage,
+          },
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
+    }
   }
 
   /**
@@ -347,83 +383,107 @@ export class AppService {
     sortField: string = 'updatedAt',
     sortOrder: 'asc' | 'desc' = 'desc',
   ): Promise<object> {
-    const validSortFields = [
-      'price',
-      'category',
-      'ratings',
-      'featured',
-      'createdAt',
-      'updatedAt',
-    ];
-    if (!validSortFields.includes(sortField)) {
-      sortField = 'updatedAt';
-    }
+    try {
+      const validSortFields = [
+        'price',
+        'category',
+        'ratings',
+        'featured',
+        'createdAt',
+        'updatedAt',
+      ];
+      if (!validSortFields.includes(sortField)) {
+        sortField = 'updatedAt';
+      }
 
-    const allFood = await this.databaseService.food.findMany({
-      where: {
-        on_menu: true,
-      },
-      include: {
-        category: true,
-        vendor: true,
-      },
-    });
-
-    let sortedFood = allFood;
-    if (longitude && latitude) {
-      sortedFood = this.filterAndSortByDistanceFood(
-        allFood,
-        longitude,
-        latitude,
-      );
-    } else {
-      sortedFood.sort((a, b) => {
-        if (sortOrder === 'asc') {
-          return a[sortField] > b[sortField] ? 1 : -1;
-        }
-        return a[sortField] < b[sortField] ? 1 : -1;
-      });
-    }
-
-    const totalCount = sortedFood.length;
-    const totalPages = Math.ceil(totalCount / perPage);
-    const start = (page - 1) * perPage;
-    const end = start + perPage;
-    const paginatedFood = sortedFood.slice(start, end);
-
-    const nextPage = page < totalPages ? page + 1 : null;
-    const previousPage = page > 1 ? page - 1 : null;
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Successfully',
-      data: {
-        food: paginatedFood,
-        pagination: {
-          totalCount,
-          totalPages,
-          nextPage,
-          previousPage,
-          page,
-          perPage,
+      const allFood = await this.databaseService.food.findMany({
+        where: {
+          on_menu: true,
         },
-      },
-    };
+        include: {
+          category: true,
+          vendor: true,
+        },
+      });
+
+      let sortedFood = allFood;
+      if (longitude && latitude) {
+        sortedFood = this.filterAndSortByDistanceFood(
+          allFood,
+          longitude,
+          latitude,
+        );
+      } else {
+        sortedFood.sort((a, b) => {
+          if (sortOrder === 'asc') {
+            return a[sortField] > b[sortField] ? 1 : -1;
+          }
+          return a[sortField] < b[sortField] ? 1 : -1;
+        });
+      }
+
+      const totalCount = sortedFood.length;
+      const totalPages = Math.ceil(totalCount / perPage);
+      const start = (page - 1) * perPage;
+      const end = start + perPage;
+      const paginatedFood = sortedFood.slice(start, end);
+
+      const nextPage = page < totalPages ? page + 1 : null;
+      const previousPage = page > 1 ? page - 1 : null;
+
+      return {
+        status: 200,
+        success: true,
+        message: 'Successfully',
+        data: {
+          food: paginatedFood,
+          pagination: {
+            totalCount,
+            totalPages,
+            nextPage,
+            previousPage,
+            page,
+            perPage,
+          },
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
+    }
   }
 
   /**
    *
    * @returns
    */
-  async findAll() {
-    const categories = await this.databaseService.category.findMany();
-    return {
-      status: 200,
-      success: true,
-      message: 'Found',
-      data: { categories },
-    };
+  async categories() {
+    try {
+      const categories = await this.databaseService.category.findMany();
+      return {
+        status: 200,
+        success: true,
+        message: 'Found',
+        data: { categories },
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
+    }
   }
 
   /**
@@ -438,76 +498,88 @@ export class AppService {
     sortField: string = 'updatedAt',
     sortOrder: 'asc' | 'desc' = 'desc',
   ): Promise<object> {
-    const skip = (page - 1) * perPage;
-    const totalCount = await this.databaseService.food.count();
+    try {
+      const skip = (page - 1) * perPage;
+      const totalCount = await this.databaseService.food.count();
 
-    const validSortFields = [
-      'price',
-      'category',
-      'ratings',
-      'featured',
-      'createdAt',
-      'updatedAt',
-    ];
-    if (!validSortFields.includes(sortField)) {
-      sortField = 'updatedAt';
-    }
+      const validSortFields = [
+        'price',
+        'category',
+        'ratings',
+        'featured',
+        'createdAt',
+        'updatedAt',
+      ];
+      if (!validSortFields.includes(sortField)) {
+        sortField = 'updatedAt';
+      }
 
-    const trending = await this.databaseService.food.findMany({
-      take: 10,
-      include: {
-        category: true,
-        vendor: true,
-      },
-    });
+      const trending = await this.databaseService.food.findMany({
+        take: 10,
+        include: {
+          category: true,
+          vendor: true,
+        },
+      });
 
-    const restaurants = await this.databaseService.vendor.findMany({
-      take: 20,
-      where: {
-        status: 'approved',
-        is_online: true,
-      },
-      orderBy: {
-        featured: 'desc',
-      },
-    });
+      const restaurants = await this.databaseService.vendor.findMany({
+        take: 20,
+        where: {
+          status: 'approved',
+          is_online: true,
+        },
+        orderBy: {
+          featured: 'desc',
+        },
+      });
 
-    const food = await this.databaseService.food.findMany({
-      skip: isNaN(skip) ? 0 : skip,
-      take: perPage,
-      include: {
-        category: true,
-        vendor: true,
-      },
-      orderBy: {
-        [sortField]: sortOrder,
-      },
-    });
+      const food = await this.databaseService.food.findMany({
+        skip: isNaN(skip) ? 0 : skip,
+        take: perPage,
+        include: {
+          category: true,
+          vendor: true,
+        },
+        orderBy: {
+          [sortField]: sortOrder,
+        },
+      });
 
-    const totalPages = Math.ceil(totalCount / perPage);
-    const nextPage = page < totalPages ? page + 1 : null;
-    const previousPage = page > 1 ? page - 1 : null;
+      const totalPages = Math.ceil(totalCount / perPage);
+      const nextPage = page < totalPages ? page + 1 : null;
+      const previousPage = page > 1 ? page - 1 : null;
 
-    return {
-      status: 200,
-      success: true,
-      message: 'Successfully',
-      data: {
-        trending,
-        restaurants,
-        menu: {
-          food,
-          pagination: {
-            totalCount,
-            totalPages,
-            nextPage,
-            previousPage,
-            page,
-            perPage,
+      return {
+        status: 200,
+        success: true,
+        message: 'Successfully',
+        data: {
+          trending,
+          restaurants,
+          menu: {
+            food,
+            pagination: {
+              totalCount,
+              totalPages,
+              nextPage,
+              previousPage,
+              page,
+              perPage,
+            },
           },
         },
-      },
-    };
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
+    }
   }
 
   /**
@@ -522,73 +594,85 @@ export class AppService {
     sortField: string = 'updatedAt',
     sortOrder: 'asc' | 'desc' = 'desc',
   ): Promise<object> {
-    const skip = (page - 1) * perPage;
-    const totalCount = await this.databaseService.food.count();
+    try {
+      const skip = (page - 1) * perPage;
+      const totalCount = await this.databaseService.food.count();
 
-    const validSortFields = [
-      'price',
-      'category',
-      'ratings',
-      'featured',
-      'createdAt',
-      'updatedAt',
-    ];
-    if (!validSortFields.includes(sortField)) {
-      sortField = 'updatedAt';
-    }
+      const validSortFields = [
+        'price',
+        'category',
+        'ratings',
+        'featured',
+        'createdAt',
+        'updatedAt',
+      ];
+      if (!validSortFields.includes(sortField)) {
+        sortField = 'updatedAt';
+      }
 
-    const featured = await this.databaseService.food.findMany({
-      take: 10,
-      where: {
-        on_menu: true,
-      },
-      include: {
-        category: true,
-        vendor: true,
-      },
-      orderBy: {
-        featured: 'desc',
-      },
-    });
+      const featured = await this.databaseService.food.findMany({
+        take: 10,
+        where: {
+          on_menu: true,
+        },
+        include: {
+          category: true,
+          vendor: true,
+        },
+        orderBy: {
+          featured: 'desc',
+        },
+      });
 
-    const food = await this.databaseService.food.findMany({
-      skip: isNaN(skip) ? 0 : skip,
-      take: perPage,
-      where: {
-        on_menu: true,
-      },
-      include: {
-        category: true,
-        vendor: true,
-      },
-      orderBy: {
-        [sortField]: sortOrder,
-      },
-    });
+      const food = await this.databaseService.food.findMany({
+        skip: isNaN(skip) ? 0 : skip,
+        take: perPage,
+        where: {
+          on_menu: true,
+        },
+        include: {
+          category: true,
+          vendor: true,
+        },
+        orderBy: {
+          [sortField]: sortOrder,
+        },
+      });
 
-    const totalPages = Math.ceil(totalCount / perPage);
-    const nextPage = page < totalPages ? page + 1 : null;
-    const previousPage = page > 1 ? page - 1 : null;
+      const totalPages = Math.ceil(totalCount / perPage);
+      const nextPage = page < totalPages ? page + 1 : null;
+      const previousPage = page > 1 ? page - 1 : null;
 
-    return {
-      status: 200,
-      success: true,
-      message: 'Successfully',
-      data: {
-        featured,
-        meal: {
-          food,
-          pagination: {
-            totalCount,
-            totalPages,
-            nextPage,
-            previousPage,
-            page,
-            perPage,
+      return {
+        status: 200,
+        success: true,
+        message: 'Successfully',
+        data: {
+          featured,
+          meal: {
+            food,
+            pagination: {
+              totalCount,
+              totalPages,
+              nextPage,
+              previousPage,
+              page,
+              perPage,
+            },
           },
         },
-      },
-    };
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
+    }
   }
 
   /**
@@ -596,12 +680,24 @@ export class AppService {
    * @returns Partners Page
    */
   async partner(): Promise<object> {
-    return {
-      status: 200,
-      success: true,
-      message: 'Successfully',
-      data: {},
-    };
+    try {
+      return {
+        status: 200,
+        success: true,
+        message: 'Successfully',
+        data: {},
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
+    }
   }
 
   /**
@@ -609,12 +705,24 @@ export class AppService {
    * @returns About Page
    */
   async about(): Promise<object> {
-    return {
-      status: 200,
-      success: true,
-      message: 'Successfully',
-      data: {},
-    };
+    try {
+      return {
+        status: 200,
+        success: true,
+        message: 'Successfully',
+        data: {},
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
+    }
   }
 
   /**
@@ -622,12 +730,24 @@ export class AppService {
    * @returns Contact Page
    */
   async contact(): Promise<{}> {
-    return {
-      status: 200,
-      success: true,
-      message: 'Successfully',
-      data: {},
-    };
+    try {
+      return {
+        status: 200,
+        success: true,
+        message: 'Successfully',
+        data: {},
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
+    }
   }
 
   /**
@@ -635,26 +755,38 @@ export class AppService {
    * @returns Contact Form
    */
   async form(name, email, subject, phone, message): Promise<{}> {
-    const mailer = {
-      email,
-      subject,
-      message: `<p>Name: ${name}, <br/> Contact: ${phone} <br/> ${message}</p>`,
-    };
-    const sent = await this.mailerService.mailer(mailer);
-    if (!sent) {
+    try {
+      const mailer = {
+        email,
+        subject,
+        message: `<p>Name: ${name}, <br/> Contact: ${phone} <br/> ${message}</p>`,
+      };
+      const sent = await this.mailerService.mailer(mailer);
+      if (!sent) {
+        throw new HttpException(
+          {
+            status: 400,
+            success: false,
+            message: 'Unable to send message at the monment',
+          },
+          400,
+        );
+      }
+      return {
+        status: 200,
+        success: true,
+        message: 'Mesage sent successfully',
+      };
+    } catch (error) {
       throw new HttpException(
         {
-          status: 400,
+          status: 500,
           success: false,
-          message: 'Unable to send message at the monment',
+          message: 'Internal server',
+          error,
         },
-        400,
+        500,
       );
     }
-    return {
-      status: 200,
-      success: true,
-      message: 'Mesage sent successfully',
-    };
   }
 }

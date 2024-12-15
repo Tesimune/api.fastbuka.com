@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Version } from '@nestjs/common';
+import { Body, Controller, Get, Post, ValidationPipe, Version } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ContactService } from './contact.service';
 import { CreateContactDTO } from './dto/create-contact.dto';
@@ -10,7 +10,7 @@ export class ContactController {
 
   @Version('1')
   @Post()
-  create(@Body() createContactDto: CreateContactDTO) {
+  create(@Body(ValidationPipe) createContactDto: CreateContactDTO) {
     return this.contactService.create(createContactDto);
   }
 

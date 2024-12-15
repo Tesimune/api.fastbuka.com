@@ -9,6 +9,7 @@ import {
   Version,
   Headers,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -24,7 +25,7 @@ export class OrderController {
   @Post(':cart_uuid')
   create(
     @Headers('token') token: string,
-    @Body() createOrderDto: CreateOrderDto,
+    @Body(ValidationPipe) createOrderDto: CreateOrderDto,
   ) {
     return this.orderService.create(token, createOrderDto);
   }

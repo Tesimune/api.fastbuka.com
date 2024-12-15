@@ -27,23 +27,35 @@ export class UsersService {
    * @returns
    */
   async profile(token: string) {
-    const auth = await this.middlewareService.decodeToken(token);
+    try {
+      const auth = await this.middlewareService.decodeToken(token);
 
-    const user = await this.databaseService.user.findUnique({
-      where: { uuid: auth.uuid },
-      include: {
-        profile: true,
-      },
-    });
+      const user = await this.databaseService.user.findUnique({
+        where: { uuid: auth.uuid },
+        include: {
+          profile: true,
+        },
+      });
 
-    return {
-      status: 200,
-      success: true,
-      message: 'Profile',
-      data: {
-        user,
-      },
-    };
+      return {
+        status: 200,
+        success: true,
+        message: 'Profile',
+        data: {
+          user,
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
+    }
   }
 
   /**
@@ -52,57 +64,69 @@ export class UsersService {
    * validateWallet and network
    */
   private async validateWallet(walletAddress: string | null) {
-    if (!walletAddress) {
-      return {
-        isValid: false,
-        message: 'Wallet not initialized',
-        network: null,
-      };
-    }
-
-    if (!StrKey.isValidEd25519PublicKey(walletAddress)) {
-      throw new HttpException(
-        {
-          status: 400,
-          success: false,
-          message: 'Invalid wallet address',
-        },
-        400,
-      );
-    }
-
-    const testnetServer = new Horizon.Server(
-      'https://horizon-testnet.stellar.org',
-    );
-    const mainnetServer = new Horizon.Server('https://horizon.stellar.org');
-
     try {
-      // Try testnet first
-      await testnetServer.accounts().accountId(walletAddress).call();
-      return {
-        isValid: true,
-        message: 'Valid wallet on testnet',
-        network: 'testnet',
-        server: testnetServer,
-      };
-    } catch (testnetError) {
-      try {
-        // If not on testnet, try mainnet
-        await mainnetServer.accounts().accountId(walletAddress).call();
-        return {
-          isValid: true,
-          message: 'Valid wallet on mainnet',
-          network: 'mainnet',
-          server: mainnetServer,
-        };
-      } catch (mainnetError) {
-        // Account doesn't exist on either network
+      if (!walletAddress) {
         return {
           isValid: false,
-          message: 'Wallet not found on any network',
+          message: 'Wallet not initialized',
           network: null,
         };
       }
+
+      if (!StrKey.isValidEd25519PublicKey(walletAddress)) {
+        throw new HttpException(
+          {
+            status: 400,
+            success: false,
+            message: 'Invalid wallet address',
+          },
+          400,
+        );
+      }
+
+      const testnetServer = new Horizon.Server(
+        'https://horizon-testnet.stellar.org',
+      );
+      const mainnetServer = new Horizon.Server('https://horizon.stellar.org');
+
+      try {
+        // Try testnet first
+        await testnetServer.accounts().accountId(walletAddress).call();
+        return {
+          isValid: true,
+          message: 'Valid wallet on testnet',
+          network: 'testnet',
+          server: testnetServer,
+        };
+      } catch (testnetError) {
+        try {
+          // If not on testnet, try mainnet
+          await mainnetServer.accounts().accountId(walletAddress).call();
+          return {
+            isValid: true,
+            message: 'Valid wallet on mainnet',
+            network: 'mainnet',
+            server: mainnetServer,
+          };
+        } catch (mainnetError) {
+          // Account doesn't exist on either network
+          return {
+            isValid: false,
+            message: 'Wallet not found on any network',
+            network: null,
+          };
+        }
+      }
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
     }
   }
 
@@ -270,11 +294,12 @@ export class UsersService {
     } catch (error) {
       throw new HttpException(
         {
-          status: error.status || 500,
+          status: 500,
           success: false,
-          message: error.message || 'Error fetching wallet details',
+          message: 'Internal server',
+          error,
         },
-        error.status || 500,
+        500,
       );
     }
   }
@@ -377,97 +402,111 @@ export class UsersService {
     updateUserDto: UpdateUserDto,
     profile?: Express.Multer.File,
   ) {
-    const auth = await this.middlewareService.decodeToken(token);
+    try {
+      const auth = await this.middlewareService.decodeToken(token);
 
-    if (updateUserDto.email !== auth.email) {
-      const account = await this.databaseService.user.findUnique({
-        where: { email: updateUserDto.email },
-      });
+      if (updateUserDto.email !== auth.email) {
+        const account = await this.databaseService.user.findUnique({
+          where: { email: updateUserDto.email },
+        });
 
-      if (account) {
-        throw new HttpException(
-          {
-            status: 401,
-            success: false,
-            message: 'Email address is already in use',
+        if (account) {
+          throw new HttpException(
+            {
+              status: 401,
+              success: false,
+              message: 'Email address is already in use',
+            },
+            401,
+          );
+        }
+
+        await this.databaseService.user.update({
+          where: {
+            uuid: auth.uuid,
           },
-          401,
-        );
+          data: {
+            email: updateUserDto.email,
+            email_verified: false,
+          },
+        });
+      } else if (updateUserDto.contact !== auth.contact) {
+        const account = await this.databaseService.user.findUnique({
+          where: { contact: updateUserDto.contact },
+        });
+
+        if (account) {
+          throw new HttpException(
+            {
+              status: 401,
+              success: false,
+              message: 'Phone number is already in use',
+            },
+            401,
+          );
+        }
+
+        await this.databaseService.user.update({
+          where: {
+            uuid: auth.uuid,
+          },
+          data: {
+            contact: updateUserDto.contact,
+            contact_verified: false,
+          },
+        });
       }
 
-      await this.databaseService.user.update({
-        where: {
-          uuid: auth.uuid,
+      const existingProfile = await this.databaseService.userProfile.findUnique(
+        {
+          where: { user_uuid: auth.uuid },
         },
-        data: {
-          email: updateUserDto.email,
-          email_verified: false,
-        },
-      });
-    } else if (updateUserDto.contact !== auth.contact) {
-      const account = await this.databaseService.user.findUnique({
-        where: { contact: updateUserDto.contact },
-      });
-
-      if (account) {
-        throw new HttpException(
-          {
-            status: 401,
-            success: false,
-            message: 'Phone number is already in use',
-          },
-          401,
-        );
-      }
-
-      await this.databaseService.user.update({
-        where: {
-          uuid: auth.uuid,
-        },
-        data: {
-          contact: updateUserDto.contact,
-          contact_verified: false,
-        },
-      });
-    }
-
-    const existingProfile = await this.databaseService.userProfile.findUnique({
-      where: { user_uuid: auth.uuid },
-    });
-
-    let profile_url: string;
-    if (updateUserDto.profileUrl) {
-      profile_url = updateUserDto.profileUrl;
-    } else if (profile instanceof File) {
-      profile_url = await this.storageService.bucket(
-        token,
-        'user_profile',
-        profile,
       );
-    } else {
-      profile_url = existingProfile?.profile || null;
+
+      let profile_url: string;
+      if (updateUserDto.profileUrl) {
+        profile_url = updateUserDto.profileUrl;
+      } else if (profile instanceof File) {
+        profile_url = await this.storageService.bucket(
+          token,
+          'user_profile',
+          profile,
+        );
+      } else {
+        profile_url = existingProfile?.profile || null;
+      }
+
+      await this.databaseService.userProfile.update({
+        where: {
+          user_uuid: auth.uuid,
+        },
+        data: {
+          profile: profile_url,
+          first_name: updateUserDto.first_name,
+          last_name: updateUserDto.last_name,
+          country: updateUserDto.country,
+          state: updateUserDto.state,
+          city: updateUserDto.city,
+          address: updateUserDto.address,
+        },
+      });
+
+      return {
+        status: 200,
+        success: true,
+        message: 'Profile updated successfully',
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
     }
-
-    await this.databaseService.userProfile.update({
-      where: {
-        user_uuid: auth.uuid,
-      },
-      data: {
-        profile: profile_url,
-        first_name: updateUserDto.first_name,
-        last_name: updateUserDto.last_name,
-        country: updateUserDto.country,
-        state: updateUserDto.state,
-        city: updateUserDto.city,
-        address: updateUserDto.address,
-      },
-    });
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Profile updated successfully',
-    };
   }
 
   /**
@@ -476,35 +515,47 @@ export class UsersService {
    * @returns
    */
   async deactivate(token: string, password: string) {
-    const auth = await this.middlewareService.decodeToken(token);
-    if (!(await bcrypt.compare(password, auth.password))) {
+    try {
+      const auth = await this.middlewareService.decodeToken(token);
+      if (!(await bcrypt.compare(password, auth.password))) {
+        throw new HttpException(
+          {
+            status: 401,
+            success: false,
+            message: 'Invalid password',
+          },
+          401,
+        );
+      }
+      await this.databaseService.user.update({
+        where: {
+          uuid: auth.uuid,
+        },
+        data: {
+          status: 'deactived',
+        },
+      });
+
+      await this.databaseService.personalAccessToken.delete({
+        where: { token },
+      });
+
+      return {
+        status: 200,
+        success: true,
+        message: 'Acount deactived',
+      };
+    } catch (error) {
       throw new HttpException(
         {
-          status: 401,
+          status: 500,
           success: false,
-          message: 'Invalid password',
+          message: 'Internal server',
+          error,
         },
-        401,
+        500,
       );
     }
-    await this.databaseService.user.update({
-      where: {
-        uuid: auth.uuid,
-      },
-      data: {
-        status: 'deactived',
-      },
-    });
-
-    await this.databaseService.personalAccessToken.delete({
-      where: { token },
-    });
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Acount deactived',
-    };
   }
 
   /**
@@ -513,40 +564,52 @@ export class UsersService {
    * @returns
    */
   async activate(body: ResetPasswordDto) {
-    const user = await this.databaseService.passwordResetTokens.findFirst({
-      where: {
-        user_uuid: body.uuid,
-        email: body.email,
-        token: body.code,
-      },
-    });
-    if (!user) {
+    try {
+      const user = await this.databaseService.passwordResetTokens.findFirst({
+        where: {
+          user_uuid: body.uuid,
+          email: body.email,
+          token: body.code,
+        },
+      });
+      if (!user) {
+        throw new HttpException(
+          {
+            status: 400,
+            success: false,
+            message: 'Invalid token',
+          },
+          400,
+        );
+      }
+
+      const hashedPassword = await bcrypt.hash(body.new_password, 10);
+      await this.databaseService.user.update({
+        where: {
+          uuid: user.user_uuid,
+        },
+        data: {
+          status: 'activated',
+          password: hashedPassword,
+        },
+      });
+
+      return {
+        status: 200,
+        success: true,
+        message: 'Acount deactived',
+      };
+    } catch (error) {
       throw new HttpException(
         {
-          status: 400,
+          status: 500,
           success: false,
-          message: 'Invalid token',
+          message: 'Internal server',
+          error,
         },
-        400,
+        500,
       );
     }
-
-    const hashedPassword = await bcrypt.hash(body.new_password, 10);
-    await this.databaseService.user.update({
-      where: {
-        uuid: user.user_uuid,
-      },
-      data: {
-        status: 'activated',
-        password: hashedPassword,
-      },
-    });
-
-    return {
-      status: 200,
-      success: true,
-      message: 'Acount deactived',
-    };
   }
 
   /**
@@ -555,88 +618,100 @@ export class UsersService {
    * @returns
    */
   async remove(token: string, password: string) {
-    const auth = await this.middlewareService.decodeToken(token);
+    try {
+      const auth = await this.middlewareService.decodeToken(token);
 
-    if (!password) {
-      throw new UnauthorizedException('Password is required');
+      if (!password) {
+        throw new UnauthorizedException('Password is required');
+      }
+
+      if (!(await bcrypt.compare(password, auth.password))) {
+        throw new UnauthorizedException('Invalid password');
+      }
+
+      await this.databaseService.personalAccessToken
+        .deleteMany({
+          where: {
+            user_uuid: auth.uuid,
+          },
+        })
+        .catch(() => {});
+
+      await this.databaseService.user
+        .update({
+          where: {
+            uuid: auth.uuid,
+          },
+          data: {
+            status: 'deleted',
+          },
+        })
+        .catch(() => {});
+
+      await this.databaseService.cart
+        .deleteMany({
+          where: {
+            user_uuid: auth.uuid,
+          },
+        })
+        .catch(() => {});
+
+      await this.databaseService.order
+        .deleteMany({
+          where: {
+            user_uuid: auth.uuid,
+          },
+        })
+        .catch(() => {});
+
+      await this.databaseService.vendor
+        .deleteMany({
+          where: {
+            user_uuid: auth.uuid,
+          },
+        })
+        .catch(() => {});
+
+      await this.databaseService.storage
+        .deleteMany({
+          where: {
+            user_uuid: auth.uuid,
+          },
+        })
+        .catch(() => {});
+
+      await this.databaseService.userProfile
+        .delete({
+          where: {
+            user_uuid: auth.uuid,
+          },
+        })
+        .catch(() => {});
+
+      await this.databaseService.user
+        .delete({
+          where: {
+            uuid: auth.uuid,
+          },
+        })
+        .catch(() => {});
+
+      return {
+        status: 200,
+        success: true,
+        message:
+          'Account and all associated data have been successfully deleted.',
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: 500,
+          success: false,
+          message: 'Internal server',
+          error,
+        },
+        500,
+      );
     }
-
-    if (!(await bcrypt.compare(password, auth.password))) {
-      throw new UnauthorizedException('Invalid password');
-    }
-
-    await this.databaseService.personalAccessToken
-      .deleteMany({
-        where: {
-          user_uuid: auth.uuid,
-        },
-      })
-      .catch(() => {});
-
-    await this.databaseService.user
-      .update({
-        where: {
-          uuid: auth.uuid,
-        },
-        data: {
-          status: 'deleted',
-        },
-      })
-      .catch(() => {});
-
-    await this.databaseService.cart
-      .deleteMany({
-        where: {
-          user_uuid: auth.uuid,
-        },
-      })
-      .catch(() => {});
-
-    await this.databaseService.order
-      .deleteMany({
-        where: {
-          user_uuid: auth.uuid,
-        },
-      })
-      .catch(() => {});
-
-    await this.databaseService.vendor
-      .deleteMany({
-        where: {
-          user_uuid: auth.uuid,
-        },
-      })
-      .catch(() => {});
-
-    await this.databaseService.storage
-      .deleteMany({
-        where: {
-          user_uuid: auth.uuid,
-        },
-      })
-      .catch(() => {});
-
-    await this.databaseService.userProfile
-      .delete({
-        where: {
-          user_uuid: auth.uuid,
-        },
-      })
-      .catch(() => {});
-
-    await this.databaseService.user
-      .delete({
-        where: {
-          uuid: auth.uuid,
-        },
-      })
-      .catch(() => {});
-
-    return {
-      status: 200,
-      success: true,
-      message:
-        'Account and all associated data have been successfully deleted.',
-    };
   }
 }

@@ -95,7 +95,7 @@ export class AppController {
   @Get('categories')
   @ApiTags('app')
   categories(): Promise<{}> {
-    return this.appService.findAll();
+    return this.appService.categories();
   }
 
   @Version('1')

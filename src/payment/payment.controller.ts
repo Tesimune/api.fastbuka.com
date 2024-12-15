@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Version,
+  ValidationPipe,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -20,7 +21,7 @@ export class PaymentController {
 
   @Version('1')
   @Post('pay')
-  create(@Body() createPaymentDto: CreatePaymentDto) {
+  create(@Body(ValidationPipe) createPaymentDto: CreatePaymentDto) {
     return this.paymentService.create(createPaymentDto);
   }
 
@@ -38,7 +39,7 @@ export class PaymentController {
 
   @Version('1')
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePaymentDto: UpdatePaymentDto) {
+  update(@Param('id') id: string, @Body(ValidationPipe) updatePaymentDto: UpdatePaymentDto) {
     return this.paymentService.update(+id, updatePaymentDto);
   }
 
